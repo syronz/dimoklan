@@ -15,7 +15,6 @@ type Point struct {
 func GenerateRandomPoints(count int, maxCoordinate int) []Point {
 	rand.Seed(time.Now().UnixNano())
 	var points []Point
-
 	for i := 0; i < count; i++ {
 		point := Point{
 			X: rand.Intn(maxCoordinate), // Adjust the range as needed
@@ -26,6 +25,7 @@ func GenerateRandomPoints(count int, maxCoordinate int) []Point {
 
 	return points
 }
+
 
 // PointsInRange filters points based on the specified range
 func PointsInRange(left, right int, points []Point) []Point {

@@ -1,3 +1,5 @@
+import { drawVoronoiDiagramOnCanvas } from './voronoi_draw.js';
+
 export function drawLine() {
     // Get the canvas element and its context
     var canvas = document.getElementById("mainCanvas");
@@ -39,6 +41,9 @@ export function drawLine() {
                     ctx.fill();
                     // ctx.stroke();
                 });
+
+				// Draw the Voronoi diagram
+                drawVoronoiDiagramOnCanvas(canvas, points);
             })
             .catch(error => {
                 console.error('Error fetching points:', error);
