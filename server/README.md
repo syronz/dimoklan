@@ -6,7 +6,7 @@ Server side of game
 ## run
 
 ```bash
-go run main.go -config-path=./config.yaml
+go run main.go -cfg=./config.yaml
 ```
 
 ## database migration

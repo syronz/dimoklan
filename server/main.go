@@ -12,13 +12,13 @@ import (
 	"dimoklan/storage"
 )
 
-var configFilePath = flag.String("config-path", "", "config file path")
+var configFilePath = flag.String("cfg", "", "config file path")
 
 func main() {
 	flag.Parse()
 
 	if *configFilePath == "" {
-		log.Fatal("config-path is required")
+		log.Fatal("cfg is required")
 	}
 
 	core, err := config.GetCore(*configFilePath)
