@@ -20,16 +20,16 @@ func main() {
 		log.Fatal("config-path is required")
 	}
 
-	cfg, err := config.GetConf(*configFilePath)
+	core, err := config.GetCore(*configFilePath)
 	if err != nil {
-		log.Fatalf("error in loading config; %v", err)
+		log.Fatalf("error in loading core; %v", err)
 	}
 
-	cfg.Log().Error(time.Now().String())
+	core.Info(time.Now().String())
 
 	storage := storage.NewMemroryStorage()
-	basStorage := basstorage.New(cfg)
+	basStorage := basstorage.New(core)
 
-	server := api.NewServer(cfg, storage, basStorage)
+	server := api.NewServer(core, storage, basStorage)
 	server.Start()
 }

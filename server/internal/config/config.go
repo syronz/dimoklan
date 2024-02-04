@@ -29,6 +29,11 @@ type config struct {
 	LogLevel               string `yaml:"log_level"`
 	DefaultLang            string `yaml:"default_lang"`
 	OriginalError          bool   `yaml:"original_error"`
+}
+
+// Core make accessible to private config variables
+type Core struct {
+	config config
 
 	basicMasterDB *sql.DB
 	basicSlaveDB  *sql.DB
@@ -36,15 +41,10 @@ type config struct {
 	logger        *zap.Logger
 }
 
-// Core make accessible to private config variables
-type Core struct {
-	config config
-}
-
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
 
-// GetConf load config file for game
-func GetConf(configPath string) (cfg Core, err error) {
+// GetCore load config file for game
+func GetCore(configPath string) (cfg Core, err error) {
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
 		err = fmt.Errorf("error in reading game config file; %w", err)
@@ -57,19 +57,19 @@ func GetConf(configPath string) (cfg Core, err error) {
 	}
 
 	// set up database connections
-	cfg.config.basicMasterDB, err = sql.Open("mysql", cfg.GetDatabaseMasterDNS())
+	cfg.basicMasterDB, err = sql.Open("mysql", cfg.GetDatabaseMasterDNS())
 	if err != nil {
 		err = fmt.Errorf("error in opening basic master database; %w", err)
 		return
 	}
 
-	cfg.config.basicSlaveDB, err = sql.Open("mysql", cfg.GetDatabaseSlaveDNS())
+	cfg.basicSlaveDB, err = sql.Open("mysql", cfg.GetDatabaseSlaveDNS())
 	if err != nil {
 		err = fmt.Errorf("error in opening basic slave database; %w", err)
 		return
 	}
 
-	cfg.config.activityDB, err = sql.Open("mysql", cfg.GetDatabaseActivityDNS())
+	cfg.activityDB, err = sql.Open("mysql", cfg.GetDatabaseActivityDNS())
 	if err != nil {
 		err = fmt.Errorf("error in opening activity database; %w", err)
 		return
@@ -83,7 +83,7 @@ func GetConf(configPath string) (cfg Core, err error) {
 	}
 	// defer logFile.Close()
 
-	cfg.config.logger = zap.New(zapcore.NewCore(
+	cfg.logger = zap.New(zapcore.NewCore(
 		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
 		zapcore.AddSync(logFile),
 		cfg.GetLogLevel(),
@@ -166,17 +166,41 @@ func (c Core) ShowOriginalError() bool {
 
 // generated
 func (c Core) BasicMasterDB() *sql.DB {
-	return c.config.basicMasterDB
+	return c.basicMasterDB
 }
 
 func (c Core) BasicSlaveDB() *sql.DB {
-	return c.config.basicSlaveDB
+	return c.basicSlaveDB
 }
 
 func (c Core) ActivityDB() *sql.DB {
-	return c.config.activityDB
+	return c.activityDB
 }
 
-func (c Core) Log() *zap.Logger {
-	return c.config.logger
+func (c Core) Debug(msg string, fields ...zap.Field) {
+	c.logger.Debug(msg, fields...)
+}
+
+func (c Core) Info(msg string, fields ...zap.Field) {
+	c.logger.Info(msg, fields...)
+}
+
+func (c Core) Warn(msg string, fields ...zap.Field) {
+	c.logger.Warn(msg, fields...)
+}
+
+func (c Core) Error(msg string, fields ...zap.Field) {
+	c.logger.Error(msg, fields...)
+}
+
+func (c Core) DPanic(msg string, fields ...zap.Field) {
+	c.logger.DPanic(msg, fields...)
+}
+
+func (c Core) Panic(msg string, fields ...zap.Field) {
+	c.logger.Panic(msg, fields...)
+}
+
+func (c Core) Fatal(msg string, fields ...zap.Field) {
+	c.logger.Fatal(msg, fields...)
 }
