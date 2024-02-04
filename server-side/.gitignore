@@ -22,3 +22,5 @@ go.work
 *.db
 .idea/
 *.db*
+*.log
+*.logs

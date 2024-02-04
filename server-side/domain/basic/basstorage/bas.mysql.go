@@ -11,10 +11,10 @@ import (
 )
 
 type BasMysql struct {
-	cfg config.Config
+	cfg config.Core
 }
 
-func New(cfg config.Config) *BasMysql {
+func New(cfg config.Core) *BasMysql {
 	return &BasMysql{
 		cfg: cfg,
 	}

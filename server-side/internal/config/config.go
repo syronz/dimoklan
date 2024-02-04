@@ -3,10 +3,14 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	"gopkg.in/yaml.v3"
+	"log"
 	"math/rand"
 	"os"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/yaml.v3"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -29,18 +33,18 @@ type config struct {
 	basicMasterDB *sql.DB
 	basicSlaveDB  *sql.DB
 	activityDB    *sql.DB
+	logger        *zap.Logger
 }
 
-// Config make accessible to private config variables
-type Config struct {
+// Core make accessible to private config variables
+type Core struct {
 	config config
 }
 
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
 
 // GetConf load config file for game
-func GetConf(configPath string) (cfg Config, err error) {
-
+func GetConf(configPath string) (cfg Core, err error) {
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
 		err = fmt.Errorf("error in reading game config file; %w", err)
@@ -72,71 +76,107 @@ func GetConf(configPath string) (cfg Config, err error) {
 	}
 	rand.Seed(time.Now().UnixNano())
 
+	// set up zap logger
+	logFile, err := os.OpenFile(cfg.GetLogPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("error in opening log file: %v\n", err)
+	}
+	// defer logFile.Close()
+
+	cfg.config.logger = zap.New(zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.AddSync(logFile),
+		cfg.GetLogLevel(),
+	))
+
 	return
 }
 
 // configs
-func (c Config) GetEnvironment() string {
+func (c Core) GetEnvironment() string {
 	return c.config.Environment
 }
 
-func (c Config) GetAppName() string {
+func (c Core) GetAppName() string {
 	return c.config.AppName
 }
 
-func (c Config) GetPort() string {
+func (c Core) GetPort() string {
 	return c.config.Port
 }
 
-func (c Config) GetSalt() string {
+func (c Core) GetSalt() string {
 	return c.config.Salt
 }
 
-func (c Config) GetJwtSecret() string {
+func (c Core) GetJwtSecret() string {
 	return c.config.JwtSecret
 }
 
-func (c Config) GetLocalJwtSecret() string {
+func (c Core) GetLocalJwtSecret() string {
 	return jwtLocalSecret
 }
 
-func (c Config) GetLogPath() string {
+func (c Core) GetLogPath() string {
 	return c.config.LogPath
 }
 
-func (c Config) GetLogLevel() string {
-	return c.config.LogLevel
+func (c Core) GetLogLevel() zapcore.Level {
+	switch c.config.LogLevel {
+	case "debug":
+		return zapcore.DebugLevel
+	case "info":
+		return zapcore.InfoLevel
+	case "warn":
+		return zapcore.WarnLevel
+	case "error":
+		return zapcore.ErrorLevel
+	case "dpanic":
+		return zapcore.DPanicLevel
+	case "panic":
+		return zapcore.PanicLevel
+	case "fatal":
+		return zapcore.FatalLevel
+	}
+
+	log.Fatalf("log level is not valid: %v\n", c.config.LogLevel)
+
+	return 0
 }
 
-func (c Config) GetDefaultLang() string {
+func (c Core) GetDefaultLang() string {
 	return "en"
 }
 
-func (c Config) GetDatabaseMasterDNS() string {
+func (c Core) GetDatabaseMasterDNS() string {
 	return c.config.BasicMasterDatabaseDSN
 }
 
-func (c Config) GetDatabaseSlaveDNS() string {
+func (c Core) GetDatabaseSlaveDNS() string {
 	return c.config.BasicSlaveDatabaseDSN
 }
 
-func (c Config) GetDatabaseActivityDNS() string {
+func (c Core) GetDatabaseActivityDNS() string {
 	return c.config.ActivityDatabaseDSN
 }
 
-func (c Config) ShowOriginalError() bool {
+func (c Core) ShowOriginalError() bool {
 	return c.config.OriginalError
 }
 
 // generated
-func (c Config) BasicMasterDB() *sql.DB {
+func (c Core) BasicMasterDB() *sql.DB {
 	return c.config.basicMasterDB
 }
 
-func (c Config) BasicSlaveDB() *sql.DB {
+func (c Core) BasicSlaveDB() *sql.DB {
 	return c.config.basicSlaveDB
 }
 
-func (c Config) ActivityDB() *sql.DB {
+func (c Core) ActivityDB() *sql.DB {
 	return c.config.activityDB
+}
+
+func (c Core) Log() *zap.Logger {
+	return c.config.logger
 }

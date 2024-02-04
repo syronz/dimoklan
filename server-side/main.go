@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"time"
 
 	"dimoklan/api"
 	"dimoklan/domain/basic/basstorage"
@@ -23,6 +24,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error in loading config; %v", err)
 	}
+
+	cfg.Log().Error(time.Now().String())
 
 	storage := storage.NewMemroryStorage()
 	basStorage := basstorage.New(cfg)

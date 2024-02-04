@@ -24,7 +24,7 @@ type Server struct {
 	basStorage basstorage.BasStorage
 }
 
-func NewServer(cfg config.Config, store storage.Storage, basStorage basstorage.BasStorage) *Server {
+func NewServer(cfg config.Core, store storage.Storage, basStorage basstorage.BasStorage) *Server {
 	return &Server{
 		listenAddr: cfg.GetPort(),
 		store:      store,
