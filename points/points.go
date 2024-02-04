@@ -11,7 +11,7 @@ type Point struct {
 	Y int `json:"y"`
 }
 
-// GenerateRandomPoints generates a specified count of random points
+//GenerateRandomPoints generates a specified count of random points
 func GenerateRandomPoints(count int, maxCoordinate int) []Point {
 	rand.Seed(time.Now().UnixNano())
 	var points []Point
