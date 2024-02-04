@@ -3,8 +3,8 @@ package types
 import "time"
 
 type User struct {
+	ID        int       `json:"id"`
 	Code      string    `json:"code"`
-	Bit       int       `json:"bit"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`

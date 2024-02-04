@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
-	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -74,7 +72,6 @@ func GetCore(configPath string) (cfg Core, err error) {
 		err = fmt.Errorf("error in opening activity database; %w", err)
 		return
 	}
-	rand.Seed(time.Now().UnixNano())
 
 	// set up zap logger
 	logFile, err := os.OpenFile(cfg.GetLogPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

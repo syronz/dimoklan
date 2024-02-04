@@ -8,6 +8,7 @@ import (
 	"dimoklan/api"
 	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
+	"dimoklan/service"
 	"dimoklan/storage"
 )
 
@@ -25,11 +26,12 @@ func main() {
 		log.Fatalf("error in loading core; %v", err)
 	}
 
-	core.Info(time.Now().String())
+	core.Info("starting server: " + time.Now().String())
 
 	storage := storage.NewMemroryStorage()
 	basStorage := basstorage.New(core)
+	userService := service.NewUserService(core, basStorage)
 
-	server := api.NewServer(core, storage, basStorage)
+	server := api.NewServer(core, storage, userService)
 	server.Start()
 }

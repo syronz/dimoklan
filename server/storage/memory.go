@@ -12,7 +12,7 @@ func NewMemroryStorage() *MemoryStorage {
 
 func (m *MemoryStorage) Get(id int) *types.User {
 	return &types.User{
-		Bit:  1,
+		ID:  1,
 		Name: "Adrian",
 	}
 }

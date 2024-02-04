@@ -5,38 +5,27 @@ import (
 	"dimoklan/internal/config"
 	"dimoklan/types"
 	_ "embed"
+	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type BasMysql struct {
-	cfg config.Core
+	core config.Core
 }
 
 func New(cfg config.Core) *BasMysql {
 	return &BasMysql{
-		cfg: cfg,
+		core: cfg,
 	}
-}
-
-func loadUserBit(db *sql.DB) int {
-	getMaxBitQuery := `SELECT IFNULL(MAX(bit),1) FROM users;`
-	var maxBit int
-
-	err := db.QueryRow(getMaxBitQuery).Scan(&maxBit)
-	if err != nil {
-		log.Fatalf("error getting max bit: %v", err)
-	}
-
-	return maxBit
 }
 
 //go:embed queries/create_user.sql
 var queryCreateUser string
 
 func (bs *BasMysql) CreateUser(user types.User) error {
-	_, err := bs.cfg.BasicMasterDB().Exec(
+	_, err := bs.core.BasicMasterDB().Exec(
 		queryCreateUser,
 		user.Code,
 		user.Name,
@@ -54,4 +43,28 @@ func (bs *BasMysql) CreateUser(user types.User) error {
 	}
 
 	return nil
+}
+
+//go:embed queries/get_user_by_color.sql
+var queryGetUserByColor string
+
+func (bs *BasMysql) GetUserByColor(color string) (types.User, error) {
+	var user types.User
+
+	err := bs.core.BasicSlaveDB().QueryRow(queryGetUserByColor, color).Scan(
+		&user.ID,
+		&user.Code,
+		&user.Color,
+		&user.Status,
+	)
+
+	if err == sql.ErrNoRows {
+		err = nil
+	}
+
+	if err != nil {
+		return user, fmt.Errorf("error in getting user by color; %w", err)
+	}
+
+	return user, nil
 }

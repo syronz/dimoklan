@@ -9,7 +9,7 @@ jwt_secret: "c810ab3a3f819301a23e9751c9810a41b0b1d4ea"
 # basic
 basic_master_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
 basic_slave_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
-activity_database_dsn: "root:root@tcp(127.001:3306)/cactivity"
+activity_database_dsn: "root:root@tcp(127.001:3306)/dimo_activity"
 
 # log
 log_path: logs/dimoklan.log
