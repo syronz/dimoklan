@@ -1,0 +1,20 @@
+environment: development
+app_name: dimoklan
+port: ":3000"
+
+# secrets
+salt: "z2nklIqBZ8KN+=7nLEQ19@7.P"
+jwt_secret: "c810ab3a3f819301a23e9751c9810a41b0b1d4ea"
+
+# basic
+basic_master_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
+basic_slave_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
+activity_database_dsn: "root:root@tcp(127.001:3306)/cactivity"
+
+# log
+log_path: logs/dimoklan.log
+log_level: debug
+
+# language
+default_lang: ku
+original_error: true

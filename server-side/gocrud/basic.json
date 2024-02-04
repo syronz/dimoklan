@@ -1,0 +1,22 @@
+{
+	"env": [
+		{
+			"local": {
+				"_URL_":"http://127.0.0.1:3000",
+				"_TOKEN_":""
+			},
+			"staging": {
+				"_URL_":"http://127.0.0.1:3000",
+				"_TOKEN_":""
+			}
+		}
+	],
+
+	"header":{
+		"Content-Type": "application/json",
+		"User-Agent": "gocrud/0.9",
+		"Accept": "*/*",
+		"Cache-Control": "no-cache",
+		"Connection": "keep-alive"
+	}
+}
