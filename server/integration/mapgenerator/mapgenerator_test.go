@@ -1,16 +1,16 @@
 package mapgenerator
 
 import (
+	"dimoklan/domain/basic/basstorage"
+	"dimoklan/internal/config"
+	"dimoklan/internal/migration"
+	"dimoklan/service"
+	"dimoklan/types"
 	"log"
 	"os"
 	"testing"
 
-	"dimoklan/domain/basic/basstorage"
-	"dimoklan/internal/config"
-	"dimoklan/service"
-	"dimoklan/types"
-
-	"github.com/bxcodec/faker/v3"
+	"github.com/go-faker/faker/v4"
 )
 
 var core config.Core
@@ -21,6 +21,8 @@ func TestMain(m *testing.M) {
 		log.Fatalf("error in setting config in test environment; %v\n", err)
 	}
 
+	migration.MigrateDB(core.GetDatabaseMasterDNS(), "up", 2)
+
 	insert10kUser()
 
 	exitVal := m.Run()
@@ -30,7 +32,7 @@ func TestMain(m *testing.M) {
 func insert10kUser() {
 	basStorage := basstorage.New(core)
 	userService := service.NewUserService(core, basStorage)
-	const numUsers = 10 //_000
+	const numUsers = 10//_000
 
 	for i := 0; i < numUsers; i++ {
 		user := types.User{}

@@ -3,21 +3,23 @@ package migration
 import (
 	"database/sql"
 	_ "embed"
-	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 //go:embed 001_users.up.sql
-var queryUsersUp string
+var usersUp string
+
+//go:embed 002_cells.up.sql
+var cellsUp string
 
 var upSteps = map[int]string{
-	1: queryUsersUp,
+	1: usersUp,
+	2: cellsUp,
 }
 
 var downSteps = map[int]string{
-	1: queryUsersUp,
 }
 
 func MigrateDB(dsn string, action string, steps ...int) {
@@ -30,7 +32,6 @@ func MigrateDB(dsn string, action string, steps ...int) {
 	switch action {
 	case "up":
 		for _, step := range steps {
-			fmt.Println(">>>>>", step)
 			_, err = db.Exec(upSteps[step])
 			if err != nil {
 				log.Fatalf("error in up migration; %v\n", err)

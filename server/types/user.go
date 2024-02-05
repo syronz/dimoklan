@@ -5,9 +5,9 @@ import "time"
 type User struct {
 	ID        int       `json:"id"`
 	Code      string    `json:"code"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
+	Name      string    `json:"name" faker:"name"`
+	Email     string    `json:"email" faker:"email"`
+	Username  string    `json:"username" faker:"username"`
 	Password  string    `json:"password"`
 	Color     string    `json:"color"`
 	Language  string    `json:"language"`
