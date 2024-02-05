@@ -8,6 +8,7 @@ type Cell struct {
 	UserID    int       `json:"user_id"`
 	Building  string    `json:"building"`
 	Score     int       `json:"score"`
+	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 

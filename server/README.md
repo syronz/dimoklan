@@ -12,7 +12,7 @@ go run main.go -cfg=./config.yaml
 ## database migration
 
 ```bash
-go run script/migration/0001_create_user_table.up.go
+go run script/migration/main.go -action=up -dsn="root:root@tcp(127.001:3306)/dimo_basic" -steps=1
 ```
 
 ## integration test
@@ -23,3 +23,4 @@ go test ./integration/mapgenerator/ -v
 # run a specific test
 go test -run TestA ./integration/mapgenerator/ -v
 ```
+
