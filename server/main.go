@@ -9,6 +9,7 @@ import (
 
 	"dimoklan/api"
 	"dimoklan/domain/basic/basstorage"
+	"dimoklan/domain/map/mapstorage"
 	"dimoklan/internal/config"
 	"dimoklan/service"
 	"dimoklan/storage"
@@ -43,9 +44,15 @@ func main() {
 	core.Info("starting server: " + time.Now().String())
 
 	storage := storage.NewMemroryStorage()
+
 	basStorage := basstorage.New(core)
 	userService := service.NewUserService(core, basStorage)
 
-	server := api.NewServer(core, storage, userService)
+	mapStorage := mapstorage.New(core)
+	// list, err := mapStorage.GetMapUsers(types.Point{0, 0}, types.Point{100, 100})
+	// fmt.Println(">>>>>--", list, err, "\n")
+	cellService := service.NewCellService(core, mapStorage, userService)
+
+	server := api.NewServer(core, storage, userService, cellService)
 	server.Start()
 }

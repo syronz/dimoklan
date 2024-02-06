@@ -44,7 +44,7 @@ func (ms *CellMysql) GetCellByCoord(x, y int) (types.Cell, error) {
 //go:embed queries/get_cell_user_ids.sql
 var queryGetCellUsers string
 
-func (ms *CellMysql) GetMapUserIDs(start types.Cell, stop types.Cell) (map[types.Point]int, error) {
+func (ms *CellMysql) GetMapUsers(start types.Point, stop types.Point) (map[types.Point]int, error) {
 	mapUsers := make(map[types.Point]int)
 
 	rows, err := ms.core.BasicSlaveDB().Query(queryGetCellUsers, start.X, start.Y, stop.X, stop.Y)

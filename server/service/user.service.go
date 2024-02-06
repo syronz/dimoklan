@@ -95,3 +95,13 @@ func generateRandomColor() string {
 	// Add a '#' prefix
 	return hexString
 }
+
+func (s *UserService) GetAllColors() (map[int]string, error) {
+	mapColors, err := s.storage.GetAllColors()
+	if err != nil {
+		return nil, err
+	}
+
+	return mapColors, nil
+}
+
