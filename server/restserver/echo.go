@@ -1,9 +1,9 @@
-package api
+package restserver
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"sync"
 
 	"dimoklan/internal/config"
@@ -97,7 +97,7 @@ func generateImage(c echo.Context) error {
 		return err
 	}
 
-	imageBytes, err := ioutil.ReadFile("image.png")
+	imageBytes, err := os.ReadFile("image.png")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error reading image file")
 	}

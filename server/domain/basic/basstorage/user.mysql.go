@@ -14,7 +14,7 @@ type BasMysql struct {
 	core config.Core
 }
 
-func New(core config.Core) *BasMysql {
+func NewMysqlUser(core config.Core) *BasMysql {
 	return &BasMysql{
 		core: core,
 	}
@@ -87,7 +87,6 @@ func (bs *BasMysql) GetAllColors() (map[int]string, error) {
 
 		mapColors[userID] = color
 	}
-
 
 	return mapColors, nil
 }

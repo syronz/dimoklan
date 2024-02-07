@@ -12,7 +12,7 @@ type CellMysql struct {
 	core config.Core
 }
 
-func New(core config.Core) *CellMysql {
+func NewMysqlCell(core config.Core) *CellMysql {
 	return &CellMysql{
 		core: core,
 	}
