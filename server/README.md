@@ -12,7 +12,7 @@ go run cmd/basserver/main.go -cfg=./config.yaml
 ## database migration
 
 ```bash
-go run script/migration/main.go -action=up -dsn="root:root@tcp(127.001:3306)/dimo_basic" -steps=1
+go run script/basmigration/main.go -action=up -dsn="root:root@tcp(127.001:3306)/dimo_basic" -steps=1
 ```
 
 ## integration test

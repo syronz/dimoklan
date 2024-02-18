@@ -3,6 +3,7 @@ module dimoklan
 go 1.19
 
 require (
+	github.com/aws/aws-sdk-go v1.50.20
 	github.com/fogleman/gg v1.3.0
 	github.com/go-faker/faker/v4 v4.2.0
 	github.com/go-sql-driver/mysql v1.7.1
@@ -15,6 +16,7 @@ require (
 
 require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
