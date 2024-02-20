@@ -69,6 +69,25 @@ func (s *Server) createUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
+func (s *Server) createCell(c echo.Context) error {
+	var cell types.Cell
+
+	if err := c.Bind(&cell); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"error": err,
+		})
+	}
+
+	cell, err := s.cellService.Create(cell); 
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, cell)
+}
+
 func generateImage(c echo.Context) error {
 	// Parse query parameters
 	width, err := strconv.Atoi(c.QueryParam("width"))
@@ -185,7 +204,7 @@ func (s *Server) Start() {
 
 	limiter := rate.NewLimiter(rate.Limit(80000), 200000)
 	// Middleware function to enforce rate limiting based on the route
-	createUserRateLimiter := func(next echo.HandlerFunc) echo.HandlerFunc {
+	defaultRateLimiter := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			mu.Lock()
 			index++
@@ -206,7 +225,8 @@ func (s *Server) Start() {
 	})
 
 	e.GET("/users", s.handleGetUserByID)
-	e.POST("/users", s.createUser, createUserRateLimiter)
+	e.POST("/users", s.createUser, defaultRateLimiter)
+	e.POST("/cells", s.createCell, defaultRateLimiter)
 	// e.POST("/users", s.createUser)
 	e.GET("/generate-image", s.GenerateImage)
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,23 +11,32 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // config is a struct for saving game env variables
 type config struct {
-	Environment            string `yaml:"environment"`
-	AppName                string `yaml:"app_name"`
-	Port                   string `yaml:"port"`
-	Salt                   string `yaml:"salt"`
-	JwtSecret              string `yaml:"jwt_secret"`
+	Environment         string `yaml:"environment"`
+	AppName             string `yaml:"app_name"`
+	Port                string `yaml:"port"`
+	Salt                string `yaml:"salt"`
+	JwtSecret           string `yaml:"jwt_secret"`
+	ActivityDatabaseDSN string `yaml:"activity_database_dsn"`
+	LogPath             string `yaml:"log_path"`
+	LogLevel            string `yaml:"log_level"`
+	DefaultLang         string `yaml:"default_lang"`
+	OriginalError       bool   `yaml:"original_error"`
+
+	// Basic domain
 	BasicMasterDatabaseDSN string `yaml:"basic_master_database_dsn"`
 	BasicSlaveDatabaseDSN  string `yaml:"basic_slave_database_dsn"`
-	ActivityDatabaseDSN    string `yaml:"activity_database_dsn"`
-	LogPath                string `yaml:"log_path"`
-	LogLevel               string `yaml:"log_level"`
-	DefaultLang            string `yaml:"default_lang"`
-	OriginalError          bool   `yaml:"original_error"`
+
+	// Map domain
+	MapDynamoDBRegion   string `yaml:"map_dynamodb_region"`
+	MapDynamoDBEndpoint string `yaml:"map_dynamodb_endpoint"`
 }
 
 // Core make accessible to private config variables
@@ -37,6 +47,7 @@ type Core struct {
 	basicSlaveDB  *sql.DB
 	activityDB    *sql.DB
 	logger        *zap.Logger
+	dynamodb      *dynamodb.DynamoDB
 }
 
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
@@ -86,7 +97,51 @@ func GetCore(configPath string) (cfg Core, err error) {
 		cfg.GetLogLevel(),
 	))
 
+	// map storage dynamodb
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region:   aws.String(cfg.config.MapDynamoDBRegion),
+		Endpoint: aws.String(cfg.config.MapDynamoDBEndpoint),
+	}))
+	cfg.dynamodb = dynamodb.New(sess)
+
 	return
+}
+
+func validateConfig(cfg config) error {
+	if cfg.MapDynamoDBRegion == "" {
+		return errors.New("environment is required in config file")
+	}
+
+	switch {
+	case cfg.Environment == "":
+		return errors.New("environment is required in config file")
+	case cfg.AppName == "":
+		return errors.New("app_name is required in config file")
+	case cfg.Port == "":
+		return errors.New("port is required in config file")
+	case cfg.Salt == "":
+		return errors.New("salt is required in config file")
+	case cfg.JwtSecret == "":
+		return errors.New("jwt_secret is required in config file")
+	case cfg.DefaultLang == "":
+		return errors.New("default_lang is required in config file")
+	case cfg.LogPath == "":
+		return errors.New("log_path is required in config file")
+	case cfg.LogLevel == "":
+		return errors.New("log_level is required in config file")
+	case cfg.BasicMasterDatabaseDSN == "":
+		return errors.New("basic_master_database_dsn is required in config file")
+	case cfg.BasicSlaveDatabaseDSN == "":
+		return errors.New("basic_slave_database_dsn is required in config file")
+	case cfg.ActivityDatabaseDSN == "":
+		return errors.New("activity_database_dsn is required in config file")
+	case cfg.MapDynamoDBRegion == "":
+		return errors.New("map_dynamodb_region is required in config file")
+	case cfg.MapDynamoDBEndpoint == "":
+		return errors.New("map_dynamodb_endpoint is required in config file")
+	}
+
+	return nil
 }
 
 // configs
@@ -200,4 +255,8 @@ func (c Core) Panic(msg string, fields ...zap.Field) {
 
 func (c Core) Fatal(msg string, fields ...zap.Field) {
 	c.logger.Fatal(msg, fields...)
+}
+
+func (c Core) DynamoDB() *dynamodb.DynamoDB {
+	return c.dynamodb
 }

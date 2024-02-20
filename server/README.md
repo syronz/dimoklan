@@ -7,6 +7,7 @@ Server side of game
 
 ```bash
 go run cmd/basserver/main.go -cfg=./config.yaml
+go run cmd/mapserver/main.go -cfg=./config.yaml
 ```
 
 ## database migration

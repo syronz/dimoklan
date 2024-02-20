@@ -2,9 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"runtime"
 	"time"
 
 	"dimoklan/domain/basic/basstorage"
@@ -48,10 +46,10 @@ func main() {
 	userStorage := basstorage.NewMysqlUser(core)
 	userService := service.NewUserService(core, userStorage)
 
-	cellStorage := mapstorage.NewMysqlCell(core)
+	// cellStorage := mapstorage.NewMysqlCell(core)
+	cellStorage := mapstorage.NewDaynamoCell(core)
 	cellService := service.NewCellService(core, cellStorage, userService)
 
 	server := restserver.NewServer(core, storage, userService, cellService)
 	server.Start()
 }
-

@@ -18,7 +18,7 @@ type CellService struct {
 
 func NewCellService(
 	core config.Core,
-	storage *mapstorage.CellMysql,
+	storage mapstorage.MapStorage,
 	userService *UserService,
 ) *CellService {
 	return &CellService{

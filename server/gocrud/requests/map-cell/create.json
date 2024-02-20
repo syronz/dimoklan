@@ -1,0 +1,11 @@
+{
+  "method":"post",
+  "url":"_URL_/cells",
+  "authorization":"Bearer _TOKEN_",
+  "payload": {
+    "x": _RANDOM_NUMBER_,
+    "y": _RANDOM_NUMBER_,
+    "user_id": 3,
+    "score": 1
+  }
+}
