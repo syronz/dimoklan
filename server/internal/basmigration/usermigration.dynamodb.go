@@ -1,12 +1,15 @@
 package basmigration
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-const userTable = "users"
+const usersTable = "users"
 
 type Migration struct {
 	svc *dynamodb.DynamoDB
@@ -26,5 +29,20 @@ func New(region, endpoint string) Migration {
 }
 
 func (m Migration) CreateCellTable() {
+	// Check if the table exists
+	describeTableInput := &dynamodb.DescribeTableInput{
+		TableName: aws.String(usersTable),
+	}
+	_, err := m.svc.DescribeTable(describeTableInput)
+	if err != nil {
+		log.Fatalf("users table already exist: %v", err)
+	}
+
+	fmt.Println("Table doesn't exist. Creating table...", usersTable)
+	createTableInput := &dynamodb.CreateTableInput{
+		TableName: aws.String(usersTable),
+	}
+
+	_ = createTableInput
 
 }

@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 
+	"dimoklan/consts"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
-
-// Define table name
-const mapTable = "map"
 
 type Migration struct {
 	svc *dynamodb.DynamoDB
@@ -33,15 +32,14 @@ func (m Migration) CreateMapTable() {
 
 	// Check if the table exists
 	describeTableInput := &dynamodb.DescribeTableInput{
-		TableName: aws.String(mapTable),
+		TableName: aws.String(consts.TableMap),
 	}
 	_, err := m.svc.DescribeTable(describeTableInput)
 	if err != nil {
-		// Table doesn't exist, create it
-		fmt.Println("Table doesn't exist. Creating table...")
+		fmt.Println("Table doesn't exist. Creating table...", consts.TableMap)
 
 		createTableInput := &dynamodb.CreateTableInput{
-			TableName: aws.String(mapTable),
+			TableName: aws.String(consts.TableMap),
 			AttributeDefinitions: []*dynamodb.AttributeDefinition{
 				{
 					AttributeName: aws.String("fraction"),
@@ -96,50 +94,49 @@ func (m Migration) CreateMapTable() {
 						ProjectionType: aws.String("ALL"),
 					},
 				},
-				{
-					IndexName: aws.String("last_update_index"),
-					KeySchema: []*dynamodb.KeySchemaElement{
-						{
-							AttributeName: aws.String("fraction"),
-							KeyType:       aws.String("HASH"),
-						},
-						{
-							AttributeName: aws.String("last_update"),
-							KeyType:       aws.String("RANGE"),
-						},
-					},
-					Projection: &dynamodb.Projection{
-						ProjectionType: aws.String("ALL"),
-						// ProjectionType: aws.String("INCLUDE"),
-						// NonKeyAttributes: []*string{
-						// 	aws.String("cell"),
-						// },
-					},
-				},
+				// {
+				// 	IndexName: aws.String("last_update_index"),
+				// 	KeySchema: []*dynamodb.KeySchemaElement{
+				// 		{
+				// 			AttributeName: aws.String("fraction"),
+				// 			KeyType:       aws.String("HASH"),
+				// 		},
+				// 		{
+				// 			AttributeName: aws.String("last_update"),
+				// 			KeyType:       aws.String("RANGE"),
+				// 		},
+				// 	},
+				// 	Projection: &dynamodb.Projection{
+				// 		ProjectionType: aws.String("INCLUDE"),
+				// 		NonKeyAttributes: []*string{
+				// 			aws.String("cell"),
+				// 		},
+				// 	},
+				// },
 			},
 		}
 
 		_, err := m.svc.CreateTable(createTableInput)
 		if err != nil {
-			log.Fatalf("Error creating table:", err)
+			log.Fatalf("Error creating table: %v", err)
 		}
 
-		fmt.Println("Table created successfully:", mapTable)
+		fmt.Println("Table created successfully:", consts.TableMap)
 	} else {
-		fmt.Println("Table already exists:", mapTable)
+		fmt.Println("Table already exists:", consts.TableMap)
 	}
 }
 
 func (m Migration) DeleteMapTable() {
 
 	input := &dynamodb.DeleteTableInput{
-		TableName: aws.String(mapTable),
+		TableName: aws.String(consts.TableMap),
 	}
 
 	// Delete the table
 	_, err := m.svc.DeleteTable(input)
 	if err != nil {
-		log.Fatalf("Error deleting table: %v; %v", mapTable, err)
+		log.Fatalf("Error deleting table: %v; %v", consts.TableMap, err)
 		return
 	}
 }

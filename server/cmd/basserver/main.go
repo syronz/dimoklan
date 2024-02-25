@@ -7,12 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"dimoklan/domain/basic/basstorage"
-	"dimoklan/domain/map/mapstorage"
 	"dimoklan/internal/config"
-	"dimoklan/restserver"
-	"dimoklan/service"
-	"dimoklan/storage"
 )
 
 var configFilePath = flag.String("cfg", "", "config file path")
@@ -43,14 +38,14 @@ func main() {
 
 	core.Info("starting server: " + time.Now().String())
 
-	storage := storage.NewMemroryStorage()
+	// storage := storage.NewMemroryStorage()
 
-	userStorage := basstorage.NewMysqlUser(core)
-	userService := service.NewUserService(core, userStorage)
+	// userStorage := basstorage.NewMysqlUser(core)
+	// userService := service.NewUserService(core, userStorage)
 
-	cellStorage := mapstorage.NewMysqlCell(core)
-	cellService := service.NewCellService(core, cellStorage, userService)
+	// cellStorage := mapstorage.NewMysqlCell(core)
+	// cellService := service.NewCellService(core, cellStorage, userService)
 
-	server := restserver.NewServer(core, storage, userService, cellService)
-	server.Start()
+	// server := restserver.NewServer(core, storage, userService, cellService)
+	// server.Start()
 }

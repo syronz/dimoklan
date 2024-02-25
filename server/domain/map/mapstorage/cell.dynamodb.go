@@ -7,21 +7,20 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 
+	"dimoklan/consts"
 	"dimoklan/internal/config"
 	"dimoklan/types"
 )
 
-const mapTable = "map"
-
 type CellDaynamo struct {
-	core      config.Core
+	core     config.Core
 	mapTable *string
 }
 
 func NewDaynamoCell(core config.Core) *CellDaynamo {
 	return &CellDaynamo{
-		core:      core,
-		mapTable: aws.String(mapTable),
+		core:     core,
+		mapTable: aws.String(consts.TableMap),
 	}
 }
 

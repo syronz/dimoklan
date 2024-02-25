@@ -2,23 +2,13 @@ package basstorage
 
 import (
 	"database/sql"
-	"dimoklan/internal/config"
-	"dimoklan/types"
 	_ "embed"
 	"fmt"
 
+	"dimoklan/types"
+
 	_ "github.com/go-sql-driver/mysql"
 )
-
-type BasMysql struct {
-	core config.Core
-}
-
-func NewMysqlUser(core config.Core) *BasMysql {
-	return &BasMysql{
-		core: core,
-	}
-}
 
 //go:embed queries/create_user.sql
 var queryCreateUser string
@@ -29,7 +19,6 @@ func (bs *BasMysql) CreateUser(user types.User) error {
 		user.Code,
 		user.Name,
 		user.Email,
-		user.Username,
 		user.Password,
 		user.Color,
 		user.Language,
@@ -65,6 +54,10 @@ func (bs *BasMysql) GetUserByColor(color string) (types.User, error) {
 	}
 
 	return user, nil
+}
+
+func (bs *BasMysql) CreateRegister(register types.Register) error {
+	return nil
 }
 
 //go:embed queries/get_all_user_colors.sql

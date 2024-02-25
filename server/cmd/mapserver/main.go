@@ -41,15 +41,15 @@ func main() {
 
 	core.Info("starting server: " + time.Now().String())
 
-	storage := storage.NewMemroryStorage()
+	// storage := storage.NewMemroryStorage()
 
-	userStorage := basstorage.NewMysqlUser(core)
-	userService := service.NewUserService(core, userStorage)
+	// userStorage := basstorage.NewMysqlUser(core)
+	// userService := service.NewUserService(core, userStorage)
 
-	// cellStorage := mapstorage.NewMysqlCell(core)
-	cellStorage := mapstorage.NewDaynamoCell(core)
-	cellService := service.NewCellService(core, cellStorage, userService)
+	// // cellStorage := mapstorage.NewMysqlCell(core)
+	// cellStorage := mapstorage.NewDaynamoCell(core)
+	// cellService := service.NewCellService(core, cellStorage, userService)
 
-	server := restserver.NewServer(core, storage, userService, cellService)
-	server.Start()
+	// server := restserver.NewServer(core, storage, userService, cellService)
+	// server.Start()
 }
