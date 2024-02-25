@@ -32,5 +32,14 @@ func main() {
 	}
 
 	migrationActor := mapmigration.New(*region, *endpoint)
-	migrationActor.CreateCellTable()
+
+	switch *action {
+	case "up":
+		migrationActor.CreateMapTable()
+	case "down":
+		migrationActor.DeleteMapTable()
+	default:
+		log.Fatal("action is invalid")
+	}
+
 }

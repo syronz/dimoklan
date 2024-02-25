@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"dimoklan/domain/map/mapstorage"
 	"dimoklan/internal/config"
 	"dimoklan/types"
+	"dimoklan/util"
 
 	"go.uber.org/zap"
 )
@@ -38,7 +40,17 @@ func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
 	return cell, nil
 }
 
+func toFraction(x,y int) string {
+	x =          util.CeilInt(float64(x) / 10)
+	y =          util.CeilInt(float64(y) / 10)
+
+	return fmt.Sprintf("%d:%d", x, y)
+}
+
 func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
+	cell.Fraction = toFraction(cell.X, cell.Y)
+	cell.Cell = fmt.Sprintf("%03d:%03d", cell.X, cell.Y)
+	cell.LastUpdate = time.Now().Unix()
 	cell.Building = ""
 	cell.Score = 10
 

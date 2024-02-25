@@ -1,0 +1,38 @@
+[
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 8, "y": 9, "user_id": 3, "score": 1 }
+	},
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 9, "y": 9, "user_id": 3, "score": 1 }
+	},
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 10, "y": 9, "user_id": 3, "score": 1 }
+	},
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 11, "y": 9, "user_id": 3, "score": 1 }
+	},
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 12, "y": 9, "user_id": 3, "score": 1 }
+	},
+	{
+		"method":"post",
+		"url":"_URL_/cells",
+		"authorization":"Bearer _TOKEN_",
+		"payload": { "x": 12, "y": 10, "user_id": 4, "score": 1 }
+	}
+]
