@@ -1,6 +1,7 @@
 package basapi
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -11,19 +12,18 @@ import (
 )
 
 type BasRegisterAPI struct {
-	core config.Core
+	core            config.Core
 	registerService *service.RegisterService
 }
 
 func NewBasRegisterAPI(core config.Core, registerService *service.RegisterService) *BasRegisterAPI {
 	return &BasRegisterAPI{
-		core: core,
+		core:            core,
 		registerService: registerService,
 	}
 }
 
-
-func (s *BasRegisterAPI) CreateRegister(c echo.Context) error {
+func (br *BasRegisterAPI) CreateRegister(c echo.Context) error {
 	var register types.Register
 
 	if err := c.Bind(&register); err != nil {
@@ -33,11 +33,42 @@ func (s *BasRegisterAPI) CreateRegister(c echo.Context) error {
 	}
 
 	var err error
-	if register, err = s.registerService.Create(register); err != nil {
+	if register, err = br.registerService.Create(register); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"error": err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, register)
+}
+
+func printMessage(head, content string) string {
+	return fmt.Sprintf(`
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>Email confirmation</title>
+		</head>
+		<body>
+			<h1>%v</h1>
+			<p>%v</p>
+		</body>
+		</html>
+		`, head, content)
+}
+
+func (br *BasRegisterAPI) Confirm(c echo.Context) error {
+	hashCode := c.QueryParam("hash_code")
+
+	if hashCode == "" {
+		return c.HTML(http.StatusConflict, printMessage("Link is not valid", ""))
+	}
+
+	var err error
+	if err = br.registerService.Confirm(hashCode); err != nil {
+		return c.HTML(http.StatusOK, printMessage("Confirmation Failed", err.Error()))
+	}
+
+	htmlContent := printMessage("Confirmation Successful", fmt.Sprintf(`Please go to <a href="%v">Log in</a>`, br.core.GetLoginPage()))
+	return c.HTML(http.StatusOK, htmlContent)
 }

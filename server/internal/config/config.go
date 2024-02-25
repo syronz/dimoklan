@@ -37,6 +37,9 @@ type config struct {
 	// Map domain
 	MapDynamoDBRegion   string `yaml:"map_dynamodb_region"`
 	MapDynamoDBEndpoint string `yaml:"map_dynamodb_endpoint"`
+
+	// Global
+	LoginPage string `yaml:"login_page"`
 }
 
 // Core make accessible to private config variables
@@ -139,6 +142,8 @@ func validateConfig(cfg config) error {
 		return errors.New("map_dynamodb_region is required in config file")
 	case cfg.MapDynamoDBEndpoint == "":
 		return errors.New("map_dynamodb_endpoint is required in config file")
+	case cfg.LoginPage == "":
+		return errors.New("login_page is required in config file")
 	}
 
 	return nil
@@ -210,6 +215,10 @@ func (c Core) GetDatabaseSlaveDNS() string {
 
 func (c Core) GetDatabaseActivityDNS() string {
 	return c.config.ActivityDatabaseDSN
+}
+
+func (c Core) GetLoginPage() string {
+	return c.config.LoginPage
 }
 
 func (c Core) ShowOriginalError() bool {

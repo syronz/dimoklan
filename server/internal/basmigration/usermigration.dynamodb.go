@@ -4,45 +4,61 @@ import (
 	"fmt"
 	"log"
 
+	"dimoklan/consts"
+
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-const usersTable = "users"
-
-type Migration struct {
-	svc *dynamodb.DynamoDB
-}
-
-func New(region, endpoint string) Migration {
-	// Create a session
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String(region),   // Change the region according to your setup
-		Endpoint: aws.String(endpoint), // Local DynamoDB endpoint
-	}))
-
-	// Create a DynamoDB service client
-	return Migration{
-		svc: dynamodb.New(sess),
-	}
-}
-
-func (m Migration) CreateCellTable() {
+func (m Migration) CreateUserTable() {
 	// Check if the table exists
 	describeTableInput := &dynamodb.DescribeTableInput{
-		TableName: aws.String(usersTable),
+		TableName: aws.String(consts.TableUser),
 	}
 	_, err := m.svc.DescribeTable(describeTableInput)
-	if err != nil {
-		log.Fatalf("users table already exist: %v", err)
+	if err == nil {
+		log.Fatalf("table already exist: %v, err:%v", consts.TableUser, err)
 	}
 
-	fmt.Println("Table doesn't exist. Creating table...", usersTable)
+	fmt.Println("Table doesn't exist. Creating table...", consts.TableUser)
 	createTableInput := &dynamodb.CreateTableInput{
-		TableName: aws.String(usersTable),
+		TableName: aws.String(consts.TableUser),
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{
+				AttributeName: aws.String("id"),
+				AttributeType: aws.String(dynamodb.ScalarAttributeTypeN),
+			},
+			{
+				AttributeName: aws.String("email"),
+				AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
+			},
+		},
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{
+				AttributeName: aws.String("id"),
+				KeyType:       aws.String(dynamodb.KeyTypeHash),
+			},
+		},
+		BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
 	}
 
-	_ = createTableInput
+	_, err = m.svc.CreateTable(createTableInput)
+	if err != nil {
+		log.Fatalf("Error creating table: %v; %v", consts.TableUser, err)
+	}
 
+	fmt.Println("Table created successfully:", consts.TableUser)
+}
+
+func (m Migration) DeleteUserTable() {
+	input := &dynamodb.DeleteTableInput{
+		TableName: aws.String(consts.TableUser),
+	}
+
+	// Delete the table
+	_, err := m.svc.DeleteTable(input)
+	if err != nil {
+		log.Printf("Error deleting table: %v; %v", consts.TableUser, err)
+		return
+	}
 }

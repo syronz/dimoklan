@@ -62,7 +62,6 @@ func (s *Server) start() {
 		}
 	}
 
-
 	basStorage := basstorage.NewBasDynamoDB(s.core)
 
 	userService := service.NewUserService(s.core, basStorage)
@@ -71,13 +70,13 @@ func (s *Server) start() {
 	registerService := service.NewRegisterService(s.core, basStorage)
 	registerAPI := basapi.NewBasRegisterAPI(s.core, registerService)
 
-
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
 
 	e.POST("/users", userAPI.CreateUser, defaultRateLimiter)
 	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
+	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }

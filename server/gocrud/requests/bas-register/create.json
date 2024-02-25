@@ -1,10 +1,10 @@
 {
-  "method":"post",
-  "url":"_URL_/register",
-  "authorization":"Bearer _TOKEN_",
-  "payload": {
-		"email": "sabina.diako+38@gmail.com",
-    "password": "_RANDOM_NUMBER_",
-    "kingdom":"malahand"
-  }
+	"method":"post",
+	"url":"_URL_/register",
+	"authorization":"Bearer _TOKEN_",
+	"payload": {
+		"email": "sabina.diako+44@gmail.com",
+		"password": "_RANDOM_NUMBER_",
+		"kingdom":"malahand"
+	}
 }

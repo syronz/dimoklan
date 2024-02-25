@@ -43,29 +43,29 @@ func (m Migration) CreateMapTable() {
 			AttributeDefinitions: []*dynamodb.AttributeDefinition{
 				{
 					AttributeName: aws.String("fraction"),
-					AttributeType: aws.String("S"),
+					AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
 				},
 				{
 					AttributeName: aws.String("cell"),
-					AttributeType: aws.String("S"),
+					AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
 				},
 				{
 					AttributeName: aws.String("user_id"),
-					AttributeType: aws.String("N"),
+					AttributeType: aws.String(dynamodb.ScalarAttributeTypeN),
 				},
 				{
 					AttributeName: aws.String("last_update"),
-					AttributeType: aws.String("N"),
+					AttributeType: aws.String(dynamodb.ScalarAttributeTypeN),
 				},
 			},
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
 					AttributeName: aws.String("fraction"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       aws.String(dynamodb.KeyTypeHash),
 				},
 				{
 					AttributeName: aws.String("cell"),
-					KeyType:       aws.String("RANGE"),
+					KeyType:       aws.String(dynamodb.KeyTypeRange),
 				},
 			},
 			BillingMode: aws.String("PAY_PER_REQUEST"),
@@ -75,11 +75,11 @@ func (m Migration) CreateMapTable() {
 					KeySchema: []*dynamodb.KeySchemaElement{
 						{
 							AttributeName: aws.String("user_id"),
-							KeyType:       aws.String("HASH"),
+							KeyType:       aws.String(dynamodb.KeyTypeHash),
 						},
 					},
 					Projection: &dynamodb.Projection{
-						ProjectionType: aws.String("ALL"),
+						ProjectionType: aws.String(dynamodb.ProjectionTypeAll),
 					},
 				},
 				{
@@ -87,11 +87,11 @@ func (m Migration) CreateMapTable() {
 					KeySchema: []*dynamodb.KeySchemaElement{
 						{
 							AttributeName: aws.String("cell"),
-							KeyType:       aws.String("HASH"),
+							KeyType:       aws.String(dynamodb.KeyTypeHash),
 						},
 					},
 					Projection: &dynamodb.Projection{
-						ProjectionType: aws.String("ALL"),
+						ProjectionType: aws.String(dynamodb.ProjectionTypeAll),
 					},
 				},
 				// {

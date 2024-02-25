@@ -10,7 +10,6 @@ import (
 	"dimoklan/internal/config"
 	"dimoklan/types"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -37,16 +36,14 @@ func (s *UserService) GetUserByColor(color string) (types.User, error) {
 }
 
 func (s *UserService) Create(user types.User) (types.User, error) {
-	color, err := s.pickColor(); 
+	color, err := s.pickColor()
 	if err != nil {
 		s.core.Error(err.Error(), zap.Stack("color_conflict_in_creating_user"))
 		return user, err
 	}
 
-	user.Code = uuid.New().String()
+	// user.Code = uuid.New().String()
 	user.Color = color
-	user.Status = consts.Active
-	user.Reason = "new user"
 
 	if err := s.storage.CreateUser(user); err != nil {
 		return user, err
@@ -104,4 +101,3 @@ func (s *UserService) GetAllColors() (map[int]string, error) {
 
 	return mapColors, nil
 }
-

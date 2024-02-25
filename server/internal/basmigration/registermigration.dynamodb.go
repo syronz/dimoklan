@@ -17,7 +17,7 @@ func (m Migration) CreateRegisterTable() {
 	}
 	_, err := m.svc.DescribeTable(describeTableInput)
 	if err == nil {
-		log.Fatalf("register table already exist: %v", err)
+		log.Fatalf("table already exist: %v, err:%v", consts.TableRegister, err)
 	}
 
 	fmt.Println("Table doesn't exist. Creating table...", consts.TableRegister)
@@ -25,25 +25,35 @@ func (m Migration) CreateRegisterTable() {
 		TableName: aws.String(consts.TableRegister),
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("hash"),
-				AttributeType: aws.String("S"),
+				AttributeName: aws.String("email"),
+				AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
 			},
 			{
-				AttributeName: aws.String("ttl"),
-				AttributeType: aws.String("N"),
+				AttributeName: aws.String("activation_code"),
+				AttributeType: aws.String(dynamodb.ScalarAttributeTypeS),
 			},
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{
-				AttributeName: aws.String("hash"),
+				AttributeName: aws.String("email"),
 				KeyType:       aws.String(dynamodb.KeyTypeHash),
-			},
-			{
-				AttributeName: aws.String("ttl"),
-				KeyType:       aws.String(dynamodb.KeyTypeRange),
 			},
 		},
 		BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
+		GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String("activation_code_index"),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("activation_code"),
+						KeyType:       aws.String(dynamodb.KeyTypeHash),
+					},
+				},
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String(dynamodb.ProjectionTypeAll),
+				},
+			},
+		},
 	}
 
 	_, err = m.svc.CreateTable(createTableInput)
@@ -91,7 +101,7 @@ func (m Migration) DeleteRegisterTable() {
 	// Delete the table
 	_, err := m.svc.DeleteTable(input)
 	if err != nil {
-		log.Fatalf("Error deleting table: %v; %v", consts.TableRegister, err)
+		log.Printf("Error deleting table: %v; %v", consts.TableRegister, err)
 		return
 	}
 }

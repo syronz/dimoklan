@@ -16,14 +16,10 @@ var queryCreateUser string
 func (bs *BasMysql) CreateUser(user types.User) error {
 	_, err := bs.core.BasicMasterDB().Exec(
 		queryCreateUser,
-		user.Code,
-		user.Name,
 		user.Email,
 		user.Password,
 		user.Color,
 		user.Language,
-		user.Status,
-		user.Reason,
 	)
 	if err != nil {
 		return err
@@ -40,9 +36,7 @@ func (bs *BasMysql) GetUserByColor(color string) (types.User, error) {
 
 	err := bs.core.BasicSlaveDB().QueryRow(queryGetUserByColor, color).Scan(
 		&user.ID,
-		&user.Code,
 		&user.Color,
-		&user.Status,
 	)
 
 	if err == sql.ErrNoRows {

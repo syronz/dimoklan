@@ -6,12 +6,12 @@ import (
 )
 
 type Register struct {
-	Email    string `json:"email"`
-	Hash     string `json:"hash"`
-	Kingdom  string `json:"kingdom"`
-	Language string `json:"language"`
-	Password string `json:"password"`
-	TTL      int64  `json:"ttl"`
+	Email          string `json:"email"`
+	ActivationCode string `json:"activation_code"`
+	Kingdom        string `json:"kingdom"`
+	Language       string `json:"language"`
+	Password       string `json:"password"`
+	TTL            int64  `json:"ttl"`
 }
 
 func (r *Register) ValidateCreate() error {
