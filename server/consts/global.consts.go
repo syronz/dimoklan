@@ -11,6 +11,7 @@ const (
 	// Base domain
 	TableRegister = "register"
 	TableUser = "user"
+	IndexEmail = "index_email"
 
 	// Map Domain
 	TableMap = "map"

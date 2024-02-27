@@ -28,8 +28,6 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 		ConditionExpression: aws.String("attribute_not_exists(email)"),
 	}
 
-	fmt.Println(">>>>>", input)
-
 	if _, err = bd.core.DynamoDB().PutItem(input); err != nil {
 		return err
 	}
@@ -40,4 +38,34 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 func (bd *BasDynamoDB) GetAllColors() (map[int]string, error) {
 
 	return nil, nil
+}
+
+func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
+	queryInput := &dynamodb.QueryInput{
+		TableName:              aws.String(consts.TableUser),
+		IndexName:              aws.String(consts.IndexEmail),
+		KeyConditionExpression: aws.String("email = :b"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":b": {
+				S: aws.String(email),
+			},
+		},
+	}
+
+	result, err := bd.core.DynamoDB().Query(queryInput)
+	if err != nil {
+		return types.User{}, fmt.Errorf("error in getting user entity; err: %w", err)
+	}
+
+	var users []types.User
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	if err != nil {
+		return types.User{}, fmt.Errorf("binding user data failed; err: %w", err)
+	}
+
+	if len(users) > 0 {
+		return users[0], nil
+	}
+
+	return types.User{}, nil
 }

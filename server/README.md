@@ -20,6 +20,12 @@ go run script/basmigration/main.go -action=up -dsn="root:root@tcp(127.001:3306)/
 go run script/mapmigration/map-migration.go -action=down -region=us-west-2 -endpoint=http://127.0.0.1:8000
 go run script/mapmigration/map-migration.go -action=up -region=us-west-2 -endpoint=http://127.0.0.1:8000 
 
+-- bas domain
+go run script/basmigration/basmigration-dynamodb.go -action=down -region=us-west-2 -endpoint=http://127.0.0.1:8000
+go run script/basmigration/basmigration-dynamodb.go -action=up -region=us-west-2 -endpoint=http://127.0.0.1:8000
+
+
+
 ```
 
 ## integration test

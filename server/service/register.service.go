@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -29,7 +30,7 @@ func NewRegisterService(core config.Core, storage basstorage.BasStorage) *Regist
 }
 
 func (rs *RegisterService) Create(register types.Register) (types.Register, error) {
-	if err := register.ValidateCreate(); err != nil {
+	if err := register.ValidateRegister(); err != nil {
 		return types.Register{}, err
 	}
 
@@ -51,6 +52,17 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 	hashedPassword := sha256.Sum256([]byte(password))
 	register.Password = hex.EncodeToString(hashedPassword[:])
 
+	// check if user already registered with same email
+	user, err := rs.storage.GetUserByEmail(register.Email)
+	if err != nil {
+		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
+		return register, err
+	}
+
+	if user.Email != "" {
+		return register, errors.New("email is not avaialble")
+	}
+
 	if err := rs.storage.CreateRegister(register); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
@@ -64,10 +76,22 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 func (rs *RegisterService) Confirm(activationCode string) error {
 	activationCodeHashed := sha256.Sum256([]byte(activationCode))
 
+
 	register, err := rs.storage.ConfirmRegister(hex.EncodeToString(activationCodeHashed[:]))
 	if err != nil {
-		rs.core.Error(err.Error(), zap.Stack("confirmation_failed"))
+		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
+	}
+
+	// check if user already registered with same email
+	tmpUser, err := rs.storage.GetUserByEmail(register.Email)
+	if err != nil {
+		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
+		return err
+	}
+
+	if tmpUser.Email != "" {
+		return errors.New("activation has already been completed")
 	}
 
 	rand.Seed(time.Now().UnixNano())

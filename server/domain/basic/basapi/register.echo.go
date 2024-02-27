@@ -58,7 +58,7 @@ func printMessage(head, content string) string {
 }
 
 func (br *BasRegisterAPI) Confirm(c echo.Context) error {
-	hashCode := c.QueryParam("hash_code")
+	hashCode := c.QueryParam("activation_code")
 
 	if hashCode == "" {
 		return c.HTML(http.StatusConflict, printMessage("Link is not valid", ""))

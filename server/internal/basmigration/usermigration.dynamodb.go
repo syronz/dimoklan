@@ -40,6 +40,20 @@ func (m Migration) CreateUserTable() {
 			},
 		},
 		BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
+		GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String(consts.IndexEmail),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("email"),
+						KeyType:       aws.String(dynamodb.KeyTypeHash),
+					},
+				},
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String(dynamodb.ProjectionTypeAll),
+				},
+			},
+		},
 	}
 
 	_, err = m.svc.CreateTable(createTableInput)
