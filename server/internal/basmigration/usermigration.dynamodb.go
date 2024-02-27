@@ -5,9 +5,11 @@ import (
 	"log"
 
 	"dimoklan/consts"
+	"dimoklan/types"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 func (m Migration) CreateUserTable() {
@@ -62,6 +64,40 @@ func (m Migration) CreateUserTable() {
 	}
 
 	fmt.Println("Table created successfully:", consts.TableUser)
+}
+
+func (m Migration) AddUser() {
+	user := types.User{
+		ID:            12885578,
+		Color:         "c49e49",
+		Email:         "sabina.diako@gmail.com",
+		Kingdom:       "Malanda",
+		Password:      "6b53d67e399b703b38c58fa4c9e25438478ca0372b190abc2e34579e5e3cfa83",
+		Language:      "en",
+		Suspend:       false,
+		SuspendReason: "",
+		Freeze:        false,
+		FreezeReason:  "",
+		CreatedAt:     1709064739,
+		UpdatedAt:     1709064739,
+	}
+
+	av, err := dynamodbattribute.MarshalMap(user)
+	if err != nil {
+		log.Fatalf("error in marshmap user; err: %v", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:                av,
+		TableName:           aws.String(consts.TableUser),
+		ConditionExpression: aws.String("attribute_not_exists(email)"),
+	}
+
+	if _, err = m.svc.PutItem(input); err != nil {
+		log.Fatalf("error in creating user; err: %v", err)
+	}
+
+	fmt.Println("User added successfully")
 }
 
 func (m Migration) DeleteUserTable() {

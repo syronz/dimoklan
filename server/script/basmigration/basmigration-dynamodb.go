@@ -37,6 +37,7 @@ func main() {
 	case "up":
 		migrationActor.CreateRegisterTable()
 		migrationActor.CreateUserTable()
+		migrationActor.AddUser()
 	case "down":
 		migrationActor.DeleteRegisterTable()
 		migrationActor.DeleteUserTable()

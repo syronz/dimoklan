@@ -1,7 +1,7 @@
 {
 	"method":"get",
 	"url":"_URL_/secure",
-	"authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDk2Nzk5MjAsIm5iZiI6MTcwOTA3NTEyMCwidXNlcl9pZCI6IjEyODg1NTc3In0.Yi4RA4EcBFbUGVtse_gl-Ah-fLZsd_COFSbA36yZjNw",
+	"authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDk2ODA2NzMsIm5iZiI6MTcwOTA3NTg3MywidXNlcl9pZCI6IjEyODg1NTc4In0.BylOSeYuSfuWdbZF5JaHokcyovn51VAau6p7PECOQvQ",
 	"payload": {
 		"email": "sabina.diako@gmail.com",
 		"password": "StrongPassword2000"
