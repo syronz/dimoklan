@@ -5,6 +5,7 @@ const (
 	LanguageEn = "en"
 	MaxUserID = 16777215
 	HiddenPassword = "******"
+	IP = "ip"
 
 	// used for make hash in registration
 	HashSalt = "-Ug*mY.m6-FAuFX/K>cxlFri"

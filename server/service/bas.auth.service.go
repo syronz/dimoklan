@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"time"
 
 	"dimoklan/consts"
@@ -47,9 +47,9 @@ func (as *AuthService) Login(auth types.Auth) (types.Auth, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
-		"nbf": time.Now().Unix(),
-		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),
+		"user_id": strconv.Itoa(user.ID),
+		"nbf":     time.Now().Unix(),
+		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret

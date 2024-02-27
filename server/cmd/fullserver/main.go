@@ -11,9 +11,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/time/rate"
 
+	"dimoklan/consts"
 	"dimoklan/domain/basic/basapi"
 	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
+	"dimoklan/internal/echomiddleware"
 	"dimoklan/service"
 )
 
@@ -62,6 +64,22 @@ func (s *Server) start() {
 		}
 	}
 
+	// Add middleware to log the user's IP address
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			ip := req.Header.Get("X-Real-IP")
+			if ip == "" {
+				ip = req.Header.Get("X-Forwarded-For")
+				if ip == "" {
+					ip = req.RemoteAddr
+				}
+			}
+			c.Set(consts.IP, ip)
+			return next(c)
+		}
+	})
+
 	basStorage := basstorage.NewBasDynamoDB(s.core)
 
 	userService := service.NewUserService(s.core, basStorage)
@@ -77,10 +95,17 @@ func (s *Server) start() {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
 
+	middleware := echomiddleware.NewMiddleware(s.core)
+
 	e.POST("/users", userAPI.CreateUser, defaultRateLimiter)
 	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
 	e.POST("/login", authAPI.Login)
+	e.GET("/secure", func(c echo.Context) error {
+		// claims := c.Get("claims").(*echomiddleware.CustomClaims)
+		userID := c.Get("user_id")
+		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
+	}, middleware.AuthMiddleware)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }

@@ -1,0 +1,9 @@
+{
+	"method":"get",
+	"url":"_URL_/secure",
+	"authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDk2Nzk5MjAsIm5iZiI6MTcwOTA3NTEyMCwidXNlcl9pZCI6IjEyODg1NTc3In0.Yi4RA4EcBFbUGVtse_gl-Ah-fLZsd_COFSbA36yZjNw",
+	"payload": {
+		"email": "sabina.diako@gmail.com",
+		"password": "StrongPassword2000"
+	}
+}
