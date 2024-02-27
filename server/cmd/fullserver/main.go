@@ -70,6 +70,9 @@ func (s *Server) start() {
 	registerService := service.NewRegisterService(s.core, basStorage)
 	registerAPI := basapi.NewBasRegisterAPI(s.core, registerService)
 
+	authService := service.NewAuthService(s.core, basStorage)
+	authAPI := basapi.NewBasAuthAPI(s.core, authService)
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
@@ -77,6 +80,7 @@ func (s *Server) start() {
 	e.POST("/users", userAPI.CreateUser, defaultRateLimiter)
 	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
+	e.POST("/login", authAPI.Login)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }

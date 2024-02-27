@@ -4,6 +4,7 @@ const (
 	MaxRetryForPickColor = 100
 	LanguageEn = "en"
 	MaxUserID = 16777215
+	HiddenPassword = "******"
 
 	// used for make hash in registration
 	HashSalt = "-Ug*mY.m6-FAuFX/K>cxlFri"

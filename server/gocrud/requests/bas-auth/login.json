@@ -1,0 +1,8 @@
+{
+	"method":"post",
+	"url":"_URL_/login",
+	"payload": {
+		"email": "sabina.diako@gmail.com",
+		"password": "StrongPassword2000"
+	}
+}

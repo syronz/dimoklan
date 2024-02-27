@@ -59,6 +59,7 @@ func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
 
 	var users []types.User
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &users)
+	fmt.Println(">>>>>>", users)
 	if err != nil {
 		return types.User{}, fmt.Errorf("binding user data failed; err: %w", err)
 	}

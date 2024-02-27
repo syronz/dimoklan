@@ -1,40 +1,42 @@
 package basapi
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 
 	"dimoklan/internal/config"
 	"dimoklan/service"
+	"dimoklan/types"
 )
 
 type BasAuthAPI struct {
 	core        config.Core
-	userService *service.UserService
+	authService *service.AuthService
 }
 
-func NewBasAuthAPI(core config.Core, userService *service.UserService) *BasAuthAPI {
+func NewBasAuthAPI(core config.Core, authService *service.AuthService) *BasAuthAPI {
 	return &BasAuthAPI{
 		core:        core,
-		userService: userService,
+		authService: authService,
 	}
 }
 
-func (s *BasAuthAPI) CreateAuth(c echo.Context) error {
-	// var auth types.Auth
+func (s *BasAuthAPI) Login(c echo.Context) error {
+	var auth types.Auth
 
-	// if err := c.Bind(&auth); err != nil {
-	// 	return c.JSON(http.StatusBadRequest, map[string]any{
-	// 		"error": err,
-	// 	})
-	// }
+	if err := c.Bind(&auth); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"error": err,
+		})
+	}
 
-	// var err error
-	// if auth, err = s.userService.Create(auth); err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, map[string]any{
-	// 		"error": err.Error(),
-	// 	})
-	// }
+	var err error
+	if auth, err = s.authService.Login(auth); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]any{
+			"error": err.Error(),
+		})
+	}
 
-	// return c.JSON(http.StatusOK, auth)
-	return nil
+	return c.JSON(http.StatusOK, auth)
 }

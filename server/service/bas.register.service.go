@@ -15,6 +15,7 @@ import (
 	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
 	"dimoklan/types"
+	"dimoklan/util"
 )
 
 type RegisterService struct {
@@ -48,9 +49,7 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 	// delete after 24 hours
 	register.TTL = time.Now().Add(24 * time.Hour).Unix()
 	register.Language = consts.LanguageEn
-	password := fmt.Sprintf("%v%v%v", consts.HashSalt, register.Password, rs.core.GetSalt())
-	hashedPassword := sha256.Sum256([]byte(password))
-	register.Password = hex.EncodeToString(hashedPassword[:])
+	register.Password = util.HashPassword(register.Password, consts.HashSalt, rs.core.GetSalt())
 
 	// check if user already registered with same email
 	user, err := rs.storage.GetUserByEmail(register.Email)

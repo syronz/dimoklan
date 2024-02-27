@@ -31,6 +31,10 @@ func (r *Register) ValidateRegister() error {
 }
 
 func validateEmail(email string) bool {
+	if email == "" {
+		return false
+	}
+
 	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	if match, _ := regexp.MatchString(regex, email); !match {
 		return false
