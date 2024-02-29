@@ -7,7 +7,6 @@ require (
 	github.com/aws/aws-sdk-go v1.50.20
 	github.com/fogleman/gg v1.3.0
 	github.com/go-faker/faker/v4 v4.2.0
-	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/labstack/echo/v4 v4.11.3
 	go.uber.org/zap v1.26.0

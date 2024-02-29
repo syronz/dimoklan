@@ -14,10 +14,6 @@ original_error: true
 log_path: logs/basic_dimoklan.log
 log_level: debug
 
-# basic storage
-basic_master_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
-basic_slave_database_dsn: "root:root@tcp(127.001:3306)/dimo_basic"
-activity_database_dsn: "root:root@tcp(127.001:3306)/dimo_activity"
 
 # map storage
 map_dynamodb_region: "us-west-2"

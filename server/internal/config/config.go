@@ -14,25 +14,19 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // config is a struct for saving game env variables
 type config struct {
-	Environment         string `yaml:"environment"`
-	AppName             string `yaml:"app_name"`
-	Port                string `yaml:"port"`
-	Salt                string `yaml:"salt"`
-	JwtSecret           string `yaml:"jwt_secret"`
-	ActivityDatabaseDSN string `yaml:"activity_database_dsn"`
-	LogPath             string `yaml:"log_path"`
-	LogLevel            string `yaml:"log_level"`
-	DefaultLang         string `yaml:"default_lang"`
-	OriginalError       bool   `yaml:"original_error"`
-
-	// Basic domain
-	BasicMasterDatabaseDSN string `yaml:"basic_master_database_dsn"`
-	BasicSlaveDatabaseDSN  string `yaml:"basic_slave_database_dsn"`
+	Environment   string `yaml:"environment"`
+	AppName       string `yaml:"app_name"`
+	Port          string `yaml:"port"`
+	Salt          string `yaml:"salt"`
+	JwtSecret     string `yaml:"jwt_secret"`
+	LogPath       string `yaml:"log_path"`
+	LogLevel      string `yaml:"log_level"`
+	DefaultLang   string `yaml:"default_lang"`
+	OriginalError bool   `yaml:"original_error"`
 
 	// Map domain
 	MapDynamoDBRegion   string `yaml:"map_dynamodb_region"`
@@ -65,25 +59,6 @@ func GetCore(configPath string) (cfg Core, err error) {
 	err = yaml.Unmarshal(yamlFile, &cfg.config)
 	if err != nil {
 		err = fmt.Errorf("error in unmarshal game config file; %w", err)
-		return
-	}
-
-	// set up database connections
-	cfg.basicMasterDB, err = sql.Open("mysql", cfg.GetDatabaseMasterDNS())
-	if err != nil {
-		err = fmt.Errorf("error in opening basic master database; %w", err)
-		return
-	}
-
-	cfg.basicSlaveDB, err = sql.Open("mysql", cfg.GetDatabaseSlaveDNS())
-	if err != nil {
-		err = fmt.Errorf("error in opening basic slave database; %w", err)
-		return
-	}
-
-	cfg.activityDB, err = sql.Open("mysql", cfg.GetDatabaseActivityDNS())
-	if err != nil {
-		err = fmt.Errorf("error in opening activity database; %w", err)
 		return
 	}
 
@@ -132,12 +107,6 @@ func validateConfig(cfg config) error {
 		return errors.New("log_path is required in config file")
 	case cfg.LogLevel == "":
 		return errors.New("log_level is required in config file")
-	case cfg.BasicMasterDatabaseDSN == "":
-		return errors.New("basic_master_database_dsn is required in config file")
-	case cfg.BasicSlaveDatabaseDSN == "":
-		return errors.New("basic_slave_database_dsn is required in config file")
-	case cfg.ActivityDatabaseDSN == "":
-		return errors.New("activity_database_dsn is required in config file")
 	case cfg.MapDynamoDBRegion == "":
 		return errors.New("map_dynamodb_region is required in config file")
 	case cfg.MapDynamoDBEndpoint == "":
@@ -203,18 +172,6 @@ func (c Core) GetLogLevel() zapcore.Level {
 
 func (c Core) GetDefaultLang() string {
 	return "en"
-}
-
-func (c Core) GetDatabaseMasterDNS() string {
-	return c.config.BasicMasterDatabaseDSN
-}
-
-func (c Core) GetDatabaseSlaveDNS() string {
-	return c.config.BasicSlaveDatabaseDSN
-}
-
-func (c Core) GetDatabaseActivityDNS() string {
-	return c.config.ActivityDatabaseDSN
 }
 
 func (c Core) GetLoginPage() string {

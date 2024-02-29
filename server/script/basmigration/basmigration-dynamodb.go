@@ -5,8 +5,6 @@ import (
 	"flag"
 	"log"
 
-	_ "github.com/go-sql-driver/mysql"
-
 	"dimoklan/internal/basmigration"
 )
 
