@@ -1,17 +1,17 @@
-package basapi
+package api
 
 import (
 	"dimoklan/internal/config"
 	"dimoklan/service"
 )
 
-type BasUserAPI struct {
+type UserAPI struct {
 	core        config.Core
 	userService *service.UserService
 }
 
-func NewBasUserAPI(core config.Core, userService *service.UserService) *BasUserAPI {
-	return &BasUserAPI{
+func NewUserAPI(core config.Core, userService *service.UserService) *UserAPI {
+	return &UserAPI{
 		core:        core,
 		userService: userService,
 	}

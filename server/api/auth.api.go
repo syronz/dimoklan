@@ -1,4 +1,4 @@
-package basapi
+package api
 
 import (
 	"net/http"
@@ -10,19 +10,19 @@ import (
 	"dimoklan/types"
 )
 
-type BasAuthAPI struct {
+type AuthAPI struct {
 	core        config.Core
 	authService *service.AuthService
 }
 
-func NewBasAuthAPI(core config.Core, authService *service.AuthService) *BasAuthAPI {
-	return &BasAuthAPI{
+func NewAuthAPI(core config.Core, authService *service.AuthService) *AuthAPI {
+	return &AuthAPI{
 		core:        core,
 		authService: authService,
 	}
 }
 
-func (s *BasAuthAPI) Login(c echo.Context) error {
+func (s *AuthAPI) Login(c echo.Context) error {
 	var auth types.Auth
 
 	if err := c.Bind(&auth); err != nil {

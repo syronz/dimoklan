@@ -58,37 +58,3 @@ func (s *CellService) AssignCellToUser(cell types.Cell, userID string) error {
 
 	return nil
 }
-
-/*
-func (s *CellService) GetMap(start, stop types.Point) ([][]string, error) {
-	mapUsers, err := s.mapStorage.GetMapUsers(start, stop)
-	if err != nil {
-		s.core.Error(err.Error(), zap.String("area", fmt.Sprintf("%v:%v", start, stop)))
-		return nil, err
-	}
-
-	mapColors, err := s.userService.GetAllColors()
-	if err != nil {
-		s.core.Error(err.Error(), zap.String("area", fmt.Sprintf("%v:%v", start, stop)))
-		return nil, err
-	}
-
-	pixels := make([][]string, stop.Y-start.Y)
-	for i := range pixels {
-		pixels[i] = make([]string, stop.X-start.X)
-	}
-
-	for x := start.X; x < stop.X; x++ {
-		for y := start.Y; y < stop.Y; y++ {
-			userID, ok := mapUsers[types.Point{X: x, Y: y}]
-			if !ok {
-				continue
-			}
-
-			pixels[x][y] = mapColors[userID]
-		}
-	}
-
-	return pixels, nil
-}
-*/

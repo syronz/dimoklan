@@ -3,7 +3,7 @@
 	"url":"_URL_/register",
 	"authorization":"Bearer _TOKEN_",
 	"payload": {
-		"email": "sabina.diako+34@gmail.com",
+		"email": "User1692840785@gmail.com",
 		"password": "StrongPassword2000",
 		"kingdom":"malahand",
 		"cell":"25:25"

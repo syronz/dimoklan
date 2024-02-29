@@ -11,8 +11,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/time/rate"
 
+	"dimoklan/api"
 	"dimoklan/consts"
-	"dimoklan/domain/basic/basapi"
 	"dimoklan/internal/config"
 	"dimoklan/internal/echomiddleware"
 	"dimoklan/repo"
@@ -84,10 +84,10 @@ func (s *Server) start() {
 	cellService := service.NewCellService(s.core, storage)
 
 	registerService := service.NewRegisterService(s.core, storage, cellService)
-	registerAPI := basapi.NewBasRegisterAPI(s.core, registerService)
+	registerAPI := api.NewRegisterAPI(s.core, registerService)
 
 	authService := service.NewAuthService(s.core, storage)
-	authAPI := basapi.NewBasAuthAPI(s.core, authService)
+	authAPI := api.NewAuthAPI(s.core, authService)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")

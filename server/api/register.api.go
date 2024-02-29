@@ -1,4 +1,4 @@
-package basapi
+package api
 
 import (
 	"fmt"
@@ -11,19 +11,19 @@ import (
 	"dimoklan/types"
 )
 
-type BasRegisterAPI struct {
+type RegisterAPI struct {
 	core            config.Core
 	registerService *service.RegisterService
 }
 
-func NewBasRegisterAPI(core config.Core, registerService *service.RegisterService) *BasRegisterAPI {
-	return &BasRegisterAPI{
+func NewRegisterAPI(core config.Core, registerService *service.RegisterService) *RegisterAPI {
+	return &RegisterAPI{
 		core:            core,
 		registerService: registerService,
 	}
 }
 
-func (br *BasRegisterAPI) CreateRegister(c echo.Context) error {
+func (br *RegisterAPI) CreateRegister(c echo.Context) error {
 	var register types.Register
 
 	if err := c.Bind(&register); err != nil {
@@ -57,7 +57,7 @@ func printMessage(head, content string) string {
 		`, head, content)
 }
 
-func (br *BasRegisterAPI) Confirm(c echo.Context) error {
+func (br *RegisterAPI) Confirm(c echo.Context) error {
 	hashCode := c.QueryParam("activation_code")
 
 	if hashCode == "" {
