@@ -24,8 +24,6 @@ var queryCreateCell string
 func (ms *CellMysql) CreateCell(cell types.Cell) error {
 	_, err := ms.core.BasicMasterDB().Exec(
 		queryCreateCell,
-		cell.X,
-		cell.Y,
 		cell.UserID,
 		cell.Building,
 		cell.Score,

@@ -13,20 +13,14 @@ import (
 )
 
 type CellService struct {
-	core        config.Core
-	mapStorage  mapstorage.MapStorage
-	userService *UserService
+	core       config.Core
+	mapStorage mapstorage.MapStorage
 }
 
-func NewCellService(
-	core config.Core,
-	storage mapstorage.MapStorage,
-	userService *UserService,
-) *CellService {
+func NewCellService(core config.Core, storage mapstorage.MapStorage) *CellService {
 	return &CellService{
-		core:        core,
-		mapStorage:  storage,
-		userService: userService,
+		core:       core,
+		mapStorage: storage,
 	}
 }
 
@@ -48,9 +42,8 @@ func toFraction(x, y int) string {
 }
 
 func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
-	cell.Fraction = toFraction(cell.X, cell.Y)
-	cell.Cell = fmt.Sprintf("%03d:%03d", cell.X, cell.Y)
-	cell.LastUpdate = time.Now().Unix()
+	cell.Fraction = cell.Cell.ToFraction()
+	cell.UpdatedAt = time.Now().Unix()
 	cell.Building = ""
 	cell.Score = 10
 
@@ -59,6 +52,19 @@ func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
 	}
 
 	return cell, nil
+}
+
+func (s *CellService) AssignCellToUser(cell types.Cell, userID string) (error) {
+	cell.Fraction = cell.Cell.ToFraction()
+	cell.UpdatedAt = time.Now().Unix()
+	cell.Score = 10
+	cell.UserID = userID
+
+	if err := s.mapStorage.CreateCell(cell); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 /*

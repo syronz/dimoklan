@@ -3,6 +3,7 @@ module dimoklan
 go 1.19
 
 require (
+	github.com/Pallinder/sillyname-go v0.0.0-20130730142914-97aeae9e6ba1
 	github.com/aws/aws-sdk-go v1.50.20
 	github.com/fogleman/gg v1.3.0
 	github.com/go-faker/faker/v4 v4.2.0

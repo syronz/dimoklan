@@ -33,6 +33,22 @@ func (bd *BasDynamoDB) CreateAuth(auth types.Auth) error {
 	return nil
 }
 
+func (bd *BasDynamoDB) DeleteAuth(authID string) error {
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(consts.TableData),
+		Key: map[string]*dynamodb.AttributeValue{
+			"PK": {S: aws.String(authID)},
+			"SK": {S: aws.String(authID)},
+		},
+	}
+
+	if _, err := bd.core.DynamoDB().DeleteItem(input); err != nil {
+		return fmt.Errorf("delete_item_failed_for_auth; err:%w", err)
+	}
+
+	return nil
+}
+
 func (bd *BasDynamoDB) GetAuthByEmail(email string) (types.Auth, error) {
 	email = consts.ParAuth + email
 

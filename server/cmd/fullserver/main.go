@@ -14,6 +14,7 @@ import (
 	"dimoklan/consts"
 	"dimoklan/domain/basic/basapi"
 	"dimoklan/domain/basic/basstorage"
+	"dimoklan/domain/map/mapstorage"
 	"dimoklan/internal/config"
 	"dimoklan/internal/echomiddleware"
 	"dimoklan/service"
@@ -80,9 +81,12 @@ func (s *Server) start() {
 		}
 	})
 
+	mapStorage := mapstorage.NewDaynamoCell(s.core)
+	cellService := service.NewCellService(s.core, mapStorage)
+
 	basStorage := basstorage.NewBasDynamoDB(s.core)
 
-	registerService := service.NewRegisterService(s.core, basStorage)
+	registerService := service.NewRegisterService(s.core, basStorage, cellService)
 	registerAPI := basapi.NewBasRegisterAPI(s.core, registerService)
 
 	authService := service.NewAuthService(s.core, basStorage)

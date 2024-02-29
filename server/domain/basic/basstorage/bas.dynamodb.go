@@ -1,9 +1,6 @@
 package basstorage
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-
-	"dimoklan/consts"
 	"dimoklan/internal/config"
 )
 
@@ -15,6 +12,5 @@ type BasDynamoDB struct {
 func NewBasDynamoDB(core config.Core) *BasDynamoDB {
 	return &BasDynamoDB{
 		core: core,
-		registerTable: aws.String(consts.TableRegister),
 	}
 }

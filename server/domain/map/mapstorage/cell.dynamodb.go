@@ -2,6 +2,7 @@ package mapstorage
 
 import (
 	_ "embed"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -13,46 +14,34 @@ import (
 )
 
 type CellDaynamo struct {
-	core     config.Core
-	mapTable *string
+	core config.Core
 }
 
 func NewDaynamoCell(core config.Core) *CellDaynamo {
 	return &CellDaynamo{
-		core:     core,
-		mapTable: aws.String(consts.TableMap),
+		core: core,
 	}
 }
 
 func (ms *CellDaynamo) CreateCell(cell types.Cell) error {
-	type Item struct {
-		Fraction   string `json:"fraction"`
-		Cell       string `json:"cell"`
-		UserID     int    `json:"user_id"`
-		Score      int    `json:"score"`
-		LastUpdate int64  `json:"last_update"`
-	}
+	cell.Fraction = consts.ParFraction + cell.Fraction
+	cell.Cell = consts.ParCell + cell.Cell
+	cell.EntityType = consts.CellEntity
 
-	item := Item{
-		Fraction:   cell.Fraction,
-		Cell:       cell.Cell,
-		UserID:     cell.UserID,
-		Score:      cell.Score,
-		LastUpdate: cell.LastUpdate,
-	}
-
-	// Marshal the item into a Map of attribute values
-	av, err := dynamodbattribute.MarshalMap(item)
+	cellAV, err := dynamodbattribute.MarshalMap(cell)
 	if err != nil {
 		return err
 	}
 
 	input := &dynamodb.PutItemInput{
-		Item:      av,
-		TableName: ms.mapTable,
+		TableName:           aws.String(consts.TableData),
+		Item:                cellAV,
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	}
 
-	_, err = ms.core.DynamoDB().PutItem(input)
+	if _, err = ms.core.DynamoDB().PutItem(input); err != nil {
+		return fmt.Errorf("put_item_failed_for_cell; err:%w", err)
+	}
 
 	return err
 }

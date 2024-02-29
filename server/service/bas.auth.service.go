@@ -31,22 +31,22 @@ func (as *AuthService) Login(auth types.Auth) (types.Auth, error) {
 		return types.Auth{}, err
 	}
 
-	user, err := as.storage.GetUserByEmail(auth.Email)
+	savedAuth, err := as.storage.GetAuthByEmail(auth.Email)
 	if err != nil {
-		as.core.Error(err.Error(), zap.Stack("activation_failed"))
+		as.core.Error(err.Error(), zap.Stack("get_auth_by_email_failed"))
 		return types.Auth{}, err
 	}
 
-	if user.Email == "" {
+	if savedAuth.Email == "" {
 		return types.Auth{}, errors.New("email or password is wrong")
 	}
 
-	if user.Password != util.HashPassword(auth.Password, consts.HashSalt, as.core.GetSalt()) {
+	if savedAuth.Password != util.HashPassword(auth.Password, consts.HashSalt, as.core.GetSalt()) {
 		return types.Auth{}, errors.New("email or password is wrong")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id": auth.UserID,
 		"nbf":     time.Now().Unix(),
 		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(),
 	})

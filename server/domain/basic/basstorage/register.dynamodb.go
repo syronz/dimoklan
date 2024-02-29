@@ -102,12 +102,8 @@ func (bd *BasDynamoDB) ConfirmRegister(activationCode string) (types.Register, e
 	params := &dynamodb.GetItemInput{
 		TableName: aws.String(consts.TableData),
 		Key: map[string]*dynamodb.AttributeValue{
-			"PK": {
-				S: aws.String(activationCode),
-			},
-			"SK": {
-				S: aws.String(activationCode),
-			},
+			"PK": {S: aws.String(activationCode)},
+			"SK": {S: aws.String(activationCode)},
 		},
 	}
 

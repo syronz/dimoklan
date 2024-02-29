@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"log"
 
-	"dimoklan/consts"
-	"dimoklan/types"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+
+	"dimoklan/consts"
+	"dimoklan/types"
 )
 
+/*
 func (m Migration) CreateUserTable() {
 	// Check if the table exists
 	describeTableInput := &dynamodb.DescribeTableInput{
@@ -65,11 +66,13 @@ func (m Migration) CreateUserTable() {
 
 	fmt.Println("Table created successfully:", consts.TableUser)
 }
+*/
 
 func (m Migration) AddUser() {
 	user := types.User{
-		ID:            12885578,
-		Color:         "c49e49",
+		ID:            "u#3224053",
+		SK:            "u#3224053",
+		Color:         "3131f5",
 		Email:         "sabina.diako@gmail.com",
 		Kingdom:       "Malanda",
 		Password:      "6b53d67e399b703b38c58fa4c9e25438478ca0372b190abc2e34579e5e3cfa83",
@@ -80,6 +83,7 @@ func (m Migration) AddUser() {
 		FreezeReason:  "",
 		CreatedAt:     1709064739,
 		UpdatedAt:     1709064739,
+		EntityType:    "user",
 	}
 
 	av, err := dynamodbattribute.MarshalMap(user)
@@ -88,9 +92,8 @@ func (m Migration) AddUser() {
 	}
 
 	input := &dynamodb.PutItemInput{
-		Item:                av,
-		TableName:           aws.String(consts.TableUser),
-		ConditionExpression: aws.String("attribute_not_exists(email)"),
+		Item:      av,
+		TableName: aws.String(consts.TableData),
 	}
 
 	if _, err = m.svc.PutItem(input); err != nil {
@@ -100,6 +103,7 @@ func (m Migration) AddUser() {
 	fmt.Println("User added successfully")
 }
 
+/*
 func (m Migration) DeleteUserTable() {
 	input := &dynamodb.DeleteTableInput{
 		TableName: aws.String(consts.TableUser),
@@ -112,3 +116,4 @@ func (m Migration) DeleteUserTable() {
 		return
 	}
 }
+*/

@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -15,6 +16,7 @@ type Register struct {
 	Language       string `json:"language" dynamodbav:"Language"`
 	Password       string `json:"password,omitempty" dynamodbav:"Password"`
 	ActivationCode string `json:"activation_code,omitempty" dynamodbav:"PK"`
+	Cell           CELL   `json:"cell,omitempty" dynamodbav:"Cell"`
 	EntityType     string `json:"-" dynamodbav:"EntityType"`
 	TTL            int64  `json:"-" dynamodbav:"TTL"`
 	SK             string `json:"-" dynamodbav:"SK"`
@@ -27,6 +29,10 @@ func (r *Register) ValidateRegister() error {
 
 	if !validatePassword(r.Password) {
 		return errors.New("password not accepted")
+	}
+
+	if !validateRegisterCell(r.Cell.ToString()) {
+		return errors.New("cell is not valid")
 	}
 
 	return nil
@@ -85,4 +91,21 @@ func validatePassword(password string) bool {
 
 	// Return true if all criteria are met
 	return hasLower && hasUpper && hasDigit
+}
+
+func validateRegisterCell(cell string) bool {
+	coords := strings.Split(cell, ":")
+	if len(coords) != 2 {
+		return false
+	}
+	num, err := strconv.Atoi(coords[0])
+	if num == 0 || num > consts.MaxX || err != nil {
+		return false
+	}
+	num, err = strconv.Atoi(coords[1])
+	if num == 0 || num > consts.MaxX || err != nil {
+		return false
+	}
+
+	return true
 }

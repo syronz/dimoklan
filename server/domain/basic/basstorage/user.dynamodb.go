@@ -31,7 +31,6 @@ import (
 // }
 
 func (bd *BasDynamoDB) CreateUser(user types.User) error {
-	fmt.Printf(">>>>>... %+v\n", user)
 	user.ID = consts.ParUser + user.ID
 	user.SK = user.ID
 	user.EntityType = consts.UserEntity
@@ -48,6 +47,22 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 
 	if _, err = bd.core.DynamoDB().PutItem(input); err != nil {
 		return fmt.Errorf("put_item_failed_for_user; err:%w", err)
+	}
+
+	return nil
+}
+
+func (bd *BasDynamoDB) DeleteUser(userID string) error {
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(consts.TableData),
+		Key: map[string]*dynamodb.AttributeValue{
+			"PK": {S: aws.String(userID)},
+			"SK": {S: aws.String(userID)},
+		},
+	}
+
+	if _, err := bd.core.DynamoDB().DeleteItem(input); err != nil {
+		return fmt.Errorf("delete_item_failed_for_user; err:%w", err)
 	}
 
 	return nil

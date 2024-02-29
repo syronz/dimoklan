@@ -1,15 +1,6 @@
 package basmigration
 
-import (
-	"fmt"
-	"log"
-
-	"dimoklan/consts"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-)
-
+/*
 func (m Migration) CreateRegisterTable() {
 	// Check if the table exists
 	describeTableInput := &dynamodb.DescribeTableInput{
@@ -105,3 +96,4 @@ func (m Migration) DeleteRegisterTable() {
 		return
 	}
 }
+*/

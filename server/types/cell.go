@@ -1,16 +1,15 @@
 package types
 
 type Cell struct {
-	Fraction string `json:"fraction"`
-	X        int    `json:"x"`
-	Y        int    `json:"y"`
-	UserID   int    `json:"user_id"`
-	Building string `json:"building"`
-	Score    int    `json:"score"`
+	Fraction string `json:"fraction" dynamodbav:"PK"`
+	Cell     CELL   `json:"cell" dynamodbav:"SK"`
+	UserID   string `json:"user_id" dynamodbav:"UserID"`
+	Building string `json:"building" dynamodbav:"Building"`
+	Score    int    `json:"score" dynamodbav:"Score"`
 
 	// internal attributes
-	Cell       string `json:"cell"`
-	LastUpdate int64  `json:"last_update"`
+	UpdatedAt  int64  `json:"last_update" dynamodbav:"UpdatedAt"`
+	EntityType string `json:"-" dynamodbav:"EntityType"`
 }
 
 func validateCell(c *Cell) bool { return true }

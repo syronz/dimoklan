@@ -35,13 +35,9 @@ func main() {
 
 	switch *action {
 	case "up":
-		migrationActor.CreateRegisterTable()
-		migrationActor.CreateUserTable()
-		migrationActor.AddUser()
 		migrationActor.CreateDataTable()
+		migrationActor.AddUser()
 	case "down":
-		migrationActor.DeleteRegisterTable()
-		migrationActor.DeleteUserTable()
 		migrationActor.DeleteDataTable()
 	default:
 		log.Fatal("action is invalid")
