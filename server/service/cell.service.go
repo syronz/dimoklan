@@ -4,28 +4,27 @@ import (
 	"fmt"
 	"time"
 
-	"dimoklan/domain/map/mapstorage"
 	"dimoklan/internal/config"
+	"dimoklan/repo"
 	"dimoklan/types"
-	"dimoklan/util"
 
 	"go.uber.org/zap"
 )
 
 type CellService struct {
-	core       config.Core
-	mapStorage mapstorage.MapStorage
+	core    config.Core
+	storage repo.Storage
 }
 
-func NewCellService(core config.Core, storage mapstorage.MapStorage) *CellService {
+func NewCellService(core config.Core, storage repo.Storage) *CellService {
 	return &CellService{
-		core:       core,
-		mapStorage: storage,
+		core:    core,
+		storage: storage,
 	}
 }
 
 func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
-	cell, err := s.mapStorage.GetCellByCoord(x, y)
+	cell, err := s.storage.GetCellByCoord(x, y)
 	if err != nil {
 		s.core.Error(err.Error(), zap.String("coordination", fmt.Sprintf("%v:%v", x, y)))
 		return cell, err
@@ -34,33 +33,26 @@ func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
 	return cell, nil
 }
 
-func toFraction(x, y int) string {
-	x = util.CeilInt(float64(x) / 10)
-	y = util.CeilInt(float64(y) / 10)
-
-	return fmt.Sprintf("%d:%d", x, y)
-}
-
 func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
 	cell.Fraction = cell.Cell.ToFraction()
 	cell.UpdatedAt = time.Now().Unix()
 	cell.Building = ""
 	cell.Score = 10
 
-	if err := s.mapStorage.CreateCell(cell); err != nil {
+	if err := s.storage.CreateCell(cell); err != nil {
 		return cell, err
 	}
 
 	return cell, nil
 }
 
-func (s *CellService) AssignCellToUser(cell types.Cell, userID string) (error) {
+func (s *CellService) AssignCellToUser(cell types.Cell, userID string) error {
 	cell.Fraction = cell.Cell.ToFraction()
 	cell.UpdatedAt = time.Now().Unix()
 	cell.Score = 10
 	cell.UserID = userID
 
-	if err := s.mapStorage.CreateCell(cell); err != nil {
+	if err := s.storage.CreateCell(cell); err != nil {
 		return err
 	}
 

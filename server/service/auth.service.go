@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"dimoklan/consts"
-	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
+	"dimoklan/repo"
 	"dimoklan/types"
 	"dimoklan/util"
 
@@ -16,10 +16,10 @@ import (
 
 type AuthService struct {
 	core    config.Core
-	storage basstorage.BasStorage
+	storage repo.Storage
 }
 
-func NewAuthService(core config.Core, storage basstorage.BasStorage) *AuthService {
+func NewAuthService(core config.Core, storage repo.Storage) *AuthService {
 	return &AuthService{
 		core:    core,
 		storage: storage,

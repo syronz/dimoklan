@@ -1,4 +1,4 @@
-package basmigration
+package migration
 
 import (
 	"github.com/aws/aws-sdk-go/aws"

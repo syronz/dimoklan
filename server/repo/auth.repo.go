@@ -1,4 +1,4 @@
-package basstorage
+package repo
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"dimoklan/types"
 )
 
-func (bd *BasDynamoDB) CreateAuth(auth types.Auth) error {
+func (r *Repo) CreateAuth(auth types.Auth) error {
 	auth.Email = consts.ParAuth + auth.Email
 	auth.SK = auth.Email
 	auth.EntityType = consts.AuthEntity
@@ -26,14 +26,14 @@ func (bd *BasDynamoDB) CreateAuth(auth types.Auth) error {
 		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	}
 
-	if _, err = bd.core.DynamoDB().PutItem(input); err != nil {
+	if _, err = r.core.DynamoDB().PutItem(input); err != nil {
 		return fmt.Errorf("put_item_failed_for_auth; err:%w", err)
 	}
 
 	return nil
 }
 
-func (bd *BasDynamoDB) DeleteAuth(authID string) error {
+func (r *Repo) DeleteAuth(authID string) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String(consts.TableData),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -42,14 +42,14 @@ func (bd *BasDynamoDB) DeleteAuth(authID string) error {
 		},
 	}
 
-	if _, err := bd.core.DynamoDB().DeleteItem(input); err != nil {
+	if _, err := r.core.DynamoDB().DeleteItem(input); err != nil {
 		return fmt.Errorf("delete_item_failed_for_auth; err:%w", err)
 	}
 
 	return nil
 }
 
-func (bd *BasDynamoDB) GetAuthByEmail(email string) (types.Auth, error) {
+func (r *Repo) GetAuthByEmail(email string) (types.Auth, error) {
 	email = consts.ParAuth + email
 
 	params := &dynamodb.GetItemInput{
@@ -64,7 +64,7 @@ func (bd *BasDynamoDB) GetAuthByEmail(email string) (types.Auth, error) {
 		},
 	}
 
-	resp, err := bd.core.DynamoDB().GetItem(params)
+	resp, err := r.core.DynamoDB().GetItem(params)
 	if err != nil {
 		return types.Auth{}, fmt.Errorf("error in getting auth entity; err: %w", err)
 	}

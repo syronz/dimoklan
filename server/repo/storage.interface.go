@@ -1,8 +1,8 @@
-package basstorage
+package repo
 
 import "dimoklan/types"
 
-type BasStorage interface {
+type Storage interface {
 	CreateUser(types.User) error
 	DeleteUser(string) error
 	GetUserByEmail(string) (types.User, error)
@@ -16,4 +16,8 @@ type BasStorage interface {
 
 	CreateMarshal(types.Marshal) error
 	DeleteMarshal(string, string) error
+
+	CreateCell(types.Cell) error
+	GetCellByCoord(int, int) (types.Cell, error)
+	GetMapUsers(types.Point, types.Point) (map[types.Point]int, error)
 }

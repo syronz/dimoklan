@@ -1,4 +1,4 @@
-package basstorage
+package repo
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 	"dimoklan/types"
 )
 
-// func (bd *BasDynamoDB) CreateRegister(register types.Register) error {
+// func (r *Repo) CreateRegister(register types.Register) error {
 // 	av, err := dynamodbattribute.MarshalMap(register)
 // 	if err != nil {
 // 		return fmt.Errorf("error in marshmap register; %w", err)
@@ -36,7 +36,7 @@ import (
 // 	return err
 // }
 
-func (bd *BasDynamoDB) CreateRegister(register types.Register) error {
+func (r *Repo) CreateRegister(register types.Register) error {
 	register.ActivationCode = consts.ParRegister + register.ActivationCode
 	register.SK = register.ActivationCode
 	register.EntityType = consts.RegisterEntity
@@ -52,7 +52,7 @@ func (bd *BasDynamoDB) CreateRegister(register types.Register) error {
 		ConditionExpression: aws.String("attribute_not_exists(email)"),
 	}
 
-	_, err = bd.core.DynamoDB().PutItem(input)
+	_, err = r.core.DynamoDB().PutItem(input)
 	if err != nil {
 		var awsErr awserr.Error
 		if errors.As(err, &awsErr) && awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
@@ -63,7 +63,7 @@ func (bd *BasDynamoDB) CreateRegister(register types.Register) error {
 	return err
 }
 
-// func (bd *BasDynamoDB) ConfirmRegister(activationCode string) (types.Register, error) {
+// func (r *Repo) ConfirmRegister(activationCode string) (types.Register, error) {
 // 	// Define the query input
 // 	queryInput := &dynamodb.QueryInput{
 // 		TableName:              aws.String(consts.TableRegister), // Replace with your table name
@@ -96,7 +96,7 @@ func (bd *BasDynamoDB) CreateRegister(register types.Register) error {
 // 	return registers[0], nil
 // }
 
-func (bd *BasDynamoDB) ConfirmRegister(activationCode string) (types.Register, error) {
+func (r *Repo) ConfirmRegister(activationCode string) (types.Register, error) {
 	activationCode = consts.ParRegister + activationCode
 
 	params := &dynamodb.GetItemInput{
@@ -108,7 +108,7 @@ func (bd *BasDynamoDB) ConfirmRegister(activationCode string) (types.Register, e
 	}
 
 	// read the item
-	resp, err := bd.core.DynamoDB().GetItem(params)
+	resp, err := r.core.DynamoDB().GetItem(params)
 	if err != nil {
 		return types.Register{}, fmt.Errorf("error in getting register entity; err: %w", err)
 	}

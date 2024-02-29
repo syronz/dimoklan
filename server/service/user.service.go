@@ -4,16 +4,16 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 
-	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
+	"dimoklan/repo"
 )
 
 type UserService struct {
 	core    config.Core
-	storage basstorage.BasStorage
+	storage repo.Storage
 }
 
-func NewUserService(core config.Core, storage basstorage.BasStorage) *UserService {
+func NewUserService(core config.Core, storage repo.Storage) *UserService {
 	return &UserService{
 		core:    core,
 		storage: storage,

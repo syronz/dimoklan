@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"dimoklan/internal/mapmigration"
+	"dimoklan/internal/migration"
 )
 
 var (
@@ -29,13 +29,14 @@ func main() {
 		log.Fatal("endpoint is required")
 	}
 
-	migrationActor := mapmigration.New(*region, *endpoint)
+	migrationActor := migration.New(*region, *endpoint)
 
 	switch *action {
 	case "up":
-		migrationActor.CreateMapTable()
+		migrationActor.CreateDataTable()
+		migrationActor.AddUser()
 	case "down":
-		migrationActor.DeleteMapTable()
+		migrationActor.DeleteDataTable()
 	default:
 		log.Fatal("action is invalid")
 	}

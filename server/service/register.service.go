@@ -13,19 +13,19 @@ import (
 	"go.uber.org/zap"
 
 	"dimoklan/consts"
-	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
+	"dimoklan/repo"
 	"dimoklan/types"
 	"dimoklan/util"
 )
 
 type RegisterService struct {
 	core        config.Core
-	storage     basstorage.BasStorage
+	storage     repo.Storage
 	cellService *CellService
 }
 
-func NewRegisterService(core config.Core, storage basstorage.BasStorage, cellService *CellService) *RegisterService {
+func NewRegisterService(core config.Core, storage repo.Storage, cellService *CellService) *RegisterService {
 	return &RegisterService{
 		core:        core,
 		storage:     storage,

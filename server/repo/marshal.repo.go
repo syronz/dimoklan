@@ -1,4 +1,4 @@
-package basstorage
+package repo
 
 import (
 	"errors"
@@ -13,10 +13,9 @@ import (
 	"dimoklan/types"
 )
 
-func (bd *BasDynamoDB) CreateMarshal(marshal types.Marshal) error {
+func (r *Repo) CreateMarshal(marshal types.Marshal) error {
 	marshal.UserID = consts.ParUser + marshal.UserID
 	marshal.ID = consts.ParMarshal + marshal.ID
-
 
 	fmt.Printf(">>>>>> M %+v\n", marshal)
 	av, err := dynamodbattribute.MarshalMap(marshal)
@@ -30,7 +29,7 @@ func (bd *BasDynamoDB) CreateMarshal(marshal types.Marshal) error {
 		ConditionExpression: aws.String("attribute_not_exists(SK)"),
 	}
 
-	_, err = bd.core.DynamoDB().PutItem(input)
+	_, err = r.core.DynamoDB().PutItem(input)
 	if err != nil {
 		var awsErr awserr.Error
 		if errors.As(err, &awsErr) && awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
@@ -41,7 +40,7 @@ func (bd *BasDynamoDB) CreateMarshal(marshal types.Marshal) error {
 	return err
 }
 
-func (bd *BasDynamoDB) DeleteMarshal(userID, marshalID string) error {
+func (r *Repo) DeleteMarshal(userID, marshalID string) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String(consts.TableData),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -50,10 +49,9 @@ func (bd *BasDynamoDB) DeleteMarshal(userID, marshalID string) error {
 		},
 	}
 
-	if _, err := bd.core.DynamoDB().DeleteItem(input); err != nil {
+	if _, err := r.core.DynamoDB().DeleteItem(input); err != nil {
 		return fmt.Errorf("delete_item_failed_for_marshal; err:%w", err)
 	}
 
 	return nil
 }
-

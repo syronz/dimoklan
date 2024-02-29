@@ -1,4 +1,4 @@
-package basmigration
+package migration
 
 import (
 	"fmt"

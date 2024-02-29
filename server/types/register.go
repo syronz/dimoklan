@@ -8,18 +8,19 @@ import (
 	"unicode"
 
 	"dimoklan/consts"
+	"dimoklan/types/localtype"
 )
 
 type Register struct {
-	Email          string `json:"email" dynamodbav:"Email"`
-	Kingdom        string `json:"kingdom" dynamodbav:"Kingdom"`
-	Language       string `json:"language" dynamodbav:"Language"`
-	Password       string `json:"password,omitempty" dynamodbav:"Password"`
-	ActivationCode string `json:"activation_code,omitempty" dynamodbav:"PK"`
-	Cell           CELL   `json:"cell,omitempty" dynamodbav:"Cell"`
-	EntityType     string `json:"-" dynamodbav:"EntityType"`
-	TTL            int64  `json:"-" dynamodbav:"TTL"`
-	SK             string `json:"-" dynamodbav:"SK"`
+	Email          string         `json:"email" dynamodbav:"Email"`
+	Kingdom        string         `json:"kingdom" dynamodbav:"Kingdom"`
+	Language       string         `json:"language" dynamodbav:"Language"`
+	Password       string         `json:"password,omitempty" dynamodbav:"Password"`
+	ActivationCode string         `json:"activation_code,omitempty" dynamodbav:"PK"`
+	Cell           localtype.CELL `json:"cell,omitempty" dynamodbav:"Cell"`
+	EntityType     string         `json:"-" dynamodbav:"EntityType"`
+	TTL            int64          `json:"-" dynamodbav:"TTL"`
+	SK             string         `json:"-" dynamodbav:"SK"`
 }
 
 func (r *Register) ValidateRegister() error {

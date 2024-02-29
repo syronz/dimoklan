@@ -1,4 +1,4 @@
-package basstorage
+package repo
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"dimoklan/types"
 )
 
-// func (bd *BasDynamoDB) CreateUser(user types.User) error {
+// func (r *Repo) CreateUser(user types.User) error {
 // 	av, err := dynamodbattribute.MarshalMap(user)
 // 	if err != nil {
 // 		return fmt.Errorf("error in marshmap user; err: %w", err)
@@ -30,7 +30,7 @@ import (
 // 	return nil
 // }
 
-func (bd *BasDynamoDB) CreateUser(user types.User) error {
+func (r *Repo) CreateUser(user types.User) error {
 	user.ID = consts.ParUser + user.ID
 	user.SK = user.ID
 	user.EntityType = consts.UserEntity
@@ -45,14 +45,14 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	}
 
-	if _, err = bd.core.DynamoDB().PutItem(input); err != nil {
+	if _, err = r.core.DynamoDB().PutItem(input); err != nil {
 		return fmt.Errorf("put_item_failed_for_user; err:%w", err)
 	}
 
 	return nil
 }
 
-func (bd *BasDynamoDB) DeleteUser(userID string) error {
+func (r *Repo) DeleteUser(userID string) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String(consts.TableData),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -61,14 +61,14 @@ func (bd *BasDynamoDB) DeleteUser(userID string) error {
 		},
 	}
 
-	if _, err := bd.core.DynamoDB().DeleteItem(input); err != nil {
+	if _, err := r.core.DynamoDB().DeleteItem(input); err != nil {
 		return fmt.Errorf("delete_item_failed_for_user; err:%w", err)
 	}
 
 	return nil
 }
 
-// func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
+// func (r *Repo) GetUserByEmail(email string) (types.User, error) {
 // 	queryInput := &dynamodb.QueryInput{
 // 		TableName:              aws.String(consts.TableUser),
 // 		IndexName:              aws.String(consts.IndexEmail),
@@ -99,7 +99,7 @@ func (bd *BasDynamoDB) DeleteUser(userID string) error {
 // 	return types.User{}, nil
 // }
 
-func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
+func (r *Repo) GetUserByEmail(email string) (types.User, error) {
 	email = consts.ParAuth + email
 
 	params := &dynamodb.GetItemInput{
@@ -114,7 +114,7 @@ func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
 		},
 	}
 
-	resp, err := bd.core.DynamoDB().GetItem(params)
+	resp, err := r.core.DynamoDB().GetItem(params)
 	if err != nil {
 		return types.User{}, fmt.Errorf("error in getting user entity; err: %w", err)
 	}
