@@ -1,18 +1,20 @@
 package types
 
 type User struct {
-	ID            int    `json:"id"`
-	Color         string `json:"color"`
-	Email         string `json:"email"`
-	Kingdom       string `json:"kingdom"`
-	Password      string `json:"password"`
-	Language      string `json:"language"`
-	Suspend       bool   `json:"suspend"`
-	SuspendReason string `json:"suspend_reason"`
-	Freeze        bool   `json:"freeze"`
-	FreezeReason  string `json:"freeze_reason"`
-	CreatedAt     int64  `json:"created_at"`
-	UpdatedAt     int64  `json:"updated_at"`
+	ID            string `json:"id" dynamodbav:"PK"`
+	Color         string `json:"color" dynamodbav:"Color"`
+	Email         string `json:"email" dynamodbav:"Email"`
+	Kingdom       string `json:"kingdom" dynamodbav:"Kingdom"`
+	Password      string `json:"password,omitempty" dynamodbav:"Password"`
+	Language      string `json:"language" dynamodbav:"Language"`
+	Suspend       bool   `json:"suspend" dynamodbav:"Suspend"`
+	SuspendReason string `json:"suspend_reason" dynamodbav:"SuspendReason"`
+	Freeze        bool   `json:"freeze" dynamodbav:"Freeze"`
+	FreezeReason  string `json:"freeze_reason" dynamodbav:"FreezeReason"`
+	CreatedAt     int64  `json:"created_at" dynamodbav:"CreatedAt"`
+	UpdatedAt     int64  `json:"updated_at" dynamodbav:"UpdatedAt"`
+	SK            string `json:"-" dynamodbav:"SK"`
+	EntityType    string `json:"-" dynamodbav:"EntityType"`
 }
 
 func validateUser(u *User) bool { return true }

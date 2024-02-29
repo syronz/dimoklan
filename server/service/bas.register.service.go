@@ -35,14 +35,10 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 		return types.Register{}, err
 	}
 
-	// Get the current time
-	currentTime := time.Now().String() + consts.HashSalt
-
-	// Convert the current time to a byte slice
-	currentTimeBytes := []byte(currentTime)
+	hashedEmail := consts.HashSalt + register.Email + rs.core.GetSalt()
 
 	// Calculate the SHA-256 hash of the byte slice
-	activationCode := sha256.Sum256(currentTimeBytes)
+	activationCode := sha256.Sum256([]byte(hashedEmail))
 	activationCodeHashed := sha256.Sum256([]byte(hex.EncodeToString(activationCode[:])))
 
 	register.ActivationCode = hex.EncodeToString(activationCodeHashed[:])
@@ -68,13 +64,13 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 	}
 
 	fmt.Println(">>>> actiation code: ", hex.EncodeToString(activationCode[:]))
-
+	register.Password = ""
+	register.ActivationCode = ""
 	return register, nil
 }
 
 func (rs *RegisterService) Confirm(activationCode string) error {
 	activationCodeHashed := sha256.Sum256([]byte(activationCode))
-
 
 	register, err := rs.storage.ConfirmRegister(hex.EncodeToString(activationCodeHashed[:]))
 	if err != nil {
@@ -97,7 +93,7 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 	id := rand.Intn(consts.MaxUserID)
 
 	user := types.User{
-		ID:            id,
+		ID:            strconv.Itoa(id),
 		Color:         strconv.FormatInt(int64(id), 16),
 		Email:         register.Email,
 		Kingdom:       register.Kingdom,

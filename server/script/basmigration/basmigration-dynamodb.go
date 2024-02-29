@@ -38,9 +38,11 @@ func main() {
 		migrationActor.CreateRegisterTable()
 		migrationActor.CreateUserTable()
 		migrationActor.AddUser()
+		migrationActor.CreateDataTable()
 	case "down":
 		migrationActor.DeleteRegisterTable()
 		migrationActor.DeleteUserTable()
+		migrationActor.DeleteDataTable()
 	default:
 		log.Fatal("action is invalid")
 	}

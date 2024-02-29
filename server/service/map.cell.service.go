@@ -40,9 +40,9 @@ func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
 	return cell, nil
 }
 
-func toFraction(x,y int) string {
-	x =          util.CeilInt(float64(x) / 10)
-	y =          util.CeilInt(float64(y) / 10)
+func toFraction(x, y int) string {
+	x = util.CeilInt(float64(x) / 10)
+	y = util.CeilInt(float64(y) / 10)
 
 	return fmt.Sprintf("%d:%d", x, y)
 }
@@ -61,6 +61,7 @@ func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
 	return cell, nil
 }
 
+/*
 func (s *CellService) GetMap(start, stop types.Point) ([][]string, error) {
 	mapUsers, err := s.mapStorage.GetMapUsers(start, stop)
 	if err != nil {
@@ -92,3 +93,4 @@ func (s *CellService) GetMap(start, stop types.Point) ([][]string, error) {
 
 	return pixels, nil
 }
+*/

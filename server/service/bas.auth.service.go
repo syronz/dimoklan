@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"dimoklan/consts"
@@ -47,7 +46,7 @@ func (as *AuthService) Login(auth types.Auth) (types.Auth, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": strconv.Itoa(user.ID),
+		"user_id": user.ID,
 		"nbf":     time.Now().Unix(),
 		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(),
 	})

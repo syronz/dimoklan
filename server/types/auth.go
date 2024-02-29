@@ -3,9 +3,10 @@ package types
 import "errors"
 
 type Auth struct {
-	Email    string `json:"email"`
-	Password string `json:"password,omitempty"`
-	Token    string `json:"token"`
+	Email    string `json:"email" dynamodbav:"PK"`
+	Password string `json:"password,omitempty" dynamodbav:"Password"`
+	Token    string `json:"token" dynamodbav:"-"`
+	SK       string `json:"-" dynamodbav:"SK"`
 }
 
 func (a *Auth) ValidateAuth() error {

@@ -3,14 +3,9 @@ package service
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 
-	"dimoklan/consts"
 	"dimoklan/domain/basic/basstorage"
 	"dimoklan/internal/config"
-	"dimoklan/types"
-
-	"go.uber.org/zap"
 )
 
 type UserService struct {
@@ -23,55 +18,6 @@ func NewUserService(core config.Core, storage basstorage.BasStorage) *UserServic
 		core:    core,
 		storage: storage,
 	}
-}
-
-func (s *UserService) GetUserByColor(color string) (types.User, error) {
-	user, err := s.storage.GetUserByColor(color)
-	if err != nil {
-		s.core.Error(err.Error(), zap.String("color", color))
-		return user, err
-	}
-
-	return user, nil
-}
-
-func (s *UserService) Create(user types.User) (types.User, error) {
-	color, err := s.pickColor()
-	if err != nil {
-		s.core.Error(err.Error(), zap.Stack("color_conflict_in_creating_user"))
-		return user, err
-	}
-
-	// user.Code = uuid.New().String()
-	user.Color = color
-
-	if err := s.storage.CreateUser(user); err != nil {
-		return user, err
-	}
-
-	return user, nil
-}
-
-func (s *UserService) pickColor() (string, error) {
-	var color string
-	for i := 0; i <= consts.MaxRetryForPickColor; i++ {
-		color = generateRandomColor()
-		existedUser, err := s.GetUserByColor(color)
-		if err != nil {
-			return "", err
-		}
-
-		if existedUser.ID == 0 {
-			break
-		}
-
-		if i == consts.MaxRetryForPickColor {
-			err = errors.New("failed to generate non existed color")
-			return "", err
-		}
-	}
-
-	return color, nil
 }
 
 func generateRandomColor() string {
@@ -91,13 +37,4 @@ func generateRandomColor() string {
 
 	// Add a '#' prefix
 	return hexString
-}
-
-func (s *UserService) GetAllColors() (map[int]string, error) {
-	mapColors, err := s.storage.GetAllColors()
-	if err != nil {
-		return nil, err
-	}
-
-	return mapColors, nil
 }

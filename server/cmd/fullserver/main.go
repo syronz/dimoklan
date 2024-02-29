@@ -82,9 +82,6 @@ func (s *Server) start() {
 
 	basStorage := basstorage.NewBasDynamoDB(s.core)
 
-	userService := service.NewUserService(s.core, basStorage)
-	userAPI := basapi.NewBasUserAPI(s.core, userService)
-
 	registerService := service.NewRegisterService(s.core, basStorage)
 	registerAPI := basapi.NewBasRegisterAPI(s.core, registerService)
 
@@ -97,7 +94,6 @@ func (s *Server) start() {
 
 	middleware := echomiddleware.NewMiddleware(s.core)
 
-	e.POST("/users", userAPI.CreateUser, defaultRateLimiter)
 	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
 	e.POST("/login", authAPI.Login)

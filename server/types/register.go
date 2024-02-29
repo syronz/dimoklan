@@ -10,12 +10,14 @@ import (
 )
 
 type Register struct {
-	Email          string `json:"email"`
-	ActivationCode string `json:"activation_code"`
-	Kingdom        string `json:"kingdom"`
-	Language       string `json:"language"`
-	Password       string `json:"password"`
-	TTL            int64  `json:"ttl"`
+	Email          string `json:"email" dynamodbav:"Email"`
+	Kingdom        string `json:"kingdom" dynamodbav:"Kingdom"`
+	Language       string `json:"language" dynamodbav:"Language"`
+	Password       string `json:"password,omitempty" dynamodbav:"Password"`
+	ActivationCode string `json:"activation_code,omitempty" dynamodbav:"PK"`
+	EntityType     string `json:"-" dynamodbav:"EntityType"`
+	TTL            int64  `json:"-" dynamodbav:"TTL"`
+	SK             string `json:"-" dynamodbav:"SK"`
 }
 
 func (r *Register) ValidateRegister() error {
