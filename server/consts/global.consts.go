@@ -19,6 +19,7 @@ const (
 	// Entities
 	RegisterEntity = "register"
 	UserEntity = "user"
+	AuthEntity = "user"
 
 	// Partitions
 	ParCell = "c#"
@@ -26,8 +27,12 @@ const (
 	ParRegister = "r#"
 	ParUser = "u#"
 	ParMarshal = "m#"
-	ParEmail = "e#"
+	ParAuth = "e#"
 
 	// Map Domain
 	TableMap = "map"
+
+	// Gameplay
+	GoldForNewUser = 100
+	FarrForNewUser = 10
 )

@@ -95,6 +95,8 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 	user := types.User{
 		ID:            strconv.Itoa(id),
 		Color:         strconv.FormatInt(int64(id), 16),
+		Farr:          consts.FarrForNewUser,
+		Gold:          consts.GoldForNewUser,
 		Email:         register.Email,
 		Kingdom:       register.Kingdom,
 		Password:      register.Password,
@@ -109,6 +111,18 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 
 	if err := rs.storage.CreateUser(user); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("user_creation_failed"))
+		return err
+	}
+
+	auth := types.Auth{
+		UserID:        user.ID,
+		Email:         register.Email,
+		Password:      register.Password,
+		Suspend:       false,
+		SuspendReason: "",
+	}
+	if err := rs.storage.CreateAuth(auth); err != nil {
+		rs.core.Error(err.Error(), zap.Stack("auth_creation_failed"))
 		return err
 	}
 

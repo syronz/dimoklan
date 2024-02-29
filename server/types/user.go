@@ -3,6 +3,8 @@ package types
 type User struct {
 	ID            string `json:"id" dynamodbav:"PK"`
 	Color         string `json:"color" dynamodbav:"Color"`
+	Farr          int    `json:"farr" dynamodbav:"Farr"`
+	Gold          int    `json:"gold" dynamodbav:"Gold"`
 	Email         string `json:"email" dynamodbav:"Email"`
 	Kingdom       string `json:"kingdom" dynamodbav:"Kingdom"`
 	Password      string `json:"password,omitempty" dynamodbav:"Password"`

@@ -8,4 +8,6 @@ type BasStorage interface {
 
 	CreateRegister(types.Register) error
 	ConfirmRegister(string) (types.Register, error)
+
+	CreateAuth(types.Auth) error
 }

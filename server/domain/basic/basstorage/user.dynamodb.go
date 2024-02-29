@@ -43,7 +43,7 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 	input := &dynamodb.PutItemInput{
 		Item:                av,
 		TableName:           aws.String(consts.TableData),
-		ConditionExpression: aws.String("attribute_not_exists(email)"),
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	}
 
 	if _, err = bd.core.DynamoDB().PutItem(input); err != nil {
@@ -85,7 +85,7 @@ func (bd *BasDynamoDB) CreateUser(user types.User) error {
 // }
 
 func (bd *BasDynamoDB) GetUserByEmail(email string) (types.User, error) {
-	email = consts.ParEmail + email
+	email = consts.ParAuth + email
 
 	params := &dynamodb.GetItemInput{
 		TableName: aws.String(consts.TableData),
