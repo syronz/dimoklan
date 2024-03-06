@@ -1,46 +1,45 @@
 package repo
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	"dimoklan/consts"
-	"dimoklan/types"
+	"dimoklan/consts/table"
+	"dimoklan/model"
 )
 
-func (r *Repo) CreateRegister(register types.Register) error {
-	register.ActivationCode = consts.ParRegister + register.ActivationCode
-	register.SK = register.ActivationCode
-	register.EntityType = consts.RegisterEntity
-
-	av, err := dynamodbattribute.MarshalMap(register)
+func (r *Repo) CreateRegister(ctx context.Context, register model.RegisterRepo) error {
+	item, err := attributevalue.MarshalMap(register)
 	if err != nil {
 		return fmt.Errorf("error in marshmap register; %w", err)
 	}
 
-	input := &dynamodb.PutItemInput{
-		Item:                av,
-		TableName:           aws.String(consts.TableData),
-		ConditionExpression: aws.String("attribute_not_exists(email)"),
+	itemInput := &dynamodb.PutItemInput{
+		TableName:           table.Data(),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_not_exists(PK)"),
 	}
 
-	_, err = r.core.DynamoDB().PutItem(input)
+	_, err = r.core.DynamoDB().PutItem(context.TODO(), itemInput)
 	if err != nil {
-		var awsErr awserr.Error
-		if errors.As(err, &awsErr) && awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
-			return fmt.Errorf("email already registered")
+		var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+		if errors.As(err, &conditionalCheckFailedErr) {
+			return fmt.Errorf("email already exists")
 		}
-	}
 
-	return err
+		return fmt.Errorf("error in register; err: %w", err)
+	}
+	return nil
 }
 
-func (r *Repo) ConfirmRegister(activationCode string) (types.Register, error) {
+/*
+func (r *Repo) ConfirmRegister(activationCode string) (model.Register, error) {
 	activationCode = consts.ParRegister + activationCode
 
 	params := &dynamodb.GetItemInput{
@@ -54,15 +53,48 @@ func (r *Repo) ConfirmRegister(activationCode string) (types.Register, error) {
 	// read the item
 	resp, err := r.core.DynamoDB().GetItem(params)
 	if err != nil {
-		return types.Register{}, fmt.Errorf("error in getting register entity; err: %w", err)
+		return model.Register{}, fmt.Errorf("error in getting register entity; err: %w", err)
 	}
 
 	// unmarshal the dynamodb attribute values into a custom struct
-	register := types.Register{}
+	register := model.Register{}
 	err = dynamodbattribute.UnmarshalMap(resp.Item, &register)
 	if err != nil {
-		return types.Register{}, fmt.Errorf("binding registration data failed; err: %w", err)
+		return model.Register{}, fmt.Errorf("binding registration data failed; err: %w", err)
 	}
 
 	return register, nil
+}
+*/
+
+func (r *Repo) ConfirmRegister(ctx context.Context, activationCode string) (model.RegisterRepo, error) {
+
+	activationCodeMarshaled, err := attributevalue.Marshal(activationCode)
+	if err != nil {
+		return model.RegisterRepo{}, fmt.Errorf("error in marshal activation_code; err: %w", err)
+	}
+
+	params := &dynamodb.GetItemInput{
+		TableName: table.Data(),
+		Key: map[string]types.AttributeValue{
+			"PK": activationCodeMarshaled,
+			"SK": activationCodeMarshaled,
+		},
+	}
+
+	// read the item
+	resp, err := r.core.DynamoDB().GetItem(context.TODO(), params)
+	if err != nil {
+		return model.RegisterRepo{}, fmt.Errorf("error in getting register entity; err: %w", err)
+	}
+
+	// unmarshal the dynamodb attribute values into a custom struct
+	registerRepo := model.RegisterRepo{}
+	err = attributevalue.UnmarshalMap(resp.Item, &registerRepo)
+	if err != nil {
+		return model.RegisterRepo{}, fmt.Errorf("binding registration data failed; err: %w", err)
+	}
+
+	return registerRepo, nil
+
 }

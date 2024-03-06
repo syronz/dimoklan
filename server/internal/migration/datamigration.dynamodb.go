@@ -1,21 +1,25 @@
 package migration
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 
-	"dimoklan/consts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"dimoklan/consts"
 )
 
+/*
 func (m Migration) CreateDataTable() {
 	// Check if the table exists
 	describeTableInput := &dynamodb.DescribeTableInput{
 		TableName: aws.String(consts.TableData),
 	}
-	_, err := m.svc.DescribeTable(describeTableInput)
+	_, err := m.client.DescribeTable(describeTableInput)
 	if err == nil {
 		log.Fatalf("table already exist: %v, err:%v", consts.TableData, err)
 	}
@@ -46,7 +50,7 @@ func (m Migration) CreateDataTable() {
 		BillingMode: aws.String(dynamodb.BillingModePayPerRequest),
 	}
 
-	_, err = m.svc.CreateTable(createTableInput)
+	_, err = m.client.CreateTable(createTableInput)
 	if err != nil {
 		log.Fatalf("Error creating table: %v; %v", consts.TableData, err)
 	}
@@ -55,7 +59,7 @@ func (m Migration) CreateDataTable() {
 
 	// Wait for table creation to complete (Optional)
 	// Note: This step is optional and depends on your use case
-	err = m.svc.WaitUntilTableExists(&dynamodb.DescribeTableInput{
+	err = m.client.WaitUntilTableExists(&dynamodb.DescribeTableInput{
 		TableName: aws.String(consts.TableData),
 	})
 	if err != nil {
@@ -73,7 +77,7 @@ func (m Migration) CreateDataTable() {
 		TimeToLiveSpecification: ttlSpecification,
 	}
 
-	_, err = m.svc.UpdateTimeToLive(updateInput)
+	_, err = m.client.UpdateTimeToLive(updateInput)
 	if err != nil {
 		log.Fatalf("Error updating ttl in table: %v; %v", consts.TableData, err)
 	}
@@ -89,9 +93,94 @@ func (m Migration) DeleteDataTable() {
 	}
 
 	// Delete the table
-	_, err := m.svc.DeleteTable(input)
+	_, err := m.client.DeleteTable(input)
 	if err != nil {
 		log.Printf("Error deleting table: %v; %v", consts.TableData, err)
 		return
 	}
+}
+*/
+
+// TableExists determines whether a DynamoDB table exists.
+func (m Migration) TableExists() (bool, error) {
+	exists := true
+	_, err := m.client.DescribeTable(
+		context.TODO(), &dynamodb.DescribeTableInput{TableName: aws.String(consts.TableData)},
+	)
+	if err != nil {
+		var notFoundEx *types.ResourceNotFoundException
+		if errors.As(err, &notFoundEx) {
+			log.Printf("Table %v does not exist.\n", consts.TableData)
+			err = nil
+		} else {
+			log.Printf("Couldn't determine existence of table %q. Here's why: %v\n", consts.TableData, err)
+		}
+		exists = false
+	}
+	return exists, err
+}
+
+func (m Migration) CreateDataTable() {
+	isTableExist, err := m.TableExists()
+	if isTableExist {
+		log.Fatalf("table already exist: %v", consts.TableData)
+	}
+	if err != nil {
+		log.Fatalf("error in checking table existance: %v, err:%v", consts.TableData, err)
+	}
+
+	fmt.Println("Table doesn't exist. Creating table...", consts.TableData)
+	createTableInput := &dynamodb.CreateTableInput{
+		TableName: aws.String(consts.TableData),
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("PK"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+			{
+				AttributeName: aws.String("SK"),
+				AttributeType: types.ScalarAttributeTypeS,
+			},
+		},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("PK"),
+				KeyType:       types.KeyTypeHash,
+			},
+			{
+				AttributeName: aws.String("SK"),
+				KeyType:       types.KeyTypeRange,
+			},
+		},
+		BillingMode: types.BillingModePayPerRequest,
+	}
+
+	_, err = m.client.CreateTable(context.TODO(), createTableInput)
+	if err != nil {
+		log.Fatalf("Error creating table: %v; %v", consts.TableData, err)
+	}
+
+	// TODO: add ttl column
+
+}
+
+func (m Migration) DeleteDataTable() {
+	_, err := m.client.DeleteTable(context.TODO(), &dynamodb.DeleteTableInput{
+		TableName: aws.String(consts.TableData)})
+	if err != nil {
+		log.Fatalf("Couldn't delete table %v. Here's why: %v\n", consts.TableData, err)
+	}
+
+	/*
+		input := &dynamodb.DeleteTableInput{
+			TableName: aws.String(consts.TableData),
+		}
+
+		// Delete the table
+		_, err := m.client.DeleteTable(input)
+		if err != nil {
+			log.Printf("Error deleting table: %v; %v", consts.TableData, err)
+			return
+		}
+	*/
 }

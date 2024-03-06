@@ -14,8 +14,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/time/rate"
 
-	// images
-
 	"image/color"
 	"strconv"
 
@@ -78,7 +76,7 @@ func (s *Server) createCell(c echo.Context) error {
 		})
 	}
 
-	cell, err := s.cellService.Create(cell); 
+	cell, err := s.cellService.Create(cell)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"error": err.Error(),

@@ -1,0 +1,5 @@
+{
+  "method":"get",
+  "url":"_URL_/fractions?coordinates=1:1,1:2",
+  "authorization":"Bearer _TOKEN_"
+}

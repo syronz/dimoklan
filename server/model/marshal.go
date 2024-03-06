@@ -1,6 +1,6 @@
-package types
+package model
 
-import "dimoklan/types/localtype"
+import "dimoklan/model/localtype"
 
 type Marshal struct {
 	UserID     string         `json:"user_id" dynamodbav:"PK"`

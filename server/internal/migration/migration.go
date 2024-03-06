@@ -1,24 +1,39 @@
 package migration
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"context"
+	"log"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
 type Migration struct {
-	svc *dynamodb.DynamoDB
+	client *dynamodb.Client
 }
 
 func New(region, endpoint string) Migration {
-	// Create a session
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String(region),   // Change the region according to your setup
-		Endpoint: aws.String(endpoint), // Local DynamoDB endpoint
-	}))
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(region),
+		config.WithEndpointResolver(aws.EndpointResolverFunc(
+			func(service, region string) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: endpoint}, nil
+			})),
+		config.WithCredentialsProvider(credentials.StaticCredentialsProvider{
+			Value: aws.Credentials{
+				AccessKeyID: "dummy", SecretAccessKey: "dummy", SessionToken: "dummy",
+				Source: "Hard-coded credentials; values are irrelevant for local DynamoDB",
+			},
+		}),
+	)
+	if err != nil {
+		log.Fatal("error in connecting to dynamodb;", err)
+	}
 
 	// Create a DynamoDB service client
 	return Migration{
-		svc: dynamodb.New(sess),
+		client: dynamodb.NewFromConfig(cfg),
 	}
 }

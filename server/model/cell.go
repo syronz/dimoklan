@@ -1,6 +1,6 @@
-package types
+package model
 
-import "dimoklan/types/localtype"
+import "dimoklan/model/localtype"
 
 type Cell struct {
 	Fraction string         `json:"fraction" dynamodbav:"PK"`
@@ -15,3 +15,4 @@ type Cell struct {
 }
 
 func validateCell(c *Cell) bool { return true }
+

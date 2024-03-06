@@ -1,26 +1,63 @@
-package types
+package model
 
 import (
 	"errors"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"dimoklan/consts"
-	"dimoklan/types/localtype"
+	"dimoklan/consts/hashtag"
+	"dimoklan/model/localtype"
 )
 
 type Register struct {
-	Email          string         `json:"email" dynamodbav:"Email"`
-	Kingdom        string         `json:"kingdom" dynamodbav:"Kingdom"`
-	Language       string         `json:"language" dynamodbav:"Language"`
-	Password       string         `json:"password,omitempty" dynamodbav:"Password"`
-	ActivationCode string         `json:"activation_code,omitempty" dynamodbav:"PK"`
-	Cell           localtype.CELL `json:"cell,omitempty" dynamodbav:"Cell"`
-	EntityType     string         `json:"-" dynamodbav:"EntityType"`
-	TTL            int64          `json:"-" dynamodbav:"TTL"`
-	SK             string         `json:"-" dynamodbav:"SK"`
+	Email          string         `json:"email"`
+	Kingdom        string         `json:"kingdom"`
+	Language       string         `json:"language"`
+	Password       string         `json:"password,omitempty"`
+	ActivationCode string         `json:"activation_code,omitempty"`
+	Cell           localtype.CELL `json:"cell,omitempty"`
+}
+
+type RegisterRepo struct {
+	PK             string
+	SK             string
+	EntityType     string
+	Email          string
+	Cell           localtype.CELL
+	Kingdom        string
+	Language       string
+	Password       string
+	ActivationCode string
+	TTL            int64
+}
+
+func (r *Register) ToRepo() RegisterRepo {
+	return RegisterRepo{
+		PK:         hashtag.Register + r.ActivationCode,
+		SK:         hashtag.Register + r.ActivationCode,
+		EntityType: "register",
+		Email:      r.Email,
+		TTL:        time.Now().Add(24 * time.Hour).Unix(),
+		Kingdom:    r.Kingdom,
+		Language:   r.Language,
+		Password:   r.Password,
+		Cell:       r.Cell,
+	}
+}
+
+func (r *RegisterRepo) ToAPI() Register {
+	return Register{
+		Email:          r.Email,
+		Kingdom:        r.Kingdom,
+		Language:       r.Language,
+		Password:       "",
+		ActivationCode: "",
+		Cell:           r.Cell,
+	}
 }
 
 func (r *Register) ValidateRegister() error {

@@ -34,7 +34,7 @@ func main() {
 	switch *action {
 	case "up":
 		migrationActor.CreateDataTable()
-		migrationActor.AddUser()
+		// migrationActor.AddUser()
 	case "down":
 		migrationActor.DeleteDataTable()
 	default:

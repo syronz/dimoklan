@@ -1,7 +1,7 @@
 package config
 
 import (
-	"database/sql"
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -11,9 +11,10 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	dconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
 // config is a struct for saving game env variables
@@ -40,11 +41,8 @@ type config struct {
 type Core struct {
 	config config
 
-	basicMasterDB *sql.DB
-	basicSlaveDB  *sql.DB
-	activityDB    *sql.DB
-	logger        *zap.Logger
-	dynamodb      *dynamodb.DynamoDB
+	logger   *zap.Logger
+	dynamodb *dynamodb.Client
 }
 
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
@@ -75,12 +73,24 @@ func GetCore(configPath string) (cfg Core, err error) {
 		cfg.GetLogLevel(),
 	))
 
-	// map storage dynamodb
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region:   aws.String(cfg.config.MapDynamoDBRegion),
-		Endpoint: aws.String(cfg.config.MapDynamoDBEndpoint),
-	}))
-	cfg.dynamodb = dynamodb.New(sess)
+	// Create a DynamoDB client
+	dynamodbCfg, err := dconfig.LoadDefaultConfig(context.TODO(),
+		dconfig.WithRegion(cfg.config.MapDynamoDBRegion),
+		dconfig.WithEndpointResolver(aws.EndpointResolverFunc(
+			func(service, region string) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: cfg.config.MapDynamoDBEndpoint}, nil
+			})),
+		dconfig.WithCredentialsProvider(credentials.StaticCredentialsProvider{
+			Value: aws.Credentials{
+				AccessKeyID: "dummy", SecretAccessKey: "dummy", SessionToken: "dummy",
+				Source: "Hard-coded credentials; values are irrelevant for local DynamoDB",
+			},
+		}),
+	)
+	if err != nil {
+		log.Fatal("error in connecting to dynamodb;", err)
+	}
+	cfg.dynamodb = dynamodb.NewFromConfig(dynamodbCfg)
 
 	return
 }
@@ -182,19 +192,6 @@ func (c Core) ShowOriginalError() bool {
 	return c.config.OriginalError
 }
 
-// generated
-func (c Core) BasicMasterDB() *sql.DB {
-	return c.basicMasterDB
-}
-
-func (c Core) BasicSlaveDB() *sql.DB {
-	return c.basicSlaveDB
-}
-
-func (c Core) ActivityDB() *sql.DB {
-	return c.activityDB
-}
-
 func (c Core) Debug(msg string, fields ...zap.Field) {
 	c.logger.Debug(msg, fields...)
 }
@@ -223,6 +220,6 @@ func (c Core) Fatal(msg string, fields ...zap.Field) {
 	c.logger.Fatal(msg, fields...)
 }
 
-func (c Core) DynamoDB() *dynamodb.DynamoDB {
+func (c Core) DynamoDB() *dynamodb.Client {
 	return c.dynamodb
 }

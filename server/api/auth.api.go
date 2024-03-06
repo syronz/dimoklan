@@ -7,7 +7,7 @@ import (
 
 	"dimoklan/internal/config"
 	"dimoklan/service"
-	"dimoklan/types"
+	"dimoklan/model"
 )
 
 type AuthAPI struct {
@@ -23,7 +23,7 @@ func NewAuthAPI(core config.Core, authService *service.AuthService) *AuthAPI {
 }
 
 func (s *AuthAPI) Login(c echo.Context) error {
-	var auth types.Auth
+	var auth model.Auth
 
 	if err := c.Bind(&auth); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{

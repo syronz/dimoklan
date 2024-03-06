@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -13,9 +14,10 @@ import (
 	"go.uber.org/zap"
 
 	"dimoklan/consts"
+	"dimoklan/consts/hashtag"
 	"dimoklan/internal/config"
+	"dimoklan/model"
 	"dimoklan/repo"
-	"dimoklan/types"
 	"dimoklan/util"
 )
 
@@ -33,9 +35,9 @@ func NewRegisterService(core config.Core, storage repo.Storage, cellService *Cel
 	}
 }
 
-func (rs *RegisterService) Create(register types.Register) (types.Register, error) {
+func (rs *RegisterService) Create(ctx context.Context, register model.Register) (model.Register, error) {
 	if err := register.ValidateRegister(); err != nil {
-		return types.Register{}, err
+		return model.Register{}, err
 	}
 
 	hashedEmail := consts.HashSalt + register.Email + rs.core.GetSalt()
@@ -46,7 +48,6 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 
 	register.ActivationCode = hex.EncodeToString(activationCodeHashed[:])
 	// delete after 24 hours
-	register.TTL = time.Now().Add(24 * time.Hour).Unix()
 	register.Language = consts.LanguageEn
 	register.Password = util.HashPassword(register.Password, consts.HashSalt, rs.core.GetSalt())
 
@@ -61,7 +62,7 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 		return register, errors.New("email is not avaialble")
 	}
 
-	if err := rs.storage.CreateRegister(register); err != nil {
+	if err := rs.storage.CreateRegister(ctx, register.ToRepo()); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
 	}
@@ -73,17 +74,23 @@ func (rs *RegisterService) Create(register types.Register) (types.Register, erro
 	return register, nil
 }
 
-func (rs *RegisterService) Confirm(activationCode string) error {
+func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) error {
 	activationCodeHashed := sha256.Sum256([]byte(activationCode))
 
-	register, err := rs.storage.ConfirmRegister(hex.EncodeToString(activationCodeHashed[:]))
+	registerRepo, err := rs.storage.ConfirmRegister(ctx, hashtag.Register + hex.EncodeToString(activationCodeHashed[:]))
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
 	}
 
+	register := registerRepo.ToAPI()
+
+	if register.Email == "" {
+		return errors.New("activation is not valid")
+	}
+
 	// check if user already registered with same email
-	tmpUser, err := rs.storage.GetUserByEmail(register.Email)
+	tmpUser, err := rs.storage.GetUserByEmail(hashtag.User + register.Email)
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
@@ -93,11 +100,10 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 		return errors.New("activation has already been completed")
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	id := rand.Intn(consts.MaxUserID)
 
 	// create user
-	user := types.User{
+	user := model.User{
 		ID:            strconv.Itoa(id),
 		Color:         strconv.FormatInt(int64(id), 16),
 		Farr:          consts.FarrForNewUser,
@@ -110,17 +116,19 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 		SuspendReason: "",
 		Freeze:        false,
 		FreezeReason:  "",
-		CreatedAt:     time.Now().Unix(),
-		UpdatedAt:     time.Now().Unix(),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
-	if err := rs.storage.CreateUser(user); err != nil {
+	if err := rs.storage.CreateUser(user.ToRepo()); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("user_creation_failed"))
 		return err
 	}
+	fmt.Println(">>>>>>>", register, tmpUser)
+	return nil
 
 	// create auth for login
-	auth := types.Auth{
+	auth := model.Auth{
 		UserID:        user.ID,
 		Email:         register.Email,
 		Password:      register.Password,
@@ -135,7 +143,7 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 	}
 
 	// create a marshal for user
-	marshal := types.Marshal{
+	marshal := model.Marshal{
 		UserID:     user.ID,
 		ID:         user.ID + ":1",
 		Name:       sillyname.GenerateStupidName(),
@@ -155,7 +163,7 @@ func (rs *RegisterService) Confirm(activationCode string) error {
 		return err
 	}
 
-	cell := types.Cell{
+	cell := model.Cell{
 		Cell: register.Cell,
 	}
 	if err := rs.cellService.AssignCellToUser(cell, marshal.UserID); err != nil {

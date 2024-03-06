@@ -6,7 +6,7 @@ import (
 
 	"dimoklan/internal/config"
 	"dimoklan/repo"
-	"dimoklan/types"
+	"dimoklan/model"
 
 	"go.uber.org/zap"
 )
@@ -23,7 +23,7 @@ func NewCellService(core config.Core, storage repo.Storage) *CellService {
 	}
 }
 
-func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
+func (s *CellService) GetCellByCoord(x, y int) (model.Cell, error) {
 	cell, err := s.storage.GetCellByCoord(x, y)
 	if err != nil {
 		s.core.Error(err.Error(), zap.String("coordination", fmt.Sprintf("%v:%v", x, y)))
@@ -33,7 +33,7 @@ func (s *CellService) GetCellByCoord(x, y int) (types.Cell, error) {
 	return cell, nil
 }
 
-func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
+func (s *CellService) Create(cell model.Cell) (model.Cell, error) {
 	cell.Fraction = cell.Cell.ToFraction()
 	cell.UpdatedAt = time.Now().Unix()
 	cell.Building = ""
@@ -46,7 +46,7 @@ func (s *CellService) Create(cell types.Cell) (types.Cell, error) {
 	return cell, nil
 }
 
-func (s *CellService) AssignCellToUser(cell types.Cell, userID string) error {
+func (s *CellService) AssignCellToUser(cell model.Cell, userID string) error {
 	cell.Fraction = cell.Cell.ToFraction()
 	cell.UpdatedAt = time.Now().Unix()
 	cell.Score = 10

@@ -7,7 +7,7 @@ import (
 	"dimoklan/consts"
 	"dimoklan/internal/config"
 	"dimoklan/repo"
-	"dimoklan/types"
+	"dimoklan/model"
 	"dimoklan/util"
 
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -26,23 +26,23 @@ func NewAuthService(core config.Core, storage repo.Storage) *AuthService {
 	}
 }
 
-func (as *AuthService) Login(auth types.Auth) (types.Auth, error) {
+func (as *AuthService) Login(auth model.Auth) (model.Auth, error) {
 	if err := auth.ValidateAuth(); err != nil {
-		return types.Auth{}, err
+		return model.Auth{}, err
 	}
 
 	savedAuth, err := as.storage.GetAuthByEmail(auth.Email)
 	if err != nil {
 		as.core.Error(err.Error(), zap.Stack("get_auth_by_email_failed"))
-		return types.Auth{}, err
+		return model.Auth{}, err
 	}
 
 	if savedAuth.Email == "" {
-		return types.Auth{}, errors.New("email or password is wrong")
+		return model.Auth{}, errors.New("email or password is wrong")
 	}
 
 	if savedAuth.Password != util.HashPassword(auth.Password, consts.HashSalt, as.core.GetSalt()) {
-		return types.Auth{}, errors.New("email or password is wrong")
+		return model.Auth{}, errors.New("email or password is wrong")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -55,7 +55,7 @@ func (as *AuthService) Login(auth types.Auth) (types.Auth, error) {
 	tokenString, err := token.SignedString([]byte(consts.HashSalt + as.core.GetSalt()))
 	if err != nil {
 		as.core.Error(err.Error(), zap.Stack("token_generation_failed"))
-		return types.Auth{}, err
+		return model.Auth{}, err
 	}
 
 	auth.Password = ""

@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"dimoklan/internal/config"
+	"dimoklan/model"
 	"dimoklan/service"
-	"dimoklan/types"
 )
 
 type RegisterAPI struct {
@@ -24,7 +24,7 @@ func NewRegisterAPI(core config.Core, registerService *service.RegisterService) 
 }
 
 func (br *RegisterAPI) CreateRegister(c echo.Context) error {
-	var register types.Register
+	var register model.Register
 
 	if err := c.Bind(&register); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
@@ -33,7 +33,7 @@ func (br *RegisterAPI) CreateRegister(c echo.Context) error {
 	}
 
 	var err error
-	if register, err = br.registerService.Create(register); err != nil {
+	if register, err = br.registerService.Create(c.Request().Context(), register); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"error": err.Error(),
 		})
@@ -65,7 +65,7 @@ func (br *RegisterAPI) Confirm(c echo.Context) error {
 	}
 
 	var err error
-	if err = br.registerService.Confirm(hashCode); err != nil {
+	if err = br.registerService.Confirm(c.Request().Context(), hashCode); err != nil {
 		return c.HTML(http.StatusOK, printMessage("Confirmation Failed", err.Error()))
 	}
 

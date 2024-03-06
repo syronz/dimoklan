@@ -1,23 +1,29 @@
 package repo
 
-import "dimoklan/types"
+import (
+	"context"
+
+	"dimoklan/model"
+)
 
 type Storage interface {
-	CreateUser(types.User) error
+	CreateUser(model.UserRepo) error
 	DeleteUser(string) error
-	GetUserByEmail(string) (types.User, error)
+	GetUserByEmail(string) (model.UserRepo, error)
 
-	CreateRegister(types.Register) error
-	ConfirmRegister(string) (types.Register, error)
+	CreateRegister(context.Context, model.RegisterRepo) error
+	ConfirmRegister(context.Context, string) (model.RegisterRepo, error)
 
-	CreateAuth(types.Auth) error
+	CreateAuth(model.Auth) error
 	DeleteAuth(string) error
-	GetAuthByEmail(string) (types.Auth, error)
+	GetAuthByEmail(string) (model.Auth, error)
 
-	CreateMarshal(types.Marshal) error
+	CreateMarshal(model.Marshal) error
 	DeleteMarshal(string, string) error
 
-	CreateCell(types.Cell) error
-	GetCellByCoord(int, int) (types.Cell, error)
-	GetMapUsers(types.Point, types.Point) (map[types.Point]int, error)
+	CreateCell(model.Cell) error
+	GetCellByCoord(int, int) (model.Cell, error)
+	GetMapUsers(model.Point, model.Point) (map[model.Point]int, error)
+
+	GetFractions([]string) ([]model.Fraction, error)
 }

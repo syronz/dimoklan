@@ -86,8 +86,11 @@ func (s *Server) start() {
 	registerService := service.NewRegisterService(s.core, storage, cellService)
 	registerAPI := api.NewRegisterAPI(s.core, registerService)
 
-	authService := service.NewAuthService(s.core, storage)
-	authAPI := api.NewAuthAPI(s.core, authService)
+	// authService := service.NewAuthService(s.core, storage)
+	// authAPI := api.NewAuthAPI(s.core, authService)
+
+	// fractionService := service.NewFractionService(s.core, storage)
+	// fractionAPI := api.NewFractionAPI(s.core, fractionService)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")
@@ -97,12 +100,12 @@ func (s *Server) start() {
 
 	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
-	e.POST("/login", authAPI.Login)
+	// e.POST("/login", authAPI.Login)
 	e.GET("/secure", func(c echo.Context) error {
-		// claims := c.Get("claims").(*echomiddleware.CustomClaims)
 		userID := c.Get("user_id")
 		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
 	}, middleware.AuthMiddleware)
+	// e.GET("/fractions", fractionAPI.GetFraction, defaultRateLimiter)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }
