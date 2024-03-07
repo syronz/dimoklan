@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"dimoklan/internal/config"
-	"dimoklan/service"
 	"dimoklan/model"
+	"dimoklan/service"
 )
 
 type AuthAPI struct {
@@ -32,7 +32,7 @@ func (s *AuthAPI) Login(c echo.Context) error {
 	}
 
 	var err error
-	if auth, err = s.authService.Login(auth); err != nil {
+	if auth, err = s.authService.Login(c.Request().Context(), auth); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"error": err.Error(),
 		})

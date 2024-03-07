@@ -1,6 +1,11 @@
 package model
 
-import "errors"
+import (
+	"errors"
+
+	"dimoklan/consts/entity"
+	"dimoklan/consts/hashtag"
+)
 
 type Auth struct {
 	Email         string `json:"email" dynamodbav:"PK"`
@@ -9,8 +14,41 @@ type Auth struct {
 	Suspend       bool   `json:"suspend" dynamodbav:"Suspend"`
 	SuspendReason string `json:"suspend_reason" dynamodbav:"SuspendReason"`
 	UserID        string `json:"-" dynamodbav:"UserID"`
-	SK            string `json:"-" dynamodbav:"SK"`
-	EntityType    string `json:"-" dynamodbav:"EntityType"`
+}
+
+type AuthRepo struct {
+	PK            string `dynamodbav:"PK"`
+	Password      string `dynamodbav:"Password"`
+	Token         string `dynamodbav:"-"`
+	Suspend       bool   `dynamodbav:"Suspend"`
+	SuspendReason string `dynamodbav:"SuspendReason"`
+	UserID        string `dynamodbav:"UserID"`
+	SK            string `dynamodbav:"SK"`
+	EntityType    string `dynamodbav:"EntityType"`
+}
+
+func (a *Auth) ToRepo() AuthRepo {
+	return AuthRepo{
+		PK:            hashtag.Auth + a.Email,
+		SK:            hashtag.Auth + a.Email,
+		Password:      a.Password,
+		Token:         "", // Ignored field
+		Suspend:       a.Suspend,
+		SuspendReason: a.SuspendReason,
+		UserID:        a.UserID,
+		EntityType:    entity.Auth,
+	}
+}
+
+func (a *AuthRepo) ToAPI() Auth {
+	return Auth{
+		Email:         a.PK,
+		Password:      a.Password,
+		Token:         a.Token,
+		Suspend:       a.Suspend,
+		SuspendReason: a.SuspendReason,
+		UserID:        a.UserID,
+	}
 }
 
 func (a *Auth) ValidateAuth() error {

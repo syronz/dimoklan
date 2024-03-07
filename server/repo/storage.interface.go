@@ -7,23 +7,23 @@ import (
 )
 
 type Storage interface {
-	CreateUser(model.UserRepo) error
-	DeleteUser(string) error
-	GetUserByEmail(string) (model.UserRepo, error)
+	CreateUser(context.Context, model.UserRepo) error
+	DeleteUser(context.Context, string) error
+	GetUserByEmail(context.Context, string) (model.UserRepo, error)
 
 	CreateRegister(context.Context, model.RegisterRepo) error
 	ConfirmRegister(context.Context, string) (model.RegisterRepo, error)
 
-	CreateAuth(model.Auth) error
-	DeleteAuth(string) error
-	GetAuthByEmail(string) (model.Auth, error)
+	CreateAuth(context.Context, model.AuthRepo) error
+	DeleteAuth(context.Context, string) error
+	GetAuthByEmail(context.Context, string) (model.Auth, error)
 
-	CreateMarshal(model.Marshal) error
-	DeleteMarshal(string, string) error
+	CreateMarshal(context.Context, model.MarshalRepo) error
+	DeleteMarshal(context.Context, string, string) error
 
-	CreateCell(model.Cell) error
-	GetCellByCoord(int, int) (model.Cell, error)
-	GetMapUsers(model.Point, model.Point) (map[model.Point]int, error)
+	CreateCell(context.Context, model.CellRepo) error
+	GetCellByCoord(context.Context, int, int) (model.Cell, error)
+	GetMapUsers(context.Context, model.Point, model.Point) (map[model.Point]int, error)
 
-	GetFractions([]string) ([]model.Fraction, error)
+	GetFractions(context.Context, []string) ([]model.Fraction, error)
 }

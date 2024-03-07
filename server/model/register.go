@@ -9,6 +9,7 @@ import (
 	"unicode"
 
 	"dimoklan/consts"
+	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
 	"dimoklan/model/localtype"
 )
@@ -39,7 +40,7 @@ func (r *Register) ToRepo() RegisterRepo {
 	return RegisterRepo{
 		PK:         hashtag.Register + r.ActivationCode,
 		SK:         hashtag.Register + r.ActivationCode,
-		EntityType: "register",
+		EntityType: entity.Register,
 		Email:      r.Email,
 		TTL:        time.Now().Add(24 * time.Hour).Unix(),
 		Kingdom:    r.Kingdom,
@@ -54,8 +55,8 @@ func (r *RegisterRepo) ToAPI() Register {
 		Email:          r.Email,
 		Kingdom:        r.Kingdom,
 		Language:       r.Language,
-		Password:       "",
-		ActivationCode: "",
+		Password:       r.Password,
+		ActivationCode: r.ActivationCode,
 		Cell:           r.Cell,
 	}
 }

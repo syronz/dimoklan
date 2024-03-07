@@ -1,12 +1,14 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"dimoklan/consts/newuser"
 	"dimoklan/internal/config"
-	"dimoklan/repo"
 	"dimoklan/model"
+	"dimoklan/repo"
 
 	"go.uber.org/zap"
 )
@@ -23,8 +25,8 @@ func NewCellService(core config.Core, storage repo.Storage) *CellService {
 	}
 }
 
-func (s *CellService) GetCellByCoord(x, y int) (model.Cell, error) {
-	cell, err := s.storage.GetCellByCoord(x, y)
+func (s *CellService) GetCellByCoord(ctx context.Context, x, y int) (model.Cell, error) {
+	cell, err := s.storage.GetCellByCoord(ctx, x, y)
 	if err != nil {
 		s.core.Error(err.Error(), zap.String("coordination", fmt.Sprintf("%v:%v", x, y)))
 		return cell, err
@@ -33,26 +35,26 @@ func (s *CellService) GetCellByCoord(x, y int) (model.Cell, error) {
 	return cell, nil
 }
 
-func (s *CellService) Create(cell model.Cell) (model.Cell, error) {
+func (s *CellService) Create(ctx context.Context, cell model.Cell) (model.Cell, error) {
 	cell.Fraction = cell.Cell.ToFraction()
-	cell.UpdatedAt = time.Now().Unix()
+	cell.UpdatedAt = time.Now()
 	cell.Building = ""
-	cell.Score = 10
+	cell.Score = newuser.Score
 
-	if err := s.storage.CreateCell(cell); err != nil {
+	if err := s.storage.CreateCell(ctx, cell.ToRepo()); err != nil {
 		return cell, err
 	}
 
 	return cell, nil
 }
 
-func (s *CellService) AssignCellToUser(cell model.Cell, userID string) error {
+func (s *CellService) AssignCellToUser(ctx context.Context, cell model.Cell, userID string) error {
 	cell.Fraction = cell.Cell.ToFraction()
-	cell.UpdatedAt = time.Now().Unix()
-	cell.Score = 10
+	cell.UpdatedAt = time.Now()
+	cell.Score = newuser.Score
 	cell.UserID = userID
 
-	if err := s.storage.CreateCell(cell); err != nil {
+	if err := s.storage.CreateCell(ctx, cell.ToRepo()); err != nil {
 		return err
 	}
 

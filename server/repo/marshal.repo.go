@@ -1,10 +1,12 @@
 package repo
 
 import (
+	"context"
+
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateMarshal(marshal model.Marshal) error {
+func (r *Repo) CreateMarshal(ctx context.Context, marshalRepo model.MarshalRepo) error {
 	/*
 		marshal.UserID = consts.ParUser + marshal.UserID
 		marshal.ID = consts.ParMarshal + marshal.ID
@@ -46,7 +48,7 @@ func (r *Repo) CreateMarshal(marshal model.Marshal) error {
 	return nil
 }
 
-func (r *Repo) DeleteMarshal(userID, marshalID string) error {
+func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID string) error {
 	/*
 		input := &dynamodb.DeleteItemInput{
 			TableName: aws.String(consts.TableData),

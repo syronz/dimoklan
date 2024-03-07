@@ -15,30 +15,4 @@ const (
 
 	// Base domain
 	TableData = "data"
-
-	// Entities
-	RegisterEntity = "register"
-	UserEntity     = "user"
-	AuthEntity     = "auth"
-	MarshalEntity  = "marshal"
-	CellEntity     = "cell"
-
-	// Partitions
-	ParCell     = "c#"
-	ParFraction = "f#"
-	ParRegister = "r#"
-	ParUser     = "u#"
-	ParMarshal  = "m#"
-	ParAuth     = "e#"
-
-	// Map Domain
-	TableMap = "map"
-
-	// Gameplay
-	GoldForNewUser   = 100
-	FarrForNewUser   = 10
-	ArmyForNewUser   = 100
-	StarForNewUser   = 1
-	SpeedForNewUser  = 1.
-	AttackForNewUser = 1.
 )

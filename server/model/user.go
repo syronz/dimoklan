@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
 )
 
@@ -59,7 +60,7 @@ func (u *User) ToRepo() UserRepo {
 		FreezeReason:  u.FreezeReason,
 		CreatedAt:     u.CreatedAt.Unix(),
 		UpdatedAt:     u.UpdatedAt.Unix(),
-		EntityType:    "user",
+		EntityType:    entity.User,
 	}
 }
 

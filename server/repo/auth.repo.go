@@ -1,10 +1,42 @@
 package repo
 
 import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+
+	"dimoklan/consts/table"
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateAuth(auth model.Auth) error {
+func (r *Repo) CreateAuth(ctx context.Context, authRepo model.AuthRepo) error {
+	item, err := attributevalue.MarshalMap(authRepo)
+	if err != nil {
+		return fmt.Errorf("error in marshmap authRepo; %w", err)
+	}
+
+	itemInput := &dynamodb.PutItemInput{
+		TableName:           table.Data(),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_not_exists(PK)"),
+	}
+
+	_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+	if err != nil {
+		var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+		if errors.As(err, &conditionalCheckFailedErr) {
+			return fmt.Errorf("email already exists")
+		}
+
+		return fmt.Errorf("error in auth; err: %w", err)
+	}
+	return nil
+
 	/*
 		auth.Email = consts.ParAuth + auth.Email
 		auth.SK = auth.Email
@@ -29,7 +61,7 @@ func (r *Repo) CreateAuth(auth model.Auth) error {
 	return nil
 }
 
-func (r *Repo) DeleteAuth(authID string) error {
+func (r *Repo) DeleteAuth(ctx context.Context, authID string) error {
 	/*
 		input := &dynamodb.DeleteItemInput{
 			TableName: aws.String(consts.TableData),
@@ -47,7 +79,7 @@ func (r *Repo) DeleteAuth(authID string) error {
 	return nil
 }
 
-func (r *Repo) GetAuthByEmail(email string) (model.Auth, error) {
+func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.Auth, error) {
 	/*
 		email = consts.ParAuth + email
 

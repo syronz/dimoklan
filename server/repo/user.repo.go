@@ -2,8 +2,10 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -12,31 +14,31 @@ import (
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateUser(userRepo model.UserRepo) error {
-	/*
-		user.ID = consts.ParUser + user.ID
-		user.SK = user.ID
-		user.EntityType = consts.UserEntity
-		av, err := dynamodbattribute.MarshalMap(user)
-		if err != nil {
-			return fmt.Errorf("error in marshmap user; err: %w", err)
+func (r *Repo) CreateUser(ctx context.Context, userRepo model.UserRepo) error {
+	item, err := attributevalue.MarshalMap(userRepo)
+	if err != nil {
+		return fmt.Errorf("error in marshmap userRepo; %w", err)
+	}
+
+	itemInput := &dynamodb.PutItemInput{
+		TableName:           table.Data(),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+	}
+
+	_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+	if err != nil {
+		var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+		if errors.As(err, &conditionalCheckFailedErr) {
+			return fmt.Errorf("user already exists")
 		}
 
-		input := &dynamodb.PutItemInput{
-			Item:                av,
-			TableName:           aws.String(consts.TableData),
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-		}
-
-		if _, err = r.core.DynamoDB().PutItem(input); err != nil {
-			return fmt.Errorf("put_item_failed_for_user; err:%w", err)
-		}
-	*/
-
+		return fmt.Errorf("error in user; err: %w", err)
+	}
 	return nil
 }
 
-func (r *Repo) DeleteUser(userID string) error {
+func (r *Repo) DeleteUser(ctx context.Context, userID string) error {
 	/*
 		input := &dynamodb.DeleteItemInput{
 			TableName: aws.String(consts.TableData),
@@ -54,7 +56,7 @@ func (r *Repo) DeleteUser(userID string) error {
 	return nil
 }
 
-func (r *Repo) GetUserByEmail(email string) (model.UserRepo, error) {
+func (r *Repo) GetUserByEmail(ctx context.Context, email string) (model.UserRepo, error) {
 
 	emailMarshaled, err := attributevalue.Marshal(email)
 	if err != nil {

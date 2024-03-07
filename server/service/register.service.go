@@ -15,6 +15,7 @@ import (
 
 	"dimoklan/consts"
 	"dimoklan/consts/hashtag"
+	"dimoklan/consts/newuser"
 	"dimoklan/internal/config"
 	"dimoklan/model"
 	"dimoklan/repo"
@@ -52,7 +53,7 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 	register.Password = util.HashPassword(register.Password, consts.HashSalt, rs.core.GetSalt())
 
 	// check if user already registered with same email
-	user, err := rs.storage.GetUserByEmail(register.Email)
+	user, err := rs.storage.GetUserByEmail(ctx, register.Email)
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
@@ -77,7 +78,7 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) error {
 	activationCodeHashed := sha256.Sum256([]byte(activationCode))
 
-	registerRepo, err := rs.storage.ConfirmRegister(ctx, hashtag.Register + hex.EncodeToString(activationCodeHashed[:]))
+	registerRepo, err := rs.storage.ConfirmRegister(ctx, hashtag.Register+hex.EncodeToString(activationCodeHashed[:]))
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
@@ -90,7 +91,7 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 	}
 
 	// check if user already registered with same email
-	tmpUser, err := rs.storage.GetUserByEmail(hashtag.User + register.Email)
+	tmpUser, err := rs.storage.GetUserByEmail(ctx, hashtag.User+register.Email)
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
@@ -106,8 +107,8 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 	user := model.User{
 		ID:            strconv.Itoa(id),
 		Color:         strconv.FormatInt(int64(id), 16),
-		Farr:          consts.FarrForNewUser,
-		Gold:          consts.GoldForNewUser,
+		Farr:          newuser.Farr,
+		Gold:          newuser.Gold,
 		Email:         register.Email,
 		Kingdom:       register.Kingdom,
 		Password:      register.Password,
@@ -120,12 +121,10 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		UpdatedAt:     time.Now(),
 	}
 
-	if err := rs.storage.CreateUser(user.ToRepo()); err != nil {
+	if err := rs.storage.CreateUser(ctx, user.ToRepo()); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("user_creation_failed"))
 		return err
 	}
-	fmt.Println(">>>>>>>", register, tmpUser)
-	return nil
 
 	// create auth for login
 	auth := model.Auth{
@@ -136,29 +135,28 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		SuspendReason: "",
 	}
 
-	if err := rs.storage.CreateAuth(auth); err != nil {
-		rs.storage.DeleteUser(consts.ParUser + user.ID)
+	if err := rs.storage.CreateAuth(ctx, auth.ToRepo()); err != nil {
+		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
 		rs.core.Error(err.Error(), zap.Stack("auth_creation_failed"))
 		return err
 	}
 
 	// create a marshal for user
 	marshal := model.Marshal{
-		UserID:     user.ID,
-		ID:         user.ID + ":1",
-		Name:       sillyname.GenerateStupidName(),
-		Cell:       register.Cell,
-		Army:       consts.ArmyForNewUser,
-		Star:       consts.StarForNewUser,
-		Speed:      consts.SpeedForNewUser,
-		Attack:     consts.AttackForNewUser,
-		Face:       "todo_to_be_added",
-		CreatedAt:  time.Now().Unix(),
-		EntityType: consts.MarshalEntity,
+		UserID:    user.ID,
+		ID:        user.ID + ":1",
+		Name:      sillyname.GenerateStupidName(),
+		Cell:      register.Cell,
+		Army:      newuser.Army,
+		Star:      newuser.Star,
+		Speed:     newuser.Speed,
+		Attack:    newuser.Attack,
+		Face:      "todo_to_be_added",
+		CreatedAt: time.Now(),
 	}
-	if err := rs.storage.CreateMarshal(marshal); err != nil {
-		rs.storage.DeleteUser(consts.ParUser + user.ID)
-		rs.storage.DeleteAuth(consts.ParAuth + auth.Email)
+	if err := rs.storage.CreateMarshal(ctx, marshal.ToRepo()); err != nil {
+		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
+		rs.storage.DeleteAuth(ctx, hashtag.Auth+auth.Email)
 		rs.core.Error(err.Error(), zap.Stack("marshal_creation_failed"))
 		return err
 	}
@@ -166,10 +164,10 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 	cell := model.Cell{
 		Cell: register.Cell,
 	}
-	if err := rs.cellService.AssignCellToUser(cell, marshal.UserID); err != nil {
-		rs.storage.DeleteUser(consts.ParUser + user.ID)
-		rs.storage.DeleteAuth(consts.ParAuth + auth.Email)
-		rs.storage.DeleteMarshal(consts.ParUser+user.ID, consts.ParMarshal+marshal.ID)
+	if err := rs.cellService.AssignCellToUser(ctx, cell, marshal.UserID); err != nil {
+		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
+		rs.storage.DeleteAuth(ctx, hashtag.Auth+auth.Email)
+		rs.storage.DeleteMarshal(ctx, hashtag.User+user.ID, hashtag.Marshal+marshal.ID)
 		rs.core.Error(err.Error(), zap.Stack("error_in_assigning_cell_to_user"))
 		return err
 	}
