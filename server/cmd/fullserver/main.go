@@ -98,7 +98,7 @@ func (s *Server) start() {
 
 	middleware := echomiddleware.NewMiddleware(s.core)
 
-	e.POST("/register", registerAPI.CreateRegister, defaultRateLimiter)
+	e.POST("/register", registerAPI.Create, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
 	e.POST("/login", authAPI.Login)
 	e.GET("/secure", func(c echo.Context) error {

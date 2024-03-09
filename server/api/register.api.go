@@ -23,7 +23,7 @@ func NewRegisterAPI(core config.Core, registerService *service.RegisterService) 
 	}
 }
 
-func (br *RegisterAPI) CreateRegister(c echo.Context) error {
+func (br *RegisterAPI) Create(c echo.Context) error {
 	var register model.Register
 
 	if err := c.Bind(&register); err != nil {
@@ -39,7 +39,7 @@ func (br *RegisterAPI) CreateRegister(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, register)
+	return c.JSON(http.StatusCreated, register)
 }
 
 func printMessage(head, content string) string {

@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"time"
 
 	"dimoklan/consts"
 	"dimoklan/internal/config"
+	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model"
 	"dimoklan/repo"
 	"dimoklan/util"
@@ -14,8 +15,6 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 )
-
-// permanent token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjc3NTc5OTQ1NTgsIm5iZiI6MTcwOTk5NDU1OCwidXNlcl9pZCI6IiJ9.xdDsEq5GeD9M7cK4BD3si2-NVaQiBubGqb5hWx_Tisg
 
 type AuthService struct {
 	core    config.Core
@@ -41,11 +40,11 @@ func (as *AuthService) Login(ctx context.Context, auth model.Auth) (model.Auth, 
 	}
 
 	if savedAuth.Email == "" {
-		return model.Auth{}, errors.New("email or password is wrong")
+		return model.Auth{}, fmt.Errorf("email or password is wrong; code: %w", errstatus.ErrForbidden)
 	}
 
 	if savedAuth.Password != util.HashPassword(auth.Password, consts.HashSalt, as.core.GetSalt()) {
-		return model.Auth{}, errors.New("email or password is wrong")
+		return model.Auth{}, fmt.Errorf("email or password is wrong; code: %w", errstatus.ErrForbidden)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

@@ -1,8 +1,6 @@
 package model
 
 import (
-	"errors"
-
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
 )
@@ -53,8 +51,8 @@ func (a *Auth) ValidateAuth() error {
 		return err
 	}
 
-	if !validatePassword(a.Password) {
-		return errors.New("password not accepted")
+	if err := validatePassword(a.Password); err != nil {
+		return err
 	}
 
 	return nil

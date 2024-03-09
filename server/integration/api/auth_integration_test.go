@@ -21,7 +21,7 @@ import (
 
 func TestAuth(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Auth Suite")
+	RunSpecs(t, "API Suite")
 }
 
 var _ = Describe("AuthAPI Integration Tests", func() {
@@ -38,7 +38,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 		}
 
-		// Setup your configuration and services before each test.
+		// Setup configuration and services before each test.
 		core, err = config.GetCore(testConfigPath)
 		if err != nil {
 			Expect(err).NotTo(HaveOccurred())
@@ -83,27 +83,125 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		Expect(responseAuth.Email).To(Equal("sabina.diako@gmail.com"))
 	})
 
-	Context("when payload is not valid", func() {
-		It("should successfully handle a login request", func() {
+	Context("when login failed", func() {
+		It("email is not valid", func() {
 			authPayload := `{"email": "invalid-email", "password": "StrongPassword2000"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 
-			// Serve the request using the Echo instance.
 			c := e.NewContext(req, rec)
 			err := authAPI.Login(c)
 			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusUnprocessableEntity))
 
-			// Assert the HTTP status code is OK.
-			Expect(rec.Code).To(Equal(http.StatusOK))
-
-			// Parse the response JSON into a model.Auth object.
-			var responseAuth model.Auth
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
 			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(responseAuth.Email).To(Equal("sabina.diako@gmail.com"))
+			Expect(responseAuth.Error).To(ContainSubstring("email is not valid;"))
+		})
+
+		It("email is missing", func() {
+			authPayload := `{"password": "StrongPassword2000"}`
+
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			err := authAPI.Login(c)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusNotAcceptable))
+
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
+			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(responseAuth.Error).To(ContainSubstring("email is required;"))
+		})
+
+		It("password is missing", func() {
+			authPayload := `{"email": "sabina.diako@gmail.com"}`
+
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			err := authAPI.Login(c)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusNotAcceptable))
+
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
+			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(responseAuth.Error).To(ContainSubstring("password is required;"))
+		})
+
+		It("password is not valid", func() {
+			authPayload := `{"email": "sabina.diako@gmail.com", "password": "short pass"}`
+
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			err := authAPI.Login(c)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusNotAcceptable))
+
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
+			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(responseAuth.Error).To(ContainSubstring("password is not acceptable;"))
+		})
+
+		It("password is wrong", func() {
+			authPayload := `{"email": "sabina.diako@gmail.com", "password": "This is 100% not a right Password"}`
+
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			err := authAPI.Login(c)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusForbidden))
+
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
+			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(responseAuth.Error).To(ContainSubstring("email or password is wrong;"))
+		})
+
+		It("email is not exist", func() {
+			authPayload := `{"email": "not.exist@gmail.com", "password": "StrongPassword2000"}`
+
+			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+
+			c := e.NewContext(req, rec)
+			err := authAPI.Login(c)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(rec.Code).To(Equal(http.StatusForbidden))
+
+			responseAuth := struct {
+				Error string `json:"error"`
+			}{}
+			err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(responseAuth.Error).To(ContainSubstring("email or password is wrong;"))
 		})
 	})
 })

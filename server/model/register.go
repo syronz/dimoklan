@@ -68,7 +68,7 @@ func (r *Register) ValidateRegister() error {
 		return err
 	}
 
-	if !validatePassword(r.Password) {
+	if err := validatePassword(r.Password); err != nil {
 		return errors.New("password not accepted")
 	}
 
@@ -97,10 +97,15 @@ func validateEmail(email string) error {
 	return nil
 }
 
-func validatePassword(password string) bool {
+func validatePassword(password string) error {
 	// Check if the password length is at least 12 characters
-	if len(password) < 12 {
-		return false
+	if password == "" {
+		return fmt.Errorf("password is required; code: %w", errstatus.ErrNotAcceptable)
+	}
+
+	hasLength := false
+	if len(password) >= consts.MinPasswordLength {
+		hasLength = true
 	}
 
 	// Check if the password contains at least one lowercase letter
@@ -131,7 +136,11 @@ func validatePassword(password string) bool {
 	}
 
 	// Return true if all criteria are met
-	return hasLower && hasUpper && hasDigit
+	if !(hasLength && hasLower && hasUpper && hasDigit) {
+		return fmt.Errorf("password is not acceptable; code: %w", errstatus.ErrNotAcceptable)
+	}
+
+	return nil
 }
 
 func validateRegisterCell(cell string) bool {

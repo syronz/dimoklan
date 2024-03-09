@@ -22,6 +22,15 @@ go run script/dbmigration/dbmigration.go -action=up -region=us-west-2 -endpoint=
 ## integration test
 
 ```bash
+ginkgo ./...
+
+# code coverage
+go test -cover ./...
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+
+
+
 go test ./integration/mapgenerator/ -v
 
 # run a specific test

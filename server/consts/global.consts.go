@@ -15,4 +15,7 @@ const (
 
 	// Base domain
 	TableData = "data"
+
+	// Min password length
+	MinPasswordLength = 12
 )
