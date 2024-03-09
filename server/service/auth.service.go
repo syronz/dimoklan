@@ -32,13 +32,11 @@ func (as *AuthService) Login(ctx context.Context, auth model.Auth) (model.Auth, 
 		return model.Auth{}, err
 	}
 
-	savedAuthRepo, err := as.storage.GetAuthByEmail(ctx, auth.Email)
+	savedAuth, err := as.storage.GetAuthByEmail(ctx, auth.Email)
 	if err != nil {
 		as.core.Error(err.Error(), zap.Stack("get_auth_by_email_failed"))
 		return model.Auth{}, err
 	}
-
-	savedAuth := savedAuthRepo.ToAPI()
 
 	if savedAuth.Email == "" {
 		return model.Auth{}, errors.New("email or password is wrong")

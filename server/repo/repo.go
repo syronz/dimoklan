@@ -51,6 +51,8 @@ func (r *Repo) putUniqueItem(ctx context.Context, entityType string, itemRepo an
 	return nil
 }
 
+
+// deleteItem is a common function for deleting an item
 func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...string) error {
 	pkMarshaled, err := attributevalue.Marshal(pk)
 	if err != nil {
@@ -58,7 +60,6 @@ func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...stri
 	}
 
 	skMarshaled := pkMarshaled
-
 	if len(sk) > 0 {
 		skMarshaled, err = attributevalue.Marshal(sk)
 		if err != nil {
@@ -76,6 +77,42 @@ func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...stri
 
 	if _, err := r.core.DynamoDB().DeleteItem(ctx, params); err != nil {
 		return fmt.Errorf("delete item failed; entity: %v; err:%w", entityType, err)
+	}
+
+	return nil
+}
+
+
+func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk string, sk ...string) error {
+	pkMarshaled, err := attributevalue.Marshal(pk)
+	if err != nil {
+		return fmt.Errorf("error in marshal pk; entity: %v ; err: %w", entityType, err)
+	}
+
+	skMarshaled := pkMarshaled
+	if len(sk) > 0 {
+		skMarshaled, err = attributevalue.Marshal(sk)
+		if err != nil {
+			return fmt.Errorf("error in marshal sk; entity: %v ; err: %w", entityType, err)
+		}
+	}
+	
+
+	params := &dynamodb.GetItemInput{
+		TableName: table.Data(),
+		Key: map[string]types.AttributeValue{
+			"PK": pkMarshaled,
+			"SK": skMarshaled,
+		},
+	}
+	resp, err := r.core.DynamoDB().GetItem(ctx, params)
+	if err != nil {
+		return fmt.Errorf("error in getting auth entity; err: %w", err)
+	}
+
+	err = attributevalue.UnmarshalMap(resp.Item, item)
+	if err != nil {
+		return fmt.Errorf("binding item data failed; err: %w", err)
 	}
 
 	return nil

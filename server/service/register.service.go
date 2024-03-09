@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"dimoklan/consts"
-	"dimoklan/consts/hashtag"
 	"dimoklan/consts/newuser"
 	"dimoklan/internal/config"
 	"dimoklan/model"
@@ -53,13 +52,13 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 	register.Password = util.HashPassword(register.Password, consts.HashSalt, rs.core.GetSalt())
 
 	// check if user already registered with same email
-	user, err := rs.storage.GetUserByEmail(ctx, register.Email)
+	auth, err := rs.storage.GetAuthByEmail(ctx, register.Email)
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
 	}
 
-	if user.Email != "" {
+	if auth.Email != "" {
 		return register, errors.New("email is not avaialble")
 	}
 
@@ -78,26 +77,24 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) error {
 	activationCodeHashed := sha256.Sum256([]byte(activationCode))
 
-	registerRepo, err := rs.storage.ConfirmRegister(ctx, hashtag.Register+hex.EncodeToString(activationCodeHashed[:]))
+	register, err := rs.storage.ConfirmRegister(ctx, hex.EncodeToString(activationCodeHashed[:]))
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
 	}
-
-	register := registerRepo.ToAPI()
 
 	if register.Email == "" {
 		return errors.New("activation is not valid")
 	}
 
 	// check if user already registered with same email
-	tmpUser, err := rs.storage.GetUserByEmail(ctx, hashtag.User+register.Email)
+	savedAuth, err := rs.storage.GetAuthByEmail(ctx, register.Email)
 	if err != nil {
 		rs.core.Error(err.Error(), zap.Stack("activation_failed"))
 		return err
 	}
 
-	if tmpUser.Email != "" {
+	if savedAuth.Email != "" {
 		return errors.New("activation has already been completed")
 	}
 
@@ -154,7 +151,7 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		Face:      "todo_to_be_added",
 		CreatedAt: time.Now(),
 	}
-	
+
 	if err := rs.storage.CreateMarshal(ctx, marshal); err != nil {
 		rs.storage.DeleteUser(ctx, user.ID)
 		rs.storage.DeleteAuth(ctx, auth.Email)

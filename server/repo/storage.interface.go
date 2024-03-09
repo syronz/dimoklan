@@ -9,14 +9,14 @@ import (
 type Storage interface {
 	CreateUser(context.Context, model.User) error
 	DeleteUser(context.Context, string) error
-	GetUserByEmail(context.Context, string) (model.UserRepo, error)
+	// GetUserByEmail(context.Context, string) (model.UserRepo, error)//deprecated
 
 	CreateRegister(context.Context, model.Register) error
-	ConfirmRegister(context.Context, string) (model.RegisterRepo, error)
+	ConfirmRegister(context.Context, string) (model.Register, error)
 
 	CreateAuth(context.Context, model.Auth) error
 	DeleteAuth(context.Context, string) error
-	GetAuthByEmail(context.Context, string) (model.AuthRepo, error)
+	GetAuthByEmail(context.Context, string) (model.Auth, error)
 
 	CreateMarshal(context.Context, model.Marshal) error
 	DeleteMarshal(context.Context, string, string) error

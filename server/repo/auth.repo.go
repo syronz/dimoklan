@@ -2,15 +2,9 @@ package repo
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
-	"dimoklan/consts/table"
 	"dimoklan/model"
 )
 
@@ -63,29 +57,36 @@ func (r *Repo) DeleteAuth(ctx context.Context, authID string) error {
 	// return nil
 }
 
-func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.AuthRepo, error) {
-	emailMarshaled, err := attributevalue.Marshal(hashtag.Auth + email)
-	if err != nil {
-		return model.AuthRepo{}, fmt.Errorf("error in marshal email; err: %w", err)
-	}
-
-	params := &dynamodb.GetItemInput{
-		TableName: table.Data(),
-		Key: map[string]types.AttributeValue{
-			"PK": emailMarshaled,
-			"SK": emailMarshaled,
-		},
-	}
-	resp, err := r.core.DynamoDB().GetItem(ctx, params)
-	if err != nil {
-		return model.AuthRepo{}, fmt.Errorf("error in getting auth entity; err: %w", err)
-	}
-
+func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.Auth, error) {
 	authRepo := model.AuthRepo{}
-	err = attributevalue.UnmarshalMap(resp.Item, &authRepo)
-	if err != nil {
-		return model.AuthRepo{}, fmt.Errorf("binding authRepo data failed; err: %w", err)
+	if err := r.getItem(ctx, entity.Auth, &authRepo, hashtag.Auth+email); err != nil {
+		return model.Auth{}, err
 	}
 
-	return authRepo, nil
+	return authRepo.ToAPI(), nil
+
+	// emailMarshaled, err := attributevalue.Marshal(hashtag.Auth + email)
+	// if err != nil {
+	// 	return model.AuthRepo{}, fmt.Errorf("error in marshal email; err: %w", err)
+	// }
+
+	// params := &dynamodb.GetItemInput{
+	// 	TableName: table.Data(),
+	// 	Key: map[string]types.AttributeValue{
+	// 		"PK": emailMarshaled,
+	// 		"SK": emailMarshaled,
+	// 	},
+	// }
+	// resp, err := r.core.DynamoDB().GetItem(ctx, params)
+	// if err != nil {
+	// 	return model.AuthRepo{}, fmt.Errorf("error in getting auth entity; err: %w", err)
+	// }
+
+	// authRepo := model.AuthRepo{}
+	// err = attributevalue.UnmarshalMap(resp.Item, &authRepo)
+	// if err != nil {
+	// 	return model.AuthRepo{}, fmt.Errorf("binding authRepo data failed; err: %w", err)
+	// }
+
+	// return authRepo, nil
 }
