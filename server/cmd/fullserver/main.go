@@ -105,7 +105,7 @@ func (s *Server) start() {
 		userID := c.Get("user_id")
 		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
 	}, middleware.AuthMiddleware)
-	e.GET("/fractions", fractionAPI.GetFraction, defaultRateLimiter)
+	e.GET("/fractions", fractionAPI.GetFraction, defaultRateLimiter, middleware.AuthMiddleware)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }

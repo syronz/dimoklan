@@ -2,111 +2,90 @@ package repo
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
+	"dimoklan/consts/entity"
+	"dimoklan/consts/hashtag"
 	"dimoklan/consts/table"
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateAuth(ctx context.Context, authRepo model.AuthRepo) error {
-	item, err := attributevalue.MarshalMap(authRepo)
-	if err != nil {
-		return fmt.Errorf("error in marshmap authRepo; %w", err)
-	}
+func (r *Repo) CreateAuth(ctx context.Context, auth model.Auth) error {
 
-	itemInput := &dynamodb.PutItemInput{
-		TableName:           table.Data(),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK)"),
-	}
+	return r.putUniqueItem(ctx, entity.Auth, auth.ToRepo())
+	// item, err := attributevalue.MarshalMap(authRepo)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshmap authRepo; %w", err)
+	// }
 
-	_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
-	if err != nil {
-		var conditionalCheckFailedErr *types.ConditionalCheckFailedException
-		if errors.As(err, &conditionalCheckFailedErr) {
-			return fmt.Errorf("email already exists")
-		}
+	// itemInput := &dynamodb.PutItemInput{
+	// 	TableName:           table.Data(),
+	// 	Item:                item,
+	// 	ConditionExpression: aws.String("attribute_not_exists(PK)"),
+	// }
 
-		return fmt.Errorf("error in auth; err: %w", err)
-	}
-	return nil
+	// _, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+	// if err != nil {
+	// 	var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+	// 	if errors.As(err, &conditionalCheckFailedErr) {
+	// 		return fmt.Errorf("email already exists")
+	// 	}
 
-	/*
-		auth.Email = consts.ParAuth + auth.Email
-		auth.SK = auth.Email
-		auth.EntityType = consts.AuthEntity
-		av, err := dynamodbattribute.MarshalMap(auth)
-		if err != nil {
-			return fmt.Errorf("error in marshmap auth; err: %w", err)
-		}
-
-		input := &dynamodb.PutItemInput{
-			Item:                av,
-			TableName:           aws.String(consts.TableData),
-			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-		}
-
-		if _, err = r.core.DynamoDB().PutItem(input); err != nil {
-			return fmt.Errorf("put_item_failed_for_auth; err:%w", err)
-		}
-
-		return nil
-	*/
-	return nil
+	// 	return fmt.Errorf("error in auth; err: %w", err)
+	// }
+	// return nil
 }
 
 func (r *Repo) DeleteAuth(ctx context.Context, authID string) error {
-	/*
-		input := &dynamodb.DeleteItemInput{
-			TableName: aws.String(consts.TableData),
-			Key: map[string]*dynamodb.AttributeValue{
-				"PK": {S: aws.String(authID)},
-				"SK": {S: aws.String(authID)},
-			},
-		}
+	pk := hashtag.Auth + authID
+	return r.deleteItem(ctx, entity.Auth, pk)
+	// authIDMarshaled, err := attributevalue.Marshal(authID)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshal authID; err: %w", err)
+	// }
 
-		if _, err := r.core.DynamoDB().DeleteItem(input); err != nil {
-			return fmt.Errorf("delete_item_failed_for_auth; err:%w", err)
-		}
+	// params := &dynamodb.DeleteItemInput{
+	// 	TableName: table.Data(),
+	// 	Key: map[string]types.AttributeValue{
+	// 		"PK": authIDMarshaled,
+	// 		"SK": authIDMarshaled,
+	// 	},
+	// }
 
-	*/
-	return nil
+	// if _, err := r.core.DynamoDB().DeleteItem(ctx, params); err != nil {
+	// 	return fmt.Errorf("delete item failed for auth; err:%w", err)
+	// }
+
+	// return nil
 }
 
-func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.Auth, error) {
-	/*
-		email = consts.ParAuth + email
+func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.AuthRepo, error) {
+	emailMarshaled, err := attributevalue.Marshal(hashtag.Auth + email)
+	if err != nil {
+		return model.AuthRepo{}, fmt.Errorf("error in marshal email; err: %w", err)
+	}
 
-		params := &dynamodb.GetItemInput{
-			TableName: aws.String(consts.TableData),
-			Key: map[string]*dynamodb.AttributeValue{
-				"PK": {
-					S: aws.String(email),
-				},
-				"SK": {
-					S: aws.String(email),
-				},
-			},
-		}
+	params := &dynamodb.GetItemInput{
+		TableName: table.Data(),
+		Key: map[string]types.AttributeValue{
+			"PK": emailMarshaled,
+			"SK": emailMarshaled,
+		},
+	}
+	resp, err := r.core.DynamoDB().GetItem(ctx, params)
+	if err != nil {
+		return model.AuthRepo{}, fmt.Errorf("error in getting auth entity; err: %w", err)
+	}
 
-		resp, err := r.core.DynamoDB().GetItem(params)
-		if err != nil {
-			return model.Auth{}, fmt.Errorf("error in getting auth entity; err: %w", err)
-		}
+	authRepo := model.AuthRepo{}
+	err = attributevalue.UnmarshalMap(resp.Item, &authRepo)
+	if err != nil {
+		return model.AuthRepo{}, fmt.Errorf("binding authRepo data failed; err: %w", err)
+	}
 
-		auth := model.Auth{}
-		err = dynamodbattribute.UnmarshalMap(resp.Item, &auth)
-		if err != nil {
-			return model.Auth{}, fmt.Errorf("binding auth data failed; err: %w", err)
-		}
-
-		return auth, nil
-	*/
-	return model.Auth{}, nil
+	return authRepo, nil
 }

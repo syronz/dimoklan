@@ -2,40 +2,42 @@ package repo
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
+	"dimoklan/consts/entity"
 	"dimoklan/consts/table"
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateRegister(ctx context.Context, registerRepo model.RegisterRepo) error {
-	item, err := attributevalue.MarshalMap(registerRepo)
-	if err != nil {
-		return fmt.Errorf("error in marshmap registerRepo; %w", err)
-	}
+func (r *Repo) CreateRegister(ctx context.Context, register model.Register) error {
 
-	itemInput := &dynamodb.PutItemInput{
-		TableName:           table.Data(),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_not_exists(PK)"),
-	}
+	return r.putUniqueItem(ctx, entity.Register, register.ToRepo())
 
-	_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
-	if err != nil {
-		var conditionalCheckFailedErr *types.ConditionalCheckFailedException
-		if errors.As(err, &conditionalCheckFailedErr) {
-			return fmt.Errorf("email already exists")
-		}
+	// item, err := attributevalue.MarshalMap(registerRepo)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshmap registerRepo; %w", err)
+	// }
 
-		return fmt.Errorf("error in register; err: %w", err)
-	}
-	return nil
+	// itemInput := &dynamodb.PutItemInput{
+	// 	TableName:           table.Data(),
+	// 	Item:                item,
+	// 	ConditionExpression: aws.String("attribute_not_exists(PK)"),
+	// }
+
+	// _, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+	// if err != nil {
+	// 	var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+	// 	if errors.As(err, &conditionalCheckFailedErr) {
+	// 		return fmt.Errorf("email already exists")
+	// 	}
+
+	// 	return fmt.Errorf("error in register; err: %w", err)
+	// }
+	// return nil
 }
 
 func (r *Repo) ConfirmRegister(ctx context.Context, activationCode string) (model.RegisterRepo, error) {

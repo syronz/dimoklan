@@ -18,12 +18,11 @@ type Auth struct {
 
 type AuthRepo struct {
 	PK            string `dynamodbav:"PK"`
+	SK            string `dynamodbav:"SK"`
 	Password      string `dynamodbav:"Password"`
-	Token         string `dynamodbav:"-"`
 	Suspend       bool   `dynamodbav:"Suspend"`
 	SuspendReason string `dynamodbav:"SuspendReason"`
 	UserID        string `dynamodbav:"UserID"`
-	SK            string `dynamodbav:"SK"`
 	EntityType    string `dynamodbav:"EntityType"`
 }
 
@@ -32,7 +31,6 @@ func (a *Auth) ToRepo() AuthRepo {
 		PK:            hashtag.Auth + a.Email,
 		SK:            hashtag.Auth + a.Email,
 		Password:      a.Password,
-		Token:         "", // Ignored field
 		Suspend:       a.Suspend,
 		SuspendReason: a.SuspendReason,
 		UserID:        a.UserID,
@@ -44,7 +42,6 @@ func (a *AuthRepo) ToAPI() Auth {
 	return Auth{
 		Email:         a.PK,
 		Password:      a.Password,
-		Token:         a.Token,
 		Suspend:       a.Suspend,
 		SuspendReason: a.SuspendReason,
 		UserID:        a.UserID,

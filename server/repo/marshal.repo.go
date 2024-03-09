@@ -3,65 +3,62 @@ package repo
 import (
 	"context"
 
+	"dimoklan/consts/entity"
+	"dimoklan/consts/hashtag"
 	"dimoklan/model"
 )
 
-func (r *Repo) CreateMarshal(ctx context.Context, marshalRepo model.MarshalRepo) error {
-	/*
-		marshal.UserID = consts.ParUser + marshal.UserID
-		marshal.ID = consts.ParMarshal + marshal.ID
+func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
+	return r.putUniqueItem(ctx, entity.Marshal, marshal.ToRepo())
+	// item, err := attributevalue.MarshalMap(marshal)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshmap marshal; %w", err)
+	// }
 
-		fmt.Printf(">>>>>> M %+v\n", marshal)
-		av, err := dynamodbattribute.MarshalMap(marshal)
-		if err != nil {
-			return fmt.Errorf("error in marshmap marshal; %w", err)
-		}
+	// itemInput := &dynamodb.PutItemInput{
+	// 	TableName:           table.Data(),
+	// 	Item:                item,
+	// 	ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+	// }
 
-		writeRequests := []dynamodb.WriteRequest{
-			{PutRequest: &dynamodb.PutRequest{Item: av}},
-		}
+	// _, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+	// if err != nil {
+	// 	var conditionalCheckFailedErr *types.ConditionalCheckFailedException
+	// 	if errors.As(err, &conditionalCheckFailedErr) {
+	// 		return fmt.Errorf("marshal already exists")
+	// 	}
 
-		// input := &dynamodb.PutItemInput{
-		// 	Item:                av,
-		// 	TableName:           aws.String(consts.TableData),
-		// 	ConditionExpression: aws.String("attribute_not_exists(SK)"),
-		// }
-
-		input := &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]*dynamodb.WriteRequest{
-				consts.TableData: writeRequests,
-			},
-		}
-
-		// _, err = r.core.DynamoDB().PutItem(input)
-		_, err = r.core.DynamoDB().BatchWriteItem(input)
-		if err != nil {
-			// var awsErr awserr.Error
-			// if errors.As(err, &awsErr) && awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
-			// 	return fmt.Errorf("marshal with this id already exist")
-			// }
-			return err
-		}
-
-		return err
-	*/
-	return nil
+	// 	return fmt.Errorf("error in marshal; err: %w", err)
+	// }
+	// return nil
 }
 
 func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID string) error {
-	/*
-		input := &dynamodb.DeleteItemInput{
-			TableName: aws.String(consts.TableData),
-			Key: map[string]*dynamodb.AttributeValue{
-				"PK": {S: aws.String(userID)},
-				"SK": {S: aws.String(marshalID)},
-			},
-		}
+	pk := hashtag.User + userID
+	sk := hashtag.Marshal + marshalID
+	return r.deleteItem(ctx, entity.Marshal, pk, sk)
 
-		if _, err := r.core.DynamoDB().DeleteItem(input); err != nil {
-			return fmt.Errorf("delete_item_failed_for_marshal; err:%w", err)
-		}
-	*/
+	// userIDMarshaled, err := attributevalue.Marshal(userID)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshal userID; err: %w", err)
+	// }
+
+	// marshalIDMarshaled, err := attributevalue.Marshal(marshalID)
+	// if err != nil {
+	// 	return fmt.Errorf("error in marshal marshalID; err: %w", err)
+	// }
+
+	// params := &dynamodb.DeleteItemInput{
+	// 	TableName: table.Data(),
+	// 	Key: map[string]types.AttributeValue{
+	// 		"PK": userIDMarshaled,
+	// 		"SK": marshalIDMarshaled,
+	// 	},
+	// }
+
+	// if _, err := r.core.DynamoDB().DeleteItem(ctx, params); err != nil {
+	// 	return fmt.Errorf("delete item failed for marshal; err:%w", err)
+	// }
 
 	return nil
 }

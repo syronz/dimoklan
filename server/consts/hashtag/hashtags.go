@@ -7,5 +7,5 @@ const (
 	Register = "r#"
 	User     = "u#"
 	Marshal  = "m#"
-	Auth     = "e#"
+	Auth     = "a#"
 )

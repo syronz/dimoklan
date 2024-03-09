@@ -41,7 +41,7 @@ func (s *CellService) Create(ctx context.Context, cell model.Cell) (model.Cell, 
 	cell.Building = ""
 	cell.Score = newuser.Score
 
-	if err := s.storage.CreateCell(ctx, cell.ToRepo()); err != nil {
+	if err := s.storage.CreateCell(ctx, cell); err != nil {
 		return cell, err
 	}
 
@@ -54,7 +54,7 @@ func (s *CellService) AssignCellToUser(ctx context.Context, cell model.Cell, use
 	cell.Score = newuser.Score
 	cell.UserID = userID
 
-	if err := s.storage.CreateCell(ctx, cell.ToRepo()); err != nil {
+	if err := s.storage.CreateCell(ctx, cell); err != nil {
 		return err
 	}
 

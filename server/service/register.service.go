@@ -63,7 +63,7 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 		return register, errors.New("email is not avaialble")
 	}
 
-	if err := rs.storage.CreateRegister(ctx, register.ToRepo()); err != nil {
+	if err := rs.storage.CreateRegister(ctx, register); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
 	}
@@ -121,7 +121,7 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		UpdatedAt:     time.Now(),
 	}
 
-	if err := rs.storage.CreateUser(ctx, user.ToRepo()); err != nil {
+	if err := rs.storage.CreateUser(ctx, user); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("user_creation_failed"))
 		return err
 	}
@@ -135,8 +135,8 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		SuspendReason: "",
 	}
 
-	if err := rs.storage.CreateAuth(ctx, auth.ToRepo()); err != nil {
-		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
+	if err := rs.storage.CreateAuth(ctx, auth); err != nil {
+		rs.storage.DeleteUser(ctx, user.ID)
 		rs.core.Error(err.Error(), zap.Stack("auth_creation_failed"))
 		return err
 	}
@@ -154,9 +154,10 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		Face:      "todo_to_be_added",
 		CreatedAt: time.Now(),
 	}
-	if err := rs.storage.CreateMarshal(ctx, marshal.ToRepo()); err != nil {
-		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
-		rs.storage.DeleteAuth(ctx, hashtag.Auth+auth.Email)
+	
+	if err := rs.storage.CreateMarshal(ctx, marshal); err != nil {
+		rs.storage.DeleteUser(ctx, user.ID)
+		rs.storage.DeleteAuth(ctx, auth.Email)
 		rs.core.Error(err.Error(), zap.Stack("marshal_creation_failed"))
 		return err
 	}
@@ -165,9 +166,9 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		Cell: register.Cell,
 	}
 	if err := rs.cellService.AssignCellToUser(ctx, cell, marshal.UserID); err != nil {
-		rs.storage.DeleteUser(ctx, hashtag.User+user.ID)
-		rs.storage.DeleteAuth(ctx, hashtag.Auth+auth.Email)
-		rs.storage.DeleteMarshal(ctx, hashtag.User+user.ID, hashtag.Marshal+marshal.ID)
+		rs.storage.DeleteUser(ctx, user.ID)
+		rs.storage.DeleteAuth(ctx, auth.Email)
+		rs.storage.DeleteMarshal(ctx, user.ID, marshal.ID)
 		rs.core.Error(err.Error(), zap.Stack("error_in_assigning_cell_to_user"))
 		return err
 	}
