@@ -9,21 +9,21 @@ import (
 )
 
 type Marshal struct {
-	UserID    string         `json:"user_id" dynamodbav:"PK"`
-	ID        string         `json:"id" dynamodbav:"SK"`
-	Cell      localtype.CELL `json:"cell" dynamodbav:"Cell"`
-	Name      string         `json:"name" dynamodbav:"Name"`
-	Army      int            `json:"army" dynamodbav:"Army"`
-	Star      int            `json:"star" dynamodbav:"Star"`
-	Speed     float64        `json:"speed" dynamodbav:"Speed"`
-	Attack    float64        `json:"attack" dynamodbav:"Attack"`
-	Face      string         `json:"face" dynamodbav:"Face"`
-	CreatedAt time.Time      `json:"created_at" dynamodbav:"CreatedAt"`
+	UserID    string         `json:"user_id"`
+	ID        string         `json:"id"`
+	Cell      localtype.CELL `json:"cell"`
+	Name      string         `json:"name"`
+	Army      int            `json:"army"`
+	Star      int            `json:"star"`
+	Speed     float64        `json:"speed"`
+	Attack    float64        `json:"attack"`
+	Face      string         `json:"face"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 type MarshalRepo struct {
-	UserID     string         `dynamodbav:"PK"`
-	ID         string         `dynamodbav:"SK"`
+	PK         string         `dynamodbav:"PK"`
+	SK         string         `dynamodbav:"SK"`
 	Cell       localtype.CELL `dynamodbav:"Cell"`
 	Name       string         `dynamodbav:"Name"`
 	Army       int            `dynamodbav:"Army"`
@@ -37,8 +37,8 @@ type MarshalRepo struct {
 
 func (m *Marshal) ToRepo() MarshalRepo {
 	return MarshalRepo{
-		UserID:     hashtag.User + m.UserID,
-		ID:         hashtag.Marshal + m.ID,
+		PK:         hashtag.User + m.UserID,
+		SK:         hashtag.Marshal + m.ID,
 		Cell:       m.Cell,
 		Name:       m.Name,
 		Army:       m.Army,
@@ -53,8 +53,8 @@ func (m *Marshal) ToRepo() MarshalRepo {
 
 func (m *MarshalRepo) ToAPI() Marshal {
 	return Marshal{
-		UserID:    m.UserID,
-		ID:        m.ID,
+		UserID:    m.PK,
+		ID:        m.SK,
 		Cell:      m.Cell,
 		Name:      m.Name,
 		Army:      m.Army,

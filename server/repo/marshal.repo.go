@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"time"
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
@@ -9,7 +10,20 @@ import (
 )
 
 func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
-	return r.putUniqueItem(ctx, entity.Marshal, marshal.ToRepo())
+	marshalExist := model.MarshalRepo{
+		PK:         hashtag.Fraction + marshal.Cell.ToFraction(),
+		SK:         hashtag.MarshalEx + marshal.ID,
+		EntityType: entity.MarshalExist,
+		Cell:       marshal.Cell,
+		CreatedAt:  time.Now().Unix(),
+	}
+
+	marshals := []model.MarshalRepo{
+		marshal.ToRepo(),
+		marshalExist,
+	}
+
+	return r.putItems(ctx, entity.Marshal, marshals)
 	// item, err := attributevalue.MarshalMap(marshal)
 	// if err != nil {
 	// 	return fmt.Errorf("error in marshmap marshal; %w", err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -15,8 +16,7 @@ import (
 )
 
 type Repo struct {
-	core          config.Core
-	registerTable *string
+	core config.Core
 }
 
 func NewRepo(core config.Core) *Repo {
@@ -51,6 +51,36 @@ func (r *Repo) putUniqueItem(ctx context.Context, entityType string, itemRepo an
 	return nil
 }
 
+// putUniqueItems is common function for adding items
+func (r *Repo) putItems(ctx context.Context, entityType string, itemRepos any) error {
+	// Check if items is a slice
+	sliceValue := reflect.ValueOf(itemRepos)
+	if sliceValue.Kind() != reflect.Slice {
+		return fmt.Errorf("items must be a slice")
+	}
+
+	// Iterate over the items in the slice
+	for i := 0; i < sliceValue.Len(); i++ {
+		itemRepo := sliceValue.Index(i).Interface()
+
+		item, err := attributevalue.MarshalMap(itemRepo)
+		if err != nil {
+			return fmt.Errorf("error in marshalmap item; entity: %v; %v", entityType, err)
+		}
+
+		itemInput := &dynamodb.PutItemInput{
+			TableName: table.Data(),
+			Item:      item,
+		}
+
+		_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+		if err != nil {
+			return fmt.Errorf("error in putting item; entity: %v; err: %w", entityType, err)
+		}
+	}
+
+	return nil
+}
 
 // deleteItem is a common function for deleting an item
 func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...string) error {
@@ -82,7 +112,6 @@ func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...stri
 	return nil
 }
 
-
 func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk string, sk ...string) error {
 	pkMarshaled, err := attributevalue.Marshal(pk)
 	if err != nil {
@@ -96,7 +125,6 @@ func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk stri
 			return fmt.Errorf("error in marshal sk; entity: %v ; err: %w", entityType, err)
 		}
 	}
-	
 
 	params := &dynamodb.GetItemInput{
 		TableName: table.Data(),
