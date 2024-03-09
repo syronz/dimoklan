@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"dimoklan/consts"
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
+	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model/localtype"
 )
 
@@ -62,8 +64,8 @@ func (r *RegisterRepo) ToAPI() Register {
 }
 
 func (r *Register) ValidateRegister() error {
-	if !validateEmail(r.Email) {
-		return errors.New("email is not valid")
+	if err := validateEmail(r.Email); err != nil {
+		return err
 	}
 
 	if !validatePassword(r.Password) {
@@ -77,22 +79,22 @@ func (r *Register) ValidateRegister() error {
 	return nil
 }
 
-func validateEmail(email string) bool {
+func validateEmail(email string) error {
 	if email == "" {
-		return false
+		return fmt.Errorf("email is required; code: %w", errstatus.ErrNotAcceptable)
 	}
 
 	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	if match, _ := regexp.MatchString(regex, email); !match {
-		return false
+		return fmt.Errorf("email is not valid; code: %w", errstatus.ErrUnprocessableEntity)
 	}
 
 	emailSections := strings.Split(email, "@")
 	if _, ok := consts.EmailProviders()[emailSections[1]]; !ok {
-		return false
+		return fmt.Errorf("email is not accepted; code: %w", errstatus.ErrForbidden)
 	}
 
-	return true
+	return nil
 }
 
 func validatePassword(password string) bool {

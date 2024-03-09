@@ -8,12 +8,12 @@ import (
 )
 
 type Auth struct {
-	Email         string `json:"email" dynamodbav:"PK"`
-	Password      string `json:"password,omitempty" dynamodbav:"Password"`
-	Token         string `json:"token" dynamodbav:"-"`
-	Suspend       bool   `json:"suspend" dynamodbav:"Suspend"`
-	SuspendReason string `json:"suspend_reason" dynamodbav:"SuspendReason"`
-	UserID        string `json:"-" dynamodbav:"UserID"`
+	Email         string `json:"email"`
+	Password      string `json:"password,omitempty"`
+	Token         string `json:"token"`
+	Suspend       bool   `json:"suspend"`
+	SuspendReason string `json:"suspend_reason"`
+	UserID        string `json:"-"`
 }
 
 type AuthRepo struct {
@@ -49,8 +49,8 @@ func (a *AuthRepo) ToAPI() Auth {
 }
 
 func (a *Auth) ValidateAuth() error {
-	if !validateEmail(a.Email) {
-		return errors.New("email is not valid")
+	if err := validateEmail(a.Email); err != nil {
+		return err
 	}
 
 	if !validatePassword(a.Password) {

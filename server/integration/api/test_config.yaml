@@ -1,0 +1,25 @@
+environment: testing
+app_name: dimoklan
+port: ":3000"
+
+# secrets
+salt: "z2nklIqBZ8KN+=7nLEQ19@7.P"
+jwt_secret: "c810ab3a3f819301a23e9751c9810a41b0b1d4ea"
+
+# language
+default_lang: ku
+original_error: true
+
+# log
+log_path: ../../logs/testing.log
+log_level: debug
+
+
+# map storage
+map_dynamodb_region: "us-west-2"
+map_dynamodb_endpoint: "http://127.0.0.1:8000"
+map_aws_access_key_id: "fake_key"
+map_aws_secret_access_key: "fake_secret"
+
+# global
+login_page: "http://127.0.0.1:3000/login"

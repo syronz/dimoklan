@@ -15,6 +15,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// permanent token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjc3NTc5OTQ1NTgsIm5iZiI6MTcwOTk5NDU1OCwidXNlcl9pZCI6IiJ9.xdDsEq5GeD9M7cK4BD3si2-NVaQiBubGqb5hWx_Tisg
+
 type AuthService struct {
 	core    config.Core
 	storage repo.Storage
@@ -49,7 +51,7 @@ func (as *AuthService) Login(ctx context.Context, auth model.Auth) (model.Auth, 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": auth.UserID,
 		"nbf":     time.Now().Unix(),
-		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(),
+		"exp":     time.Now().Add(70000 * 24 * time.Hour).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret

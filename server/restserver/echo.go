@@ -1,5 +1,8 @@
 package restserver
 
+/*
+DEPRECATED HAVE SOME USEFULL APPROACH FOR GENERATING IMAGE
+
 import (
 	"fmt"
 	"net/http"
@@ -230,3 +233,5 @@ func (s *Server) Start() {
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }
+
+*/

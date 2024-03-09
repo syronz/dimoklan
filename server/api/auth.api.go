@@ -26,14 +26,14 @@ func (s *AuthAPI) Login(c echo.Context) error {
 	var auth model.Auth
 
 	if err := c.Bind(&auth); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]any{
+		return c.JSON(http.StatusUnprocessableEntity, map[string]any{
 			"error": err,
 		})
 	}
 
 	var err error
 	if auth, err = s.authService.Login(c.Request().Context(), auth); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]any{
+		return c.JSON(status(err), map[string]any{
 			"error": err.Error(),
 		})
 	}

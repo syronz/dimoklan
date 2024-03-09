@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -49,6 +50,14 @@ const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
 
 // GetCore load config file for game
 func GetCore(configPath string) (cfg Core, err error) {
+	if filepath.IsAbs(configPath) {
+		configPath, err = filepath.Abs(configPath)
+		if err != nil {
+			err = fmt.Errorf("error in generating absolute path for config; %w", err)
+			return
+		}
+	}
+
 	yamlFile, err := os.ReadFile(configPath)
 	if err != nil {
 		err = fmt.Errorf("error in reading game config file; %w", err)
