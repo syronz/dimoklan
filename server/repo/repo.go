@@ -11,8 +11,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
+	"dimoklan/consts"
 	"dimoklan/consts/table"
 	"dimoklan/internal/config"
+	"dimoklan/model/localtype"
 )
 
 type Repo struct {
@@ -52,12 +54,45 @@ func (r *Repo) putUniqueItem(ctx context.Context, entityType string, itemRepo an
 }
 
 // putUniqueItems is common function for adding items
-func (r *Repo) putItems(ctx context.Context, entityType string, itemRepos any) error {
+// func (r *Repo) putItems(ctx context.Context, entityType string, itemRepos any) error {
+// 	// Check if items is a slice
+// 	sliceValue := reflect.ValueOf(itemRepos)
+// 	if sliceValue.Kind() != reflect.Slice {
+// 		return fmt.Errorf("items must be a slice")
+// 	}
+
+// 	// Iterate over the items in the slice
+// 	for i := 0; i < sliceValue.Len(); i++ {
+// 		itemRepo := sliceValue.Index(i).Interface()
+
+// 		item, err := attributevalue.MarshalMap(itemRepo)
+// 		if err != nil {
+// 			return fmt.Errorf("error in marshalmap item; entity: %v; %v", entityType, err)
+// 		}
+
+// 		itemInput := &dynamodb.PutItemInput{
+// 			TableName: table.Data(),
+// 			Item:      item,
+// 		}
+
+// 		_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
+// 		if err != nil {
+// 			return fmt.Errorf("error in putting item; entity: %v; err: %w", entityType, err)
+// 		}
+// 	}
+
+// 	return nil
+// }
+
+func (r *Repo) putItems(ctx context.Context, entityType string, itemRepos interface{}) error {
 	// Check if items is a slice
 	sliceValue := reflect.ValueOf(itemRepos)
 	if sliceValue.Kind() != reflect.Slice {
 		return fmt.Errorf("items must be a slice")
 	}
+
+	// Prepare the list of WriteRequests for BatchWriteItem
+	writeRequests := make([]types.WriteRequest, 0, sliceValue.Len())
 
 	// Iterate over the items in the slice
 	for i := 0; i < sliceValue.Len(); i++ {
@@ -68,15 +103,23 @@ func (r *Repo) putItems(ctx context.Context, entityType string, itemRepos any) e
 			return fmt.Errorf("error in marshalmap item; entity: %v; %v", entityType, err)
 		}
 
-		itemInput := &dynamodb.PutItemInput{
-			TableName: table.Data(),
-			Item:      item,
-		}
+		writeRequests = append(writeRequests, types.WriteRequest{
+			PutRequest: &types.PutRequest{
+				Item: item,
+			},
+		})
+	}
 
-		_, err = r.core.DynamoDB().PutItem(ctx, itemInput)
-		if err != nil {
-			return fmt.Errorf("error in putting item; entity: %v; err: %w", entityType, err)
-		}
+	// Perform BatchWriteItem operation
+	input := &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]types.WriteRequest{
+			consts.TableData: writeRequests,
+		},
+	}
+
+	_, err := r.core.DynamoDB().BatchWriteItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("error in batch writing items; entity: %v; err: %w", entityType, err)
 	}
 
 	return nil
@@ -107,6 +150,44 @@ func (r *Repo) deleteItem(ctx context.Context, entityType, pk string, sk ...stri
 
 	if _, err := r.core.DynamoDB().DeleteItem(ctx, params); err != nil {
 		return fmt.Errorf("delete item failed; entity: %v; err:%w", entityType, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) deleteItems(ctx context.Context, items []localtype.Delete) error {
+	writeRequests := make([]types.WriteRequest, len(items))
+	for i := range items {
+
+		pkMarshaled, err := attributevalue.Marshal(items[i].PK)
+		if err != nil {
+			return fmt.Errorf("error in marshal pk for delete; pk: %v ; err: %w", items[i].PK, err)
+		}
+
+		skMarshaled, err := attributevalue.Marshal(items[i].SK)
+		if err != nil {
+			return fmt.Errorf("error in marshal sk for delete; sk: %v ; err: %w", items[i].SK, err)
+		}
+
+		writeRequests[i] = types.WriteRequest{
+			DeleteRequest: &types.DeleteRequest{
+				Key: map[string]types.AttributeValue{
+					"PK": pkMarshaled,
+					"SK": skMarshaled,
+				},
+			},
+		}
+	}
+
+	input := &dynamodb.BatchWriteItemInput{
+		RequestItems: map[string][]types.WriteRequest{
+			consts.TableData: writeRequests,
+		},
+	}
+
+	_, err := r.core.DynamoDB().BatchWriteItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("error in batch delete items; err: %w", err)
 	}
 
 	return nil

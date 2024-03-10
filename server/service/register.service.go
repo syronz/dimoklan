@@ -165,7 +165,7 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 	if err := rs.cellService.AssignCellToUser(ctx, cell, marshal.UserID); err != nil {
 		rs.storage.DeleteUser(ctx, user.ID)
 		rs.storage.DeleteAuth(ctx, auth.Email)
-		rs.storage.DeleteMarshal(ctx, user.ID, marshal.ID)
+		rs.storage.DeleteMarshal(ctx, user.ID, marshal.ID, marshal.Cell.ToFraction())
 		rs.core.Error(err.Error(), zap.Stack("error_in_assigning_cell_to_user"))
 		return err
 	}

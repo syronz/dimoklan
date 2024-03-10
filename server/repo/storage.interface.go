@@ -19,7 +19,7 @@ type Storage interface {
 	GetAuthByEmail(context.Context, string) (model.Auth, error)
 
 	CreateMarshal(context.Context, model.Marshal) error
-	DeleteMarshal(context.Context, string, string) error
+	DeleteMarshal(context.Context, string, string, string) error
 
 	CreateCell(context.Context, model.Cell) error
 	GetCellByCoord(context.Context, int, int) (model.Cell, error)

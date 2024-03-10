@@ -7,6 +7,7 @@ import (
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
 	"dimoklan/model"
+	"dimoklan/model/localtype"
 )
 
 func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
@@ -47,10 +48,14 @@ func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
 	// return nil
 }
 
-func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID string) error {
-	pk := hashtag.User + userID
-	sk := hashtag.Marshal + marshalID
-	return r.deleteItem(ctx, entity.Marshal, pk, sk)
+func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID, fraction string) error {
+	batchDelete := make([]localtype.Delete, 2)
+	batchDelete[0].PK = hashtag.User + userID
+	batchDelete[0].SK = hashtag.Marshal + marshalID
+
+	batchDelete[1].PK = hashtag.Fraction + fraction
+	batchDelete[1].SK = hashtag.MarshalEx + marshalID
+	return r.deleteItems(ctx, batchDelete)
 
 	// userIDMarshaled, err := attributevalue.Marshal(userID)
 	// if err != nil {
