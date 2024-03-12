@@ -43,32 +43,38 @@ func (m *Middleware) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		})
 		if err != nil {
 			m.core.Warn("signature_is_not_valid", zap.String("error", err.Error()), zap.String("ip", c.Get("ip").(string)))
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 5")
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 1")
 		}
 
 		var claims jwt.MapClaims
 		ok := false
 		if claims, ok = token.Claims.(jwt.MapClaims); !ok {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 1")
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 2")
 		}
 
 		expInterface, ok2 := claims["exp"]
 		if !ok2 {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 2")
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 3")
 		}
 
 		expString, ok3 := expInterface.(float64)
 		if !ok3 {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 3")
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid token 4")
 		}
 
-		exp:= int64(expString)
+		exp := int64(expString)
 
 		if exp < time.Now().Unix() {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Token Expired")
 		}
 
+		userID := claims["user_id"]
+		if userID == "" {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid Token 5")
+		}
+
 		c.Set("user_id", claims["user_id"])
+
 		return next(c)
 
 	}

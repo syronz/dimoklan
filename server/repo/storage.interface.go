@@ -20,6 +20,7 @@ type Storage interface {
 
 	CreateMarshal(context.Context, model.Marshal) error
 	DeleteMarshal(context.Context, string, string, string) error
+	GetMarshal(context.Context, string) (model.Marshal, error)
 
 	CreateCell(context.Context, model.Cell) error
 	GetCellByCoord(context.Context, int, int) (model.Cell, error)

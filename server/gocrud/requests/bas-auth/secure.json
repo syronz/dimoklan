@@ -1,7 +1,7 @@
 {
 	"method":"get",
 	"url":"_URL_/secure",
-	"authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDk2ODA2NzMsIm5iZiI6MTcwOTA3NTg3MywidXNlcl9pZCI6IjEyODg1NTc4In0.BylOSeYuSfuWdbZF5JaHokcyovn51VAau6p7PECOQvQ",
+	"authorization":"Bearer _TOKEN_",
 	"payload": {
 		"email": "sabina.diako@gmail.com",
 		"password": "StrongPassword2000"

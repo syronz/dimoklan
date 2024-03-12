@@ -18,4 +18,6 @@ const (
 
 	// Min password length
 	MinPasswordLength = 12
+
+	UserID = "user_id"
 )

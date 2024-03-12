@@ -11,7 +11,7 @@ type Auth struct {
 	Token         string `json:"token"`
 	Suspend       bool   `json:"suspend"`
 	SuspendReason string `json:"suspend_reason"`
-	UserID        string `json:"-"`
+	UserID        string `json:"user_id"`
 }
 
 type AuthRepo struct {

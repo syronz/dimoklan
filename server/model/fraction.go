@@ -1,6 +1,13 @@
 package model
 
-import "dimoklan/model/localtype"
+import (
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"go.uber.org/zap"
+
+	"dimoklan/internal/config"
+	"dimoklan/model/localtype"
+)
 
 type Fraction struct {
 	Fraction   string         `json:"fraction,omitempty" dynamodbav:"PK"`
@@ -17,4 +24,16 @@ type Fraction struct {
 	Face       string         `json:"face,omitempty" dynamodbav:"Face"`
 	CreatedAt  int64          `json:"created_at,omitempty" dynamodbav:"CreatedAt"`
 	UpdatedAt  int64          `json:"updated_at,omitempty" dynamodbav:"UpdatedAt"`
+}
+
+func (m *Fraction) GetKey(core config.Core) map[string]types.AttributeValue {
+	pk, err := attributevalue.Marshal(m.Fraction)
+	if err != nil {
+		core.Error("DANGER: failed to marshal fraction pk", zap.Error(err), zap.Stack("marshal_fraction_pk_failed"))
+	}
+	sk, err := attributevalue.Marshal(m.Cell)
+	if err != nil {
+		core.Error("DANGER: failed to marshal fraction pk", zap.Error(err), zap.Stack("marshal_fraction_pk_failed"))
+	}
+	return map[string]types.AttributeValue{"PK": pk, "SK": sk}
 }

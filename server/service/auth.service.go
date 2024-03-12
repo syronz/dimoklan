@@ -48,7 +48,7 @@ func (as *AuthService) Login(ctx context.Context, auth model.Auth) (model.Auth, 
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": auth.UserID,
+		"user_id": savedAuth.UserID,
 		"nbf":     time.Now().Unix(),
 		"exp":     time.Now().Add(70000 * 24 * time.Hour).Unix(),
 	})

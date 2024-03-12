@@ -196,14 +196,14 @@ func (r *Repo) deleteItems(ctx context.Context, items []localtype.Delete) error 
 func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk string, sk ...string) error {
 	pkMarshaled, err := attributevalue.Marshal(pk)
 	if err != nil {
-		return fmt.Errorf("error in marshal pk; entity: %v ; err: %w", entityType, err)
+		return fmt.Errorf("error in marshal pk; entity: %v; err: %w", entityType, err)
 	}
 
 	skMarshaled := pkMarshaled
 	if len(sk) > 0 {
-		skMarshaled, err = attributevalue.Marshal(sk)
+		skMarshaled, err = attributevalue.Marshal(sk[0])
 		if err != nil {
-			return fmt.Errorf("error in marshal sk; entity: %v ; err: %w", entityType, err)
+			return fmt.Errorf("error in marshal sk; entity: %v; err: %w", entityType, err)
 		}
 	}
 
@@ -216,7 +216,7 @@ func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk stri
 	}
 	resp, err := r.core.DynamoDB().GetItem(ctx, params)
 	if err != nil {
-		return fmt.Errorf("error in getting auth entity; err: %w", err)
+		return fmt.Errorf("error in getting item; entity: %v; err: %w", entityType, err)
 	}
 
 	err = attributevalue.UnmarshalMap(resp.Item, item)

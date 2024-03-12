@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
@@ -62,6 +63,7 @@ func (r *Repo) GetAuthByEmail(ctx context.Context, email string) (model.Auth, er
 	if err := r.getItem(ctx, entity.Auth, &authRepo, hashtag.Auth+email); err != nil {
 		return model.Auth{}, err
 	}
+	fmt.Printf(">>>>>>> 1: %+v\n", authRepo.ToAPI())
 
 	return authRepo.ToAPI(), nil
 

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"dimoklan/internal/errors/errstatus"
 	"dimoklan/util"
 )
 
@@ -43,4 +44,13 @@ func (c *CELL) ToFraction() string {
 	y := util.CeilInt(float64(c.GetX()) / 10)
 
 	return fmt.Sprintf("%d:%d", x, y)
+}
+
+func (c *CELL) Validate() error {
+	nums := strings.Split(string(*c), ":")
+	if len(nums) != 2 {
+		return fmt.Errorf("cell is not valid; code: %w", errstatus.ErrNotAcceptable)
+	}
+
+	return nil
 }

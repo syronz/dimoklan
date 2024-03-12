@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"sync"
 	"time"
 
@@ -47,6 +48,8 @@ func (s *Server) start() {
 	// rateLimiters := make(map[string]*rate.Limiter)
 
 	limiter := rate.NewLimiter(rate.Limit(80000), 200000)
+	middleware := echomiddleware.NewMiddleware(s.core)
+	e.Use(middleware.SetCustomContext)
 	// Middleware function to enforce rate limiting based on the route
 	defaultRateLimiter := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -92,11 +95,12 @@ func (s *Server) start() {
 	fractionService := service.NewFractionService(s.core, storage)
 	fractionAPI := api.NewFractionAPI(s.core, fractionService)
 
+	marshalService := service.NewMarshalService(s.core, storage)
+	marshalAPI := api.NewMarshalAPI(s.core, marshalService)
+
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
-
-	middleware := echomiddleware.NewMiddleware(s.core)
 
 	e.POST("/register", registerAPI.Create, defaultRateLimiter)
 	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
@@ -106,11 +110,34 @@ func (s *Server) start() {
 		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
 	}, middleware.AuthMiddleware)
 	e.GET("/fractions", fractionAPI.GetFraction, defaultRateLimiter, middleware.AuthMiddleware)
+	e.GET("/marshals/:id", marshalAPI.GetMarshal, middleware.AuthMiddleware)
+	e.POST("/marshals/:id/move", marshalAPI.MoveMarshal, middleware.AuthMiddleware)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }
 
+func displayMemoryUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("Alloc: %v KB\tTotalAlloc: %v KB\tSys: %v MiB\tNumGC: %v\n",
+		m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024/1024, m.NumGC)
+}
+
 func main() {
+	// Run the displayMemoryUsage function every 5 seconds
+	// ticker := time.NewTicker(10 * time.Second)
+	// defer ticker.Stop()
+
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-ticker.C:
+	// 			displayMemoryUsage()
+	// 		}
+	// 	}
+	// }()
+
 	flag.Parse()
 
 	if *configFilePath == "" {

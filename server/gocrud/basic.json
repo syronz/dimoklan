@@ -3,11 +3,11 @@
 		{
 			"local": {
 				"_URL_":"http://127.0.0.1:3000",
-				"_TOKEN_":""
+				"_TOKEN_":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjc3NTgxMDQwOTEsIm5iZiI6MTcxMDEwNDA5MSwidXNlcl9pZCI6IjMyMjQwNTMifQ.dp7SstAgF9Sw-WU29lRCzp2pBdXeGSkTGyHok6QwgL4"
 			},
 			"staging": {
 				"_URL_":"http://127.0.0.1:3000",
-				"_TOKEN_":""
+				"_TOKEN_":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjc3NTgxMDQwOTEsIm5iZiI6MTcxMDEwNDA5MSwidXNlcl9pZCI6IjMyMjQwNTMifQ.dp7SstAgF9Sw-WU29lRCzp2pBdXeGSkTGyHok6QwgL4"
 			}
 		}
 	],

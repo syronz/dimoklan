@@ -2,16 +2,19 @@ package repo
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
+	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model"
 	"dimoklan/model/localtype"
 )
 
 func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
-	marshalExist := model.MarshalRepo{
+	marshalInFraction := model.MarshalRepo{
 		PK:         hashtag.Fraction + marshal.Cell.ToFraction(),
 		SK:         hashtag.MarshalEx + marshal.ID,
 		EntityType: entity.MarshalExist,
@@ -21,7 +24,7 @@ func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
 
 	marshals := []model.MarshalRepo{
 		marshal.ToRepo(),
-		marshalExist,
+		marshalInFraction,
 	}
 
 	return r.putItems(ctx, entity.Marshal, marshals)
@@ -80,4 +83,25 @@ func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID, fraction st
 	// }
 
 	return nil
+}
+
+func (r *Repo) GetMarshal(ctx context.Context, id string) (model.Marshal, error) {
+
+	parsedID := strings.Split(id, ":")
+	if len(parsedID) != 2 {
+		return model.Marshal{}, fmt.Errorf("id is not valid; code:%w", errstatus.ErrNotAcceptable)
+	}
+
+	marshalRepo := model.MarshalRepo{}
+	err := r.getItem(ctx,
+		entity.Marshal,
+		&marshalRepo,
+		hashtag.User+parsedID[0],
+		hashtag.Marshal+id)
+
+	if err != nil {
+		return model.Marshal{}, err
+	}
+
+	return marshalRepo.ToAPI(), nil
 }
