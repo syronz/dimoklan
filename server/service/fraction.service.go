@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/zap"
 
@@ -29,7 +28,6 @@ func (fs *FractionService) GetFractions(ctx context.Context, coordinates []strin
 		fs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return nil, err
 	}
-	fmt.Printf(">>>>>> service: %p\n", fractions)
 
 	return fractions, nil
 }

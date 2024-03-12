@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -47,10 +46,6 @@ func (s *MarshalAPI) MoveMarshal(c echo.Context) error {
 	}
 
 	move.MarshalID = c.Param("id")
-
-	// newCtx := c.(*echomiddleware.CustomContext)
-	// cc := newCtx.Convert()
-	fmt.Printf(">>>>>>> 1: %+v\n", c.Get("user_id"))
 
 	marshal, err := s.marshalService.MoveMarshal(c.Request().Context(), move)
 	if err != nil {

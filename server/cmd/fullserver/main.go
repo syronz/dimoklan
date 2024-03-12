@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"golang.org/x/time/rate"
 
 	"dimoklan/api"
 	"dimoklan/consts"
@@ -43,29 +42,7 @@ func newServer(
 func (s *Server) start() {
 	e := echo.New()
 
-	// rate limiter
-	// Create a map to store rate limiters for each route
-	// rateLimiters := make(map[string]*rate.Limiter)
-
-	limiter := rate.NewLimiter(rate.Limit(80000), 200000)
 	middleware := echomiddleware.NewMiddleware(s.core)
-	e.Use(middleware.SetCustomContext)
-	// Middleware function to enforce rate limiting based on the route
-	defaultRateLimiter := func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			mu.Lock()
-			index++
-			if index%10000 == 0 {
-				fmt.Println(">>i", index)
-			}
-			mu.Unlock()
-			if !limiter.Allow() {
-				return c.JSON(http.StatusTooManyRequests, map[string]string{"error": "Rate limit exceeded"})
-			}
-
-			return next(c)
-		}
-	}
 
 	// Add middleware to log the user's IP address
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -102,16 +79,21 @@ func (s *Server) start() {
 		return c.String(http.StatusOK, "Hello, World!\n")
 	})
 
-	e.POST("/register", registerAPI.Create, defaultRateLimiter)
-	e.GET("/register", registerAPI.Confirm, defaultRateLimiter)
+	e.Use(middleware.DefaultRateLimiter(1, 2))
+
+	e.POST("/register", registerAPI.Create)
+	e.GET("/register", registerAPI.Confirm)
 	e.POST("/login", authAPI.Login)
+
+	e.Use(middleware.AuthMiddleware)
+
 	e.GET("/secure", func(c echo.Context) error {
 		userID := c.Get("user_id")
 		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
-	}, middleware.AuthMiddleware)
-	e.GET("/fractions", fractionAPI.GetFraction, defaultRateLimiter, middleware.AuthMiddleware)
-	e.GET("/marshals/:id", marshalAPI.GetMarshal, middleware.AuthMiddleware)
-	e.POST("/marshals/:id/move", marshalAPI.MoveMarshal, middleware.AuthMiddleware)
+	})
+	e.GET("/fractions", fractionAPI.GetFraction)
+	e.GET("/marshals/:id", marshalAPI.GetMarshal)
+	e.POST("/marshals/:id/move", marshalAPI.MoveMarshal)
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }
