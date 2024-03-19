@@ -24,3 +24,5 @@ go.work
 *.db*
 *.log
 *.logs
+main
+./tmp/main

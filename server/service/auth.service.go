@@ -48,9 +48,9 @@ func (as *AuthService) Login(ctx context.Context, auth model.Auth) (model.Auth, 
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": savedAuth.UserID,
-		"nbf":     time.Now().Unix(),
-		"exp":     time.Now().Add(70000 * 24 * time.Hour).Unix(),
+		consts.UserID: savedAuth.UserID,
+		"nbf":         time.Now().Unix(),
+		"exp":         time.Now().Add(70000 * 24 * time.Hour).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret

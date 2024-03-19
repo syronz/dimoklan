@@ -28,8 +28,6 @@ func (m *Middleware) DefaultRateLimiter(a, b int) func(echo.HandlerFunc) echo.Ha
 			index++
 			if index%1 == 0 {
 				fmt.Println(">>i", index)
-				fmt.Printf(">>>>>>> 13: %p\n", limiter)
-
 			}
 			mu.Unlock()
 			if !limiter.Allow() {

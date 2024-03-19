@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"dimoklan/consts/gp"
+	"dimoklan/consts/hashtag"
 	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model/localtype"
 )
@@ -15,6 +16,10 @@ type Move struct {
 	Cell      localtype.CELL `json:"cell"`
 	MarshalID string         `json:"marshal_id"`
 	UserID    string         `json:"-"`
+}
+
+func (m *Move) GetPkSkforMoving() (string, string) {
+	return hashtag.Fraction + m.Cell.ToFraction(), hashtag.MarshalEx + m.MarshalID
 }
 
 func (c *Move) Validate() error {

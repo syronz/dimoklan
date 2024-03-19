@@ -27,4 +27,6 @@ type Storage interface {
 	GetMapUsers(context.Context, model.Point, model.Point) (map[model.Point]int, error)
 
 	GetFractions(context.Context, []string) ([]model.Fraction, error)
+	UpdateFractionEntityType(context.Context, model.Fraction) error
+	UpdateEntityTypeMarshalMoving(context.Context, model.Move, string) error
 }

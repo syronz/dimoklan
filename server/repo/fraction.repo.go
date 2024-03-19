@@ -84,3 +84,55 @@ func (r *Repo) UpdateFraction(ctx context.Context, fraction model.Fraction) erro
 
 	return nil
 }
+
+func (r *Repo) UpdateEntityTypeMarshalMoving(ctx context.Context, move model.Move, entityType string) error {
+	pk, sk := move.GetPkSkforMoving()
+	return r.UpdateEntityType(ctx, pk, sk, entityType)
+}
+
+func (r *Repo) UpdateEntityType(ctx context.Context, PK, SK, entityType string) error {
+	var err error
+	update := expression.Set(expression.Name("EntityType"), expression.Value(entityType))
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return fmt.Errorf("couldn't build expression for update fraction. err: %w", err)
+	}
+
+	pk, err := attributevalue.Marshal(PK)
+	if err != nil {
+		return fmt.Errorf("DANGER: failed to marshal pk; err: %w", err)
+	}
+	sk, err := attributevalue.Marshal(SK)
+	if err != nil {
+		return fmt.Errorf("DANGER: failed to marshal sk; err: %w", err)
+	}
+	itemKey := map[string]types.AttributeValue{"PK": pk, "SK": sk}
+
+	_, err = r.core.DynamoDB().UpdateItem(context.TODO(), &dynamodb.UpdateItemInput{
+		TableName:                 table.Data(),
+		Key:                       itemKey,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ReturnValues:              types.ReturnValueNone,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't update entity-type; PK: %q, SK: %q, err: %w", PK, SK, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) UpdateFractionEntityType(ctx context.Context, fraction model.Fraction) error {
+	update := expression.Set(expression.Name("EntityType"), expression.Value(fraction.EntityType))
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return fmt.Errorf("couldn't build expression for update entity-type in fraction. err: %w", err)
+	}
+
+	if err := r.Update(ctx, fraction.GetKey(r.core), expr); err != nil {
+		return fmt.Errorf("couldn't update entity-type for fraction. err: %w", err)
+	}
+
+	return nil
+}

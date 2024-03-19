@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -12,8 +13,10 @@ import (
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
+	"dimoklan/consts/newuser"
 	"dimoklan/consts/table"
 	"dimoklan/model"
+	"dimoklan/model/localtype"
 )
 
 func (m Migration) AddUser() {
@@ -49,6 +52,45 @@ func (m Migration) AddUser() {
 	}
 
 	m.putItem(authRepo)
+
+	// Add marshal
+	marshalRepo := model.MarshalRepo{
+		PK:         hashtag.User + "3224053",
+		SK:         hashtag.Marshal + "3224053:1",
+		EntityType: entity.Marshal,
+		Cell:       localtype.CELL("2:6"),
+		Name:       "Napoleon",
+		Army:       newuser.Army,
+		Star:       newuser.Star,
+		Speed:      newuser.Speed,
+		Attack:     newuser.Attack,
+		Face:       "no-face",
+		CreatedAt:  time.Now().Unix() - 86400,
+	}
+	m.putItem(marshalRepo)
+
+	// Add user's cells
+	fraction := model.Fraction{
+		Fraction:   hashtag.Fraction + "1:1",
+		Cell:       hashtag.Cell + "2:6",
+		EntityType: entity.Cell,
+		UserID:     "3224053",
+		Score:      10,
+		CreatedAt:  time.Now().Unix() - 86400,
+		UpdatedAt:  time.Now().Unix() - 86400,
+	}
+	m.putItem(fraction)
+
+	// Add marshal_exist
+	fraction = model.Fraction{
+		Fraction:   hashtag.Fraction + "1:1",
+		Cell:       hashtag.MarshalEx + "3224053:1",
+		EntityType: entity.MarshalExist,
+		UserID:     "3224053",
+		CreatedAt:  time.Now().Unix() - 86400,
+		UpdatedAt:  time.Now().Unix() - 86400,
+	}
+	m.putItem(fraction)
 
 }
 

@@ -6,6 +6,8 @@ import (
 
 	"go.uber.org/zap"
 
+	"dimoklan/consts/ctxkey"
+	"dimoklan/consts/entity"
 	"dimoklan/internal/config"
 	"dimoklan/model"
 	"dimoklan/repo"
@@ -45,9 +47,19 @@ func (fs *MarshalService) MoveMarshal(ctx context.Context, move model.Move) (mod
 		return model.Marshal{}, err
 	}
 
-	// userID := ctx.Value(consts.UserID)
+	userID := ctx.Value(ctxkey.UserID)
 
-	fmt.Printf(">>>>>>> 199: %+v\n", ctx)
+	if move.UserID != userID {
+		fs.core.Error("WARNING: HACK DTECTED", zap.Any("JWT user_id", userID), zap.String("payload user_id", move.UserID))
+		return model.Marshal{}, err
+	}
+
+	if err := fs.storage.UpdateEntityTypeMarshalMoving(ctx, move, entity.MarshalMoving); err != nil {
+		fs.core.Error(err.Error(), zap.Stack("update entity type for marshal moving"))
+		return model.Marshal{}, err
+	}
+
+	fmt.Printf(">>>>>>> 200: %+v\n", marshal)
 
 	return marshal, nil
 }

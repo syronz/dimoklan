@@ -75,25 +75,26 @@ func (s *Server) start() {
 	marshalService := service.NewMarshalService(s.core, storage)
 	marshalAPI := api.NewMarshalAPI(s.core, marshalService)
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!\n")
-	})
-
 	e.Use(middleware.DefaultRateLimiter(1, 2))
 
 	e.POST("/register", registerAPI.Create)
 	e.GET("/register", registerAPI.Confirm)
 	e.POST("/login", authAPI.Login)
 
-	e.Use(middleware.AuthMiddleware)
+	play := e.Group("/play")
+	{
+		// IMPORTANT to have these two middleware to have access to user_id
+		play.Use(middleware.AuthMiddleware)
+		play.Use(middleware.ContextGenerator)
 
-	e.GET("/secure", func(c echo.Context) error {
-		userID := c.Get("user_id")
-		return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
-	})
-	e.GET("/fractions", fractionAPI.GetFraction)
-	e.GET("/marshals/:id", marshalAPI.GetMarshal)
-	e.POST("/marshals/:id/move", marshalAPI.MoveMarshal)
+		play.GET("/secure", func(c echo.Context) error {
+			userID := c.Get("user_id")
+			return c.String(http.StatusOK, fmt.Sprintf("Secure route for user_id: %v", userID))
+		})
+		play.GET("/fractions", fractionAPI.GetFraction)
+		play.GET("/marshals/:id", marshalAPI.GetMarshal)
+		play.POST("/marshals/:id/move", marshalAPI.MoveMarshal)
+	}
 
 	e.Logger.Fatal(e.Start(s.listenAddr))
 }

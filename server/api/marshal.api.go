@@ -23,7 +23,6 @@ func NewMarshalAPI(core config.Core, marshalService *service.MarshalService) *Ma
 }
 
 func (s *MarshalAPI) GetMarshal(c echo.Context) error {
-
 	id := c.Param("id")
 
 	marshal, err := s.marshalService.GetMarshal(c.Request().Context(), id)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
@@ -222,6 +223,23 @@ func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk stri
 	err = attributevalue.UnmarshalMap(resp.Item, item)
 	if err != nil {
 		return fmt.Errorf("binding item data failed; err: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repo) Update(ctx context.Context, itemKey map[string]types.AttributeValue, expr expression.Expression) error {
+
+	_, err := r.core.DynamoDB().UpdateItem(context.TODO(), &dynamodb.UpdateItemInput{
+		TableName:                 table.Data(),
+		Key:                       itemKey,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ReturnValues:              types.ReturnValueNone,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't update fraction; key:%v; err: %w", itemKey, err)
 	}
 
 	return nil

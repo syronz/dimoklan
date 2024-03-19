@@ -33,7 +33,7 @@ func (m *Fraction) GetKey(core config.Core) map[string]types.AttributeValue {
 	}
 	sk, err := attributevalue.Marshal(m.Cell)
 	if err != nil {
-		core.Error("DANGER: failed to marshal fraction pk", zap.Error(err), zap.Stack("marshal_fraction_pk_failed"))
+		core.Error("DANGER: failed to marshal fraction sk", zap.Error(err), zap.Stack("marshal_fraction_sk"))
 	}
 	return map[string]types.AttributeValue{"PK": pk, "SK": sk}
 }
