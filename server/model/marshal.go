@@ -22,8 +22,8 @@ type Marshal struct {
 }
 
 type MarshalRepo struct {
-	PK         string         `dynamodbav:"PK"`
-	SK         string         `dynamodbav:"SK"`
+	PK         string         `dynamodbav:"PK"` // userID
+	SK         string         `dynamodbav:"SK"` // marshalID
 	Cell       localtype.CELL `dynamodbav:"Cell"`
 	Name       string         `dynamodbav:"Name"`
 	Army       int            `dynamodbav:"Army"`

@@ -37,3 +37,12 @@ go test ./integration/mapgenerator/ -v
 go test -run TestA ./integration/mapgenerator/ -v
 ```
 
+## run dynamodb
+
+```bash
+~/projects/docker-composes/dynamodb/01-daynamodb$ docker-compose up
+```
+
+## NoSQL Workbench
+
+use NoSQL Workbench to see the dynamodb values
