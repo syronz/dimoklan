@@ -18,7 +18,7 @@ type Move struct {
 	UserID    string         `json:"-"`
 }
 
-func (m *Move) GetPkSkforMoving() (string, string) {
+func (m *Move) GetPkSkforMoving() (pk string,sk string) {
 	return hashtag.Fraction + m.Cell.ToFraction(), hashtag.MarshalEx + m.MarshalID
 }
 

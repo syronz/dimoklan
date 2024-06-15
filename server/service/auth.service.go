@@ -18,10 +18,10 @@ import (
 
 type AuthService struct {
 	core    config.Core
-	storage repo.Storage
+	storage *repo.Repo
 }
 
-func NewAuthService(core config.Core, storage repo.Storage) *AuthService {
+func NewAuthService(core config.Core, storage *repo.Repo) *AuthService {
 	return &AuthService{
 		core:    core,
 		storage: storage,

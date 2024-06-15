@@ -229,7 +229,6 @@ func (r *Repo) getItem(ctx context.Context, entityType string, item any, pk stri
 }
 
 func (r *Repo) Update(ctx context.Context, itemKey map[string]types.AttributeValue, expr expression.Expression) error {
-
 	_, err := r.core.DynamoDB().UpdateItem(context.TODO(), &dynamodb.UpdateItemInput{
 		TableName:                 table.Data(),
 		Key:                       itemKey,

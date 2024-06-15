@@ -9,16 +9,17 @@ import (
 	"dimoklan/consts/ctxkey"
 	"dimoklan/consts/entity"
 	"dimoklan/internal/config"
+	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model"
 	"dimoklan/repo"
 )
 
 type MarshalService struct {
 	core    config.Core
-	storage repo.Storage
+	storage *repo.Repo
 }
 
-func NewMarshalService(core config.Core, storage repo.Storage) *MarshalService {
+func NewMarshalService(core config.Core, storage *repo.Repo) *MarshalService {
 	return &MarshalService{
 		core:    core,
 		storage: storage,
@@ -26,7 +27,6 @@ func NewMarshalService(core config.Core, storage repo.Storage) *MarshalService {
 }
 
 func (fs *MarshalService) GetMarshal(ctx context.Context, id string) (model.Marshal, error) {
-
 	marshal, err := fs.storage.GetMarshal(ctx, id)
 	if err != nil {
 		fs.core.Error(err.Error(), zap.Stack("getting_marshal_failed"))
@@ -51,7 +51,7 @@ func (fs *MarshalService) MoveMarshal(ctx context.Context, move model.Move) (mod
 
 	if move.UserID != userID {
 		fs.core.Error("WARNING: HACK DTECTED", zap.Any("JWT user_id", userID), zap.String("payload user_id", move.UserID))
-		return model.Marshal{}, err
+		return model.Marshal{}, fmt.Errorf("something went wrong; code: %w", errstatus.ErrNotAcceptable)
 	}
 
 	if err := fs.storage.UpdateEntityTypeMarshalMoving(ctx, move, entity.MarshalMoving); err != nil {

@@ -66,5 +66,11 @@ aws dynamodb query --table-name data \
 --endpoint-url http://localhost:8000 \
 --output text
 
+# get a marshal: PK=userID SK=marshalID
+aws dynamodb get-item --table-name data \
+--key '{"PK": {"S": "u#3224053"}, "SK": {"S": "m#3224053:1"}}' \
+--endpoint-url http://127.0.0.1:8000 \
+--output text
+
 
 ```

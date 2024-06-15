@@ -12,10 +12,10 @@ import (
 
 type FractionService struct {
 	core    config.Core
-	storage repo.Storage
+	storage *repo.Repo
 }
 
-func NewFractionService(core config.Core, storage repo.Storage) *FractionService {
+func NewFractionService(core config.Core, storage *repo.Repo) *FractionService {
 	return &FractionService{
 		core:    core,
 		storage: storage,

@@ -103,8 +103,8 @@ func displayMemoryUsage() {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 
-	fmt.Printf("Alloc: %v KB\tTotalAlloc: %v KB\tSys: %v MiB\tNumGC: %v\n",
-		m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024/1024, m.NumGC)
+	fmt.Printf("Alloc: %.2f MB\tTotalAlloc: %.2f MB\tSys: %.2f MiB\tNumGC: %v\n",
+		float64(m.Alloc)/1024/1024, float64(m.TotalAlloc)/1024/1024, float64(m.Sys)/1024/1024, m.NumGC)
 }
 
 func main() {
@@ -116,7 +116,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				displayMemoryUsage()
+				// displayMemoryUsage()
 			}
 		}
 	}()

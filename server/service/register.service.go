@@ -23,11 +23,11 @@ import (
 
 type RegisterService struct {
 	core        config.Core
-	storage     repo.Storage
+	storage     *repo.Repo
 	cellService *CellService
 }
 
-func NewRegisterService(core config.Core, storage repo.Storage, cellService *CellService) *RegisterService {
+func NewRegisterService(core config.Core, storage *repo.Repo, cellService *CellService) *RegisterService {
 	return &RegisterService{
 		core:        core,
 		storage:     storage,

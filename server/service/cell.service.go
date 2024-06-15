@@ -15,10 +15,10 @@ import (
 
 type CellService struct {
 	core    config.Core
-	storage repo.Storage
+	storage *repo.Repo
 }
 
-func NewCellService(core config.Core, storage repo.Storage) *CellService {
+func NewCellService(core config.Core, storage *repo.Repo) *CellService {
 	return &CellService{
 		core:    core,
 		storage: storage,
