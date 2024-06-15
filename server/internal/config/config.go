@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"
@@ -44,6 +46,7 @@ type Core struct {
 
 	logger   *zap.Logger
 	dynamodb *dynamodb.Client
+	redis    *redis.Client
 }
 
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
@@ -70,7 +73,7 @@ func GetCore(configPath string) (cfg Core, err error) {
 	}
 
 	// set up zap logger
-	logFile, err := os.OpenFile(cfg.GetLogPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile(cfg.GetLogPath(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		log.Fatalf("error in opening log file: %v\n", err)
 	}
@@ -100,6 +103,31 @@ func GetCore(configPath string) (cfg Core, err error) {
 		log.Fatal("error in connecting to dynamodb;", err)
 	}
 	cfg.dynamodb = dynamodb.NewFromConfig(dynamodbCfg)
+
+	cfg.redis = redis.NewClient(&redis.Options{
+		Addr:     "redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com:16336", // Redis server address
+		Password: "KUZbIVkmgB1JeCoDTSE78Snq346CUibp",                                // No password set
+		DB:       0,                                                                 // Use default DB
+	})
+
+
+	ctx := context.Background()
+    err = cfg.redis.Set(ctx, "foo2", "bar", 10 * time.Second).Err()
+    if err != nil {
+        panic(err)
+    }
+
+	/*
+	import { createClient } from 'redis';
+
+	const client = createClient({
+	    password: 'KUZbIVkmgB1JeCoDTSE78Snq346CUibp',
+	    socket: {
+	        host: 'redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com',
+	        port: 16336
+	    }
+	});
+	*/
 
 	return
 }

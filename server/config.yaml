@@ -11,7 +11,7 @@ default_lang: ku
 original_error: true
 
 # log
-log_path: logs/basic_dimoklan.log
+log_path: /home/diako/projects/dimoklan/server/logs/basic_dimoklan.log
 log_level: debug
 
 

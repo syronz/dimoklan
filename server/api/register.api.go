@@ -39,6 +39,7 @@ func (br *RegisterAPI) Create(c echo.Context) error {
 		})
 	}
 
+
 	return c.JSON(http.StatusCreated, register)
 }
 

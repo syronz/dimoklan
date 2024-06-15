@@ -46,3 +46,25 @@ go test -run TestA ./integration/mapgenerator/ -v
 ## NoSQL Workbench
 
 use NoSQL Workbench to see the dynamodb values
+
+## Get the aws data
+
+```bash
+# get the all data in local dynamodb
+aws dynamodb scan --table-name data --endpoint-url http://localhost:8000
+
+# get a value by PK and SK
+aws dynamodb get-item --table-name data \
+--key '{"PK": {"S": "f#1:1"}, "SK": {"S": "c#2:6"}}' \
+--endpoint-url http://127.0.0.1:8000 \
+--output text
+
+# query a value just by PK
+aws dynamodb query --table-name data \
+--key-condition-expression "PK = :pk" \
+--expression-attribute-values '{":pk": {"S": "f#1:1"}}' \
+--endpoint-url http://localhost:8000 \
+--output text
+
+
+```

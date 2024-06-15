@@ -109,17 +109,17 @@ func displayMemoryUsage() {
 
 func main() {
 	// Run the displayMemoryUsage function every 5 seconds
-	// ticker := time.NewTicker(10 * time.Second)
-	// defer ticker.Stop()
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
 
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case <-ticker.C:
-	// 			displayMemoryUsage()
-	// 		}
-	// 	}
-	// }()
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				displayMemoryUsage()
+			}
+		}
+	}()
 
 	flag.Parse()
 
