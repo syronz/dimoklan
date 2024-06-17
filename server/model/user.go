@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"dimoklan/consts/entity"
-	"dimoklan/consts/hashtag"
 )
 
 type User struct {
@@ -45,8 +44,8 @@ type UserRepo struct {
 
 func (u *User) ToRepo() UserRepo {
 	return UserRepo{
-		PK:            hashtag.User + u.ID,
-		SK:            hashtag.User + u.ID,
+		PK:            u.ID,
+		SK:            u.ID,
 		Color:         u.Color,
 		Farr:          u.Farr,
 		Gold:          u.Gold,
@@ -81,7 +80,6 @@ func (u *UserRepo) ToAPI() User {
 		CreatedAt:     time.Unix(u.CreatedAt, 0),
 		UpdatedAt:     time.Unix(u.UpdatedAt, 0),
 	}
-
 }
 
 func validateUser(u *User) bool { return true }

@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"dimoklan/consts/entity"
-	"dimoklan/consts/hashtag"
 	"dimoklan/model/localtype"
 )
 
@@ -29,8 +28,8 @@ type CellRepo struct {
 
 func (c *Cell) ToRepo() CellRepo {
 	return CellRepo{
-		PK:         hashtag.Fraction + c.Fraction,
-		SK:         hashtag.Cell + c.Cell,
+		PK:         c.Fraction,
+		SK:         c.Cell,
 		UserID:     c.UserID,
 		Building:   c.Building,
 		Score:      c.Score,

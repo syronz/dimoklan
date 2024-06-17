@@ -10,27 +10,6 @@ import (
 
 func (r *Repo) CreateUser(ctx context.Context, user model.User) error {
 	return r.putUniqueItem(ctx, entity.User, user.ToRepo())
-	// item, err := attributevalue.MarshalMap(userRepo)
-	// if err != nil {
-	// 	return fmt.Errorf("error in marshmap userRepo; %w", err)
-	// }
-
-	// itemInput := &dynamodb.PutItemInput{
-	// 	TableName:           table.Data(),
-	// 	Item:                item,
-	// 	ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-	// }
-
-	// _, err = r.core.DynamoDB().PutItem(ctx, itemInput)
-	// if err != nil {
-	// 	var conditionalCheckFailedErr *types.ConditionalCheckFailedException
-	// 	if errors.As(err, &conditionalCheckFailedErr) {
-	// 		return fmt.Errorf("user already exists")
-	// 	}
-
-	// 	return fmt.Errorf("error in user; err: %w", err)
-	// }
-	// return nil
 }
 
 func (r *Repo) DeleteUser(ctx context.Context, userID string) error {

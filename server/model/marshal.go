@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"dimoklan/consts/entity"
-	"dimoklan/consts/hashtag"
 	"dimoklan/model/localtype"
 )
 
@@ -37,8 +36,8 @@ type MarshalRepo struct {
 
 func (m *Marshal) ToRepo() MarshalRepo {
 	return MarshalRepo{
-		PK:         hashtag.User + m.UserID,
-		SK:         hashtag.Marshal + m.ID,
+		PK:         m.UserID,
+		SK:         m.ID,
 		Cell:       m.Cell,
 		Name:       m.Name,
 		Army:       m.Army,

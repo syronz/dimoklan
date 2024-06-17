@@ -56,7 +56,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 
 	It("should successfully handle a login request", func() {
 		// Create a test user for the login request.
-		authPayload := `{"email": "sabina.diako@gmail.com", "password": "StrongPassword2000"}`
+		authPayload := `{"email": "a:sabina.diako@gmail.com", "password": "StrongPassword2000"}`
 
 		// Create a request with the test user JSON.
 		// req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewBuffer(jsonUser))
@@ -80,12 +80,12 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		var responseAuth model.Auth
 		err = json.Unmarshal(rec.Body.Bytes(), &responseAuth)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(responseAuth.Email).To(Equal("sabina.diako@gmail.com"))
+		Expect(responseAuth.Email).To(Equal("a:sabina.diako@gmail.com"))
 	})
 
 	Context("when login failed", func() {
 		It("email is not valid", func() {
-			authPayload := `{"email": "invalid-email", "password": "StrongPassword2000"}`
+			authPayload := `{"email": "a:invalid-email", "password": "StrongPassword2000"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -125,7 +125,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		})
 
 		It("password is missing", func() {
-			authPayload := `{"email": "sabina.diako@gmail.com"}`
+			authPayload := `{"email": "a:sabina.diako@gmail.com"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -145,7 +145,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		})
 
 		It("password is not valid", func() {
-			authPayload := `{"email": "sabina.diako@gmail.com", "password": "short pass"}`
+			authPayload := `{"email": "a:sabina.diako@gmail.com", "password": "short pass"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -165,7 +165,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		})
 
 		It("password is wrong", func() {
-			authPayload := `{"email": "sabina.diako@gmail.com", "password": "This is 100% not a right Password"}`
+			authPayload := `{"email": "a:sabina.diako@gmail.com", "password": "This is 100% not a right Password"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -185,7 +185,7 @@ var _ = Describe("AuthAPI Integration Tests", func() {
 		})
 
 		It("email is not exist", func() {
-			authPayload := `{"email": "not.exist@gmail.com", "password": "StrongPassword2000"}`
+			authPayload := `{"email": "a:not.exist@gmail.com", "password": "StrongPassword2000"}`
 
 			req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(authPayload))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

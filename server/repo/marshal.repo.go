@@ -3,21 +3,20 @@ package repo
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"dimoklan/consts/entity"
 	"dimoklan/consts/hashtag"
-	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model"
 	"dimoklan/model/localtype"
+	"dimoklan/util"
 )
 
 func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
 	marshalInFraction := model.MarshalRepo{
-		PK:         hashtag.Fraction + marshal.Cell.ToFraction(),
-		SK:         hashtag.MarshalEx + marshal.ID,
-		EntityType: entity.MarshalExist,
+		PK:         marshal.Cell.ToFractionID(),
+		SK:         marshal.ID,
+		EntityType: entity.MarshalPosition,
 		Cell:       marshal.Cell,
 		CreatedAt:  time.Now().Unix(),
 	}
@@ -86,19 +85,19 @@ func (r *Repo) DeleteMarshal(ctx context.Context, userID, marshalID, fraction st
 }
 
 func (r *Repo) GetMarshal(ctx context.Context, id string) (model.Marshal, error) {
+	// parsedID := strings.Split(id, ":")
+	// if len(parsedID) != 2 {
+	// 	return model.Marshal{}, fmt.Errorf("marshal_id is not valid; code:%w", errstatus.ErrNotAcceptable)
+	// }
 
-	parsedID := strings.Split(id, ":")
-	if len(parsedID) != 2 {
-		return model.Marshal{}, fmt.Errorf("id is not valid; code:%w", errstatus.ErrNotAcceptable)
-	}
+	fmt.Println(">>> marshal", util.ExtractUserIDFromMarshalID(id))
 
 	marshalRepo := model.MarshalRepo{}
 	err := r.getItem(ctx,
 		entity.Marshal,
 		&marshalRepo,
-		hashtag.User+parsedID[0],
-		hashtag.Marshal+id)
-
+		util.ExtractUserIDFromMarshalID(id),
+		id)
 	if err != nil {
 		return model.Marshal{}, err
 	}

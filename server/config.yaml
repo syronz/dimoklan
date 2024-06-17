@@ -21,5 +21,10 @@ map_dynamodb_endpoint: "http://127.0.0.1:8000"
 map_aws_access_key_id: "fake_key"
 map_aws_secret_access_key: "fake_secret"
 
+# redis connection
+redis_addr: "redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com:16336"
+redis_password: "KUZbIVkmgB1JeCoDTSE78Snq346CUibp"
+redis_db: 0
+
 # global
 login_page: "http://127.0.0.1:3000/login"

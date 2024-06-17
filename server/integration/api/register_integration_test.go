@@ -55,12 +55,12 @@ var _ = Describe("RegisterAPI Integration Tests", func() {
 	})
 
 	It("successfull registration", func() {
-		randomEmail := fmt.Sprintf("User%v@gmail.com", rand.Intn(10000000))
+		randomEmail := fmt.Sprintf("a:User%v@gmail.com", rand.Intn(10000000))
 		registerPayload := `{
-			"email": "`+randomEmail+`",
+			"email": "` + randomEmail + `",
 			"password": "StrongPassword2000",
 			"kingdom":"Eldoria",
-			"cell":"21:29"
+			"cell":"c:21:29"
 		}`
 
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(registerPayload))

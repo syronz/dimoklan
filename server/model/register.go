@@ -84,7 +84,11 @@ func validateEmail(email string) error {
 		return fmt.Errorf("email is required; code: %w", errstatus.ErrNotAcceptable)
 	}
 
-	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	if email[0:2] != "a:" {
+		return fmt.Errorf("email is follow pattern; code: %w", errstatus.ErrNotAcceptable)
+	}
+
+	regex := `^a:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	if match, _ := regexp.MatchString(regex, email); !match {
 		return fmt.Errorf("email is not valid; code: %w", errstatus.ErrUnprocessableEntity)
 	}
@@ -145,14 +149,17 @@ func validatePassword(password string) error {
 
 func validateRegisterCell(cell string) bool {
 	coords := strings.Split(cell, ":")
-	if len(coords) != 2 {
+	if len(coords) != 3 {
 		return false
 	}
-	num, err := strconv.Atoi(coords[0])
+	if coords[0] != "c" {
+		return false
+	}
+	num, err := strconv.Atoi(coords[1])
 	if num == 0 || num > consts.MaxX || err != nil {
 		return false
 	}
-	num, err = strconv.Atoi(coords[1])
+	num, err = strconv.Atoi(coords[2])
 	if num == 0 || num > consts.MaxX || err != nil {
 		return false
 	}

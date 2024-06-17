@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"dimoklan/api"
+	"dimoklan/cache"
 	"dimoklan/consts"
 	"dimoklan/internal/config"
 	"dimoklan/internal/echomiddleware"
@@ -61,6 +62,10 @@ func (s *Server) start() {
 	})
 
 	storage := repo.NewRepo(s.core)
+	cache, err := cache.NewCache(s.core)
+	if err != nil {
+		e.Logger.Fatal(err.Error())
+	}
 	cellService := service.NewCellService(s.core, storage)
 
 	registerService := service.NewRegisterService(s.core, storage, cellService)
@@ -72,7 +77,7 @@ func (s *Server) start() {
 	fractionService := service.NewFractionService(s.core, storage)
 	fractionAPI := api.NewFractionAPI(s.core, fractionService)
 
-	marshalService := service.NewMarshalService(s.core, storage)
+	marshalService := service.NewMarshalService(s.core, cache, storage)
 	marshalAPI := api.NewMarshalAPI(s.core, marshalService)
 
 	e.Use(middleware.DefaultRateLimiter(1, 2))

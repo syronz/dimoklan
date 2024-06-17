@@ -73,9 +73,10 @@ func (m *Middleware) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid Token 5")
 		}
 
+		fmt.Printf(">>>>>>> 8: %+v\n", claims)
+
 		c.Set("user_id", claims[consts.UserID])
 
 		return next(c)
-
 	}
 }

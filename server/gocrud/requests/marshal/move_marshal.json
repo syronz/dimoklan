@@ -1,10 +1,10 @@
 {
 	"method":"post",
-	"url":"_URL_/play/marshals/3224053:1/move",
+	"url":"_URL_/play/marshals/m:3224053:1/move",
 	"authorization":"Bearer _TOKEN_",
 	"payload": {
 		"type": "relocate",
-		"cell": "2:6"
+		"cell": "c:12:6"
 	}
 }
 

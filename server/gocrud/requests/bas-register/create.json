@@ -3,9 +3,9 @@
 	"url":"_URL_/register",
 	"authorization":"Bearer _TOKEN_",
 	"payload": {
-		"email": "User1692840785@gmail.com",
+		"email": "a:User1692840785@gmail.com",
 		"password": "StrongPassword2000",
 		"kingdom":"malahand",
-		"cell":"7:8"
+		"cell":"c:7:8"
 	}
 }

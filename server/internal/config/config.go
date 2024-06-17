@@ -7,9 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"
@@ -36,6 +34,11 @@ type config struct {
 	MapDynamoDBRegion   string `yaml:"map_dynamodb_region"`
 	MapDynamoDBEndpoint string `yaml:"map_dynamodb_endpoint"`
 
+	// Redis connection
+	RedisAddr     string `yaml:"redis_addr"`
+	RedisPassword string `yaml:"redis_password"`
+	RedisDB       int    `yaml:"redis_db"`
+
 	// Global
 	LoginPage string `yaml:"login_page"`
 }
@@ -46,7 +49,6 @@ type Core struct {
 
 	logger   *zap.Logger
 	dynamodb *dynamodb.Client
-	redis    *redis.Client
 }
 
 const jwtLocalSecret = "81027ac7103d791abacd19ac9f1e8722c19ad6c9"
@@ -103,31 +105,6 @@ func GetCore(configPath string) (cfg Core, err error) {
 		log.Fatal("error in connecting to dynamodb;", err)
 	}
 	cfg.dynamodb = dynamodb.NewFromConfig(dynamodbCfg)
-
-	cfg.redis = redis.NewClient(&redis.Options{
-		Addr:     "redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com:16336", // Redis server address
-		Password: "KUZbIVkmgB1JeCoDTSE78Snq346CUibp",                                // No password set
-		DB:       0,                                                                 // Use default DB
-	})
-
-
-	ctx := context.Background()
-    err = cfg.redis.Set(ctx, "foo2", "bar", 10 * time.Second).Err()
-    if err != nil {
-        panic(err)
-    }
-
-	/*
-	import { createClient } from 'redis';
-
-	const client = createClient({
-	    password: 'KUZbIVkmgB1JeCoDTSE78Snq346CUibp',
-	    socket: {
-	        host: 'redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com',
-	        port: 16336
-	    }
-	});
-	*/
 
 	return
 }
@@ -259,4 +236,14 @@ func (c Core) Fatal(msg string, fields ...zap.Field) {
 
 func (c Core) DynamoDB() *dynamodb.Client {
 	return c.dynamodb
+}
+
+func (c Core) GetRedisAddr() string {
+	return c.config.RedisAddr
+}
+func (c Core) GetRedisPassword() string {
+	return c.config.RedisPassword
+}
+func (c Core) GetRedisDB() int {
+	return c.config.RedisDB
 }

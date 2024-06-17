@@ -25,7 +25,7 @@ func (m Migration) AddUser() {
 		PK:            hashtag.User + "3224053",
 		SK:            hashtag.User + "3224053",
 		Color:         "3131f5",
-		Email:         "sabina.diako@gmail.com",
+		Email:         hashtag.Auth + "sabina.diako@gmail.com",
 		Kingdom:       "Malanda",
 		Password:      "6b53d67e399b703b38c58fa4c9e25438478ca0372b190abc2e34579e5e3cfa83",
 		Language:      "en",
@@ -47,7 +47,7 @@ func (m Migration) AddUser() {
 		Password:      "6b53d67e399b703b38c58fa4c9e25438478ca0372b190abc2e34579e5e3cfa83",
 		Suspend:       false,
 		SuspendReason: "",
-		UserID:        "3224053",
+		UserID:        hashtag.User + "3224053",
 		EntityType:    entity.Auth,
 	}
 
@@ -58,7 +58,7 @@ func (m Migration) AddUser() {
 		PK:         hashtag.User + "3224053",
 		SK:         hashtag.Marshal + "3224053:1",
 		EntityType: entity.Marshal,
-		Cell:       localtype.CELL("2:6"),
+		Cell:       localtype.CELL(hashtag.Cell + "2:6"),
 		Name:       "Napoleon",
 		Army:       newuser.Army,
 		Star:       newuser.Star,
@@ -74,24 +74,22 @@ func (m Migration) AddUser() {
 		Fraction:   hashtag.Fraction + "1:1",
 		Cell:       hashtag.Cell + "2:6",
 		EntityType: entity.Cell,
-		UserID:     "3224053",
+		UserID:     hashtag.User + "3224053",
 		Score:      10,
 		CreatedAt:  time.Now().Unix() - 86400,
 		UpdatedAt:  time.Now().Unix() - 86400,
 	}
 	m.putItem(fraction)
 
-	// Add marshal_exist
-	fraction = model.Fraction{
-		Fraction:   hashtag.Fraction + "1:1",
-		Cell:       hashtag.MarshalEx + "3224053:1",
-		EntityType: entity.MarshalExist,
-		UserID:     "3224053",
+	// Add marshal_position
+	marshalPosition := model.MarshalRepo{
+		PK:         hashtag.Fraction + "1:1",
+		SK:         hashtag.Marshal + "3224053:1",
+		EntityType: entity.MarshalPosition,
+		Cell:       hashtag.Cell + "2:6",
 		CreatedAt:  time.Now().Unix() - 86400,
-		UpdatedAt:  time.Now().Unix() - 86400,
 	}
-	m.putItem(fraction)
-
+	m.putItem(marshalPosition)
 }
 
 func (m Migration) putItem(itemRepo any) {

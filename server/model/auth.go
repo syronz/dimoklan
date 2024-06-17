@@ -2,7 +2,6 @@ package model
 
 import (
 	"dimoklan/consts/entity"
-	"dimoklan/consts/hashtag"
 )
 
 type Auth struct {
@@ -26,8 +25,8 @@ type AuthRepo struct {
 
 func (a *Auth) ToRepo() AuthRepo {
 	return AuthRepo{
-		PK:            hashtag.Auth + a.Email,
-		SK:            hashtag.Auth + a.Email,
+		PK:            a.Email,
+		SK:            a.Email,
 		Password:      a.Password,
 		Suspend:       a.Suspend,
 		SuspendReason: a.SuspendReason,

@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 
 	"dimoklan/consts"
+	"dimoklan/consts/hashtag"
 	"dimoklan/consts/newuser"
 	"dimoklan/internal/config"
 	"dimoklan/model"
@@ -98,12 +99,12 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 		return errors.New("activation has already been completed")
 	}
 
-	id := rand.Intn(consts.MaxUserID)
+	randomID := rand.Intn(consts.MaxUserID)
 
 	// create user
 	user := model.User{
-		ID:            strconv.Itoa(id),
-		Color:         strconv.FormatInt(int64(id), 16),
+		ID:            fmt.Sprintf("%v%v", hashtag.User, randomID),
+		Color:         strconv.FormatInt(int64(randomID), 16),
 		Farr:          newuser.Farr,
 		Gold:          newuser.Gold,
 		Email:         register.Email,
@@ -141,7 +142,7 @@ func (rs *RegisterService) Confirm(ctx context.Context, activationCode string) e
 	// create a marshal for user
 	marshal := model.Marshal{
 		UserID:    user.ID,
-		ID:        user.ID + ":1",
+		ID:        fmt.Sprintf("%v%v:1", hashtag.Marshal, randomID),
 		Name:      sillyname.GenerateStupidName(),
 		Cell:      register.Cell,
 		Army:      newuser.Army,
