@@ -58,6 +58,26 @@ func (fs *MarshalService) MoveMarshal(ctx context.Context, move model.Move) (mod
 		return model.Marshal{}, fmt.Errorf("something went wrong; code: %w", errstatus.ErrNotAcceptable)
 	}
 
+	// Check if in-progress move exist or not.
+	ongoingMM, err := fs.cache.GetMarshalMove(ctx, move.MarshalID)
+	if err != nil {
+		fs.core.Error(err.Error(), zap.Stack("getting_marshal_move_failed_in_move_marshal"))
+		return model.Marshal{}, fmt.Errorf("something went wrong; code: %w", errstatus.ErrNotAcceptable)
+	}
+
+	if ongoingMM.ArriveAt < time.Now().UnixMilli() {
+		if err := fs.cache.DeleteMarshalMove(
+			ctx,
+			move.MarshalID,
+			ongoingMM.Source.ToFraction(),
+			ongoingMM.Destination.ToFraction(),
+		); err != nil {
+			fs.core.Error(err.Error(), zap.Stack("delete_marshal_move_failed_in_move_marshal"))
+			return model.Marshal{}, fmt.Errorf("something went wrong; code: %w", errstatus.ErrNotAcceptable)
+
+		}
+	}
+
 	if err := fs.SaveMove(ctx, move, marshal); err != nil {
 		return model.Marshal{}, err
 	}
@@ -66,36 +86,36 @@ func (fs *MarshalService) MoveMarshal(ctx context.Context, move model.Move) (mod
 }
 
 func (fs *MarshalService) SaveMove(ctx context.Context, move model.Move, marshal model.Marshal) error {
-	moveMarshal := model.MoveMarshal{
+	marshalMove := model.MarshalMove{
 		MarshalID:   marshal.ID,
 		UserID:      marshal.UserID,
 		Name:        marshal.Name,
 		Star:        marshal.Star,
 		Speed:       marshal.Speed,
 		Face:        marshal.Face,
-		Source:      marshal.Cell.ToString(),
-		Destination: move.Cell.ToString(),
+		Source:      marshal.Cell,
+		Destination: move.Cell,
 		DepartureAt: time.Now().UnixMilli(),
 		ArriveAt:    time.Now().UnixMilli(),
 	}
 
 	// source
-	moveMarshal.Directrion = gp.Source
-	if err := fs.cache.AddMarshalMoveToFraction(ctx, marshal.Cell.ToFraction(), moveMarshal); err != nil {
+	marshalMove.Directrion = gp.Source
+	if err := fs.cache.AddMarshalMoveToFraction(ctx, marshal.Cell.ToFraction(), marshalMove); err != nil {
 		fs.core.Error(err.Error(), zap.Stack("add_move_marshal_source_failed"))
 		return err
 	}
 
 	if move.Cell.ToFraction() != marshal.Cell.ToFraction() {
 		// destination recorded if it is belong to another fraction
-		moveMarshal.Directrion = gp.Destination
-		if err := fs.cache.AddMarshalMoveToFraction(ctx, move.Cell.ToFraction(), moveMarshal); err != nil {
+		marshalMove.Directrion = gp.Destination
+		if err := fs.cache.AddMarshalMoveToFraction(ctx, move.Cell.ToFraction(), marshalMove); err != nil {
 			fs.core.Error(err.Error(), zap.Stack("add_move_marshal_source_failed"))
 			return err
 		}
 	}
 
-	if err := fs.cache.AddMarshalMove(ctx, moveMarshal); err != nil {
+	if err := fs.cache.AddMarshalMove(ctx, marshalMove); err != nil {
 		fs.core.Error(err.Error(), zap.Stack("add_marshal_move_failed"))
 		return err
 	}

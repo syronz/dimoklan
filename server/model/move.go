@@ -19,7 +19,7 @@ type Move struct {
 	UserID    string         `json:"-"`
 }
 
-type MoveMarshal struct {
+type MarshalMove struct {
 	MarshalID   string              `json:"marshal_id" redis:"-"`
 	UserID      string              `json:"user_id" redis:"-"`
 	Name        string              `json:"name" redis:"-"`
@@ -27,8 +27,8 @@ type MoveMarshal struct {
 	Speed       float64             `json:"speed" redis:"-"`
 	Face        string              `json:"face" redis:"-"`
 	Directrion  localtype.DIRECTION `json:"direction" redis:"-"`
-	Source      string              `json:"source" redis:"source"`
-	Destination string              `json:"destination" redis:"destination"`
+	Source      localtype.CELL      `json:"source" redis:"source"`
+	Destination localtype.CELL      `json:"destination" redis:"destination"`
 	DepartureAt int64               `json:"departure_at" redis:"departure_at"`
 	ArriveAt    int64               `json:"arrived_at" redis:"arrive_at"`
 }
@@ -53,7 +53,7 @@ Input:
 Output:
 "u:3224053","Napoleon",1,1,"no-face","d","c:2:6","c:2:16",1719048815969,1719048815969
 */
-func (mm *MoveMarshal) ToZipString() string {
+func (mm *MarshalMove) ToZipString() string {
 	return fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v",
 		mm.UserID,
 		mm.Name,
@@ -67,39 +67,39 @@ func (mm *MoveMarshal) ToZipString() string {
 		mm.ArriveAt)
 }
 
-func ZipStringToMarshalMove(marshalID, str string) (MoveMarshal, error) {
+func ZipStringToMarshalMove(marshalID, str string) (MarshalMove, error) {
 	arr := strings.Split(str, ",")
 
 	if len(arr) != 10 {
-		return MoveMarshal{}, fmt.Errorf("number of values inside the zip-string is not valid; marshal_id:%v, data: %v", marshalID, str)
+		return MarshalMove{}, fmt.Errorf("number of values inside the zip-string is not valid; marshal_id:%v, data: %v", marshalID, str)
 	}
 
 	star, err := strconv.Atoi(arr[2])
 	if err != nil {
-		return MoveMarshal{}, fmt.Errorf("error in converting star to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+		return MarshalMove{}, fmt.Errorf("error in converting star to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
 	}
 
 	speed, err := strconv.ParseFloat(arr[3], 64)
 	if err != nil {
-		return MoveMarshal{}, fmt.Errorf("error in converting speed to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+		return MarshalMove{}, fmt.Errorf("error in converting speed to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
 	}
 
 	direction, err := localtype.SetDirection(arr[7])
 	if err != nil {
-		return MoveMarshal{}, fmt.Errorf("error in set direction; marshalID: %v; data: %v; err: %w", marshalID, str, err)
+		return MarshalMove{}, fmt.Errorf("error in set direction; marshalID: %v; data: %v; err: %w", marshalID, str, err)
 	}
 
 	departureAt, err := strconv.ParseInt(arr[8], 10, 64)
 	if err != nil {
-		return MoveMarshal{}, fmt.Errorf("error in converting departure_at to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+		return MarshalMove{}, fmt.Errorf("error in converting departure_at to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
 	}
 
 	arrivedAt, err := strconv.ParseInt(arr[9], 10, 64)
 	if err != nil {
-		return MoveMarshal{}, fmt.Errorf("error in converting arrived_at to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+		return MarshalMove{}, fmt.Errorf("error in converting arrived_at to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
 	}
 
-	moveMarshal := MoveMarshal{
+	moveMarshal := MarshalMove{
 		MarshalID:   marshalID,
 		UserID:      arr[0],
 		Name:        arr[1],
@@ -107,8 +107,8 @@ func ZipStringToMarshalMove(marshalID, str string) (MoveMarshal, error) {
 		Speed:       speed,
 		Face:        arr[4],
 		Directrion:  direction,
-		Source:      arr[6],
-		Destination: arr[7],
+		Source:      localtype.CELL(arr[6]),
+		Destination: localtype.CELL(arr[7]),
 		DepartureAt: departureAt,
 		ArriveAt:    arrivedAt,
 	}

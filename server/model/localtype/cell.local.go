@@ -14,8 +14,9 @@ type CELL string
 
 func (c *CELL) GetX() int {
 	nums := strings.Split(string(*c), ":")
-	if len(nums) < 3 {
-		return 0
+
+	if len(nums) < 3 || nums[0] != "c" {
+		return -1
 	}
 
 	num, _ := strconv.Atoi(nums[1])
@@ -24,8 +25,8 @@ func (c *CELL) GetX() int {
 
 func (c *CELL) GetY() int {
 	nums := strings.Split(string(*c), ":")
-	if len(nums) < 3 {
-		return 0
+	if len(nums) < 3 || nums[0] != "c" {
+		return -1
 	}
 
 	num, _ := strconv.Atoi(nums[2])
@@ -54,4 +55,10 @@ func (c *CELL) Validate() error {
 	}
 
 	return nil
+}
+
+// MarshalBinary is used to save CELL types to Redis
+func (c CELL) MarshalBinary() ([]byte, error) {
+	// return json.Marshal(c)
+	return []byte(c), nil
 }

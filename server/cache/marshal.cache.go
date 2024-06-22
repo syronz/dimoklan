@@ -2,28 +2,31 @@ package cache
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/redis/go-redis/v9"
 
 	"dimoklan/model"
 )
 
-func (c *Cache) AddMarshalMoveToFraction(ctx context.Context, fraction string, moveMarshal model.MoveMarshal) error {
+func (c *Cache) AddMarshalMoveToFraction(ctx context.Context, fraction string, moveMarshal model.MarshalMove) error {
 	_, err := c.redis.HSet(ctx, fraction, moveMarshal.MarshalID, moveMarshal.ToZipString()).Result()
 	return err
 }
 
-func (c *Cache) AddMarshalMove(ctx context.Context, moveMarshal model.MoveMarshal) error {
+func (c *Cache) AddMarshalMove(ctx context.Context, moveMarshal model.MarshalMove) error {
 	_, err := c.redis.HSet(ctx, moveMarshal.MarshalID, moveMarshal).Result()
 
 	return err
 }
 
-func (c *Cache) GetMarshalMove(ctx context.Context, marshalID string) (moveMarshal model.MoveMarshal, err error) {
+func (c *Cache) GetMarshalMove(ctx context.Context, marshalID string) (moveMarshal model.MarshalMove, err error) {
 	err = c.redis.HGetAll(ctx, marshalID).Scan(&moveMarshal)
 
 	return moveMarshal, err
 }
 
-func (c *Cache) SaveMove(ctx context.Context, moveMarshal model.MoveMarshal) error {
+func (c *Cache) SaveMove(ctx context.Context, moveMarshal model.MarshalMove) error {
 	/*
 		var ongoingMove model.MoveMarshal
 
@@ -55,5 +58,18 @@ func (c *Cache) SaveMove(ctx context.Context, moveMarshal model.MoveMarshal) err
 		// 	panic(err)
 		// }
 	*/
+	return nil
+}
+
+func (c *Cache) DeleteMarshalMove(ctx context.Context, marshalID, sourceFraction, destFraction string) error {
+	if _, err := c.redis.Pipelined(ctx, func(rdb redis.Pipeliner) error {
+		c.redis.Del(ctx, marshalID)
+		c.redis.HDel(ctx, sourceFraction, marshalID)
+		c.redis.HDel(ctx, destFraction, marshalID)
+		return nil
+	}); err != nil {
+		fmt.Errorf("marshal-move deletion failed; err: %w", err)
+	}
+
 	return nil
 }
