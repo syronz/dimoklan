@@ -9,15 +9,11 @@ import (
 
 	"dimoklan/cache"
 	"dimoklan/consts/ctxkey"
+	"dimoklan/consts/gp"
 	"dimoklan/internal/config"
 	"dimoklan/internal/errors/errstatus"
 	"dimoklan/model"
 	"dimoklan/repo"
-)
-
-const (
-	source      = "source"
-	destination = "destination"
 )
 
 type MarshalService struct {
@@ -79,12 +75,12 @@ func (fs *MarshalService) SaveMove(ctx context.Context, move model.Move, marshal
 		Face:        marshal.Face,
 		Source:      marshal.Cell.ToString(),
 		Destination: move.Cell.ToString(),
-		DepartureAt: time.Now(),
-		ArriveAt:    time.Now().Add(2 * time.Minute),
+		DepartureAt: time.Now().UnixMilli(),
+		ArriveAt:    time.Now().UnixMilli(),
 	}
 
 	// source
-	moveMarshal.Directrion = source
+	moveMarshal.Directrion = gp.Source
 	if err := fs.cache.AddMarshalMoveToFraction(ctx, marshal.Cell.ToFraction(), moveMarshal); err != nil {
 		fs.core.Error(err.Error(), zap.Stack("add_move_marshal_source_failed"))
 		return err
@@ -92,7 +88,7 @@ func (fs *MarshalService) SaveMove(ctx context.Context, move model.Move, marshal
 
 	if move.Cell.ToFraction() != marshal.Cell.ToFraction() {
 		// destination recorded if it is belong to another fraction
-		moveMarshal.Directrion = destination
+		moveMarshal.Directrion = gp.Destination
 		if err := fs.cache.AddMarshalMoveToFraction(ctx, move.Cell.ToFraction(), moveMarshal); err != nil {
 			fs.core.Error(err.Error(), zap.Stack("add_move_marshal_source_failed"))
 			return err

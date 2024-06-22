@@ -2,19 +2,12 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"dimoklan/model"
 )
 
 func (c *Cache) AddMarshalMoveToFraction(ctx context.Context, fraction string, moveMarshal model.MoveMarshal) error {
-	marshalJSON, err := json.Marshal(moveMarshal)
-	if err != nil {
-		return fmt.Errorf("move marshal not converted to json; err: %w", err)
-	}
-
-	_, err = c.redis.HSet(ctx, fraction, moveMarshal.MarshalID, string(marshalJSON)).Result()
+	_, err := c.redis.HSet(ctx, fraction, moveMarshal.MarshalID, moveMarshal.ToZipString()).Result()
 	return err
 }
 

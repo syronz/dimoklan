@@ -85,11 +85,6 @@ func (r *Repo) UpdateFraction(ctx context.Context, fraction model.Fraction) erro
 	return nil
 }
 
-func (r *Repo) UpdateEntityTypeMarshalMoving(ctx context.Context, move model.Move, entityType string) error {
-	pk, sk := move.GetPkSkforMoving()
-	return r.UpdateEntityType(ctx, pk, sk, entityType)
-}
-
 func (r *Repo) UpdateEntityType(ctx context.Context, PK, SK, entityType string) error {
 	var err error
 	update := expression.Set(expression.Name("EntityType"), expression.Value(entityType))

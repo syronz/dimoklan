@@ -47,10 +47,6 @@ func (c *CELL) ToFraction() string {
 	return fmt.Sprintf("%v%d:%d", hashtag.Fraction, x, y)
 }
 
-func (c *CELL) ToFractionID() string {
-	return c.ToFraction()
-}
-
 func (c *CELL) Validate() error {
 	nums := strings.Split(string(*c), ":")
 	if len(nums) != 3 {

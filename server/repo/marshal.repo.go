@@ -14,7 +14,7 @@ import (
 
 func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
 	marshalInFraction := model.MarshalRepo{
-		PK:         marshal.Cell.ToFractionID(),
+		PK:         marshal.Cell.ToFraction(),
 		SK:         marshal.ID,
 		EntityType: entity.MarshalPosition,
 		Cell:       marshal.Cell,

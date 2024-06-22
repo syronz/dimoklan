@@ -13,8 +13,16 @@ const (
 	relocate = "relocate"
 	attack   = "attack"
 	capture  = "capture"
+
+	// direction
+	Source      = "S"
+	Destination = "D"
 )
 
 func MoveTypes() []string {
 	return []string{relocate, attack, capture}
+}
+
+func Directions() []string {
+	return []string{Source, Destination}
 }
