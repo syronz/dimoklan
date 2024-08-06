@@ -4,7 +4,11 @@
 	"authorization":"Bearer _TOKEN_",
 	"payload": {
 		"type": "relocate",
-		"cell": "c:12:6"
+		"cell0": "c:12:6",
+		"cell": {
+			"x": 12,
+			"y": 6
+		}
 	}
 }
 

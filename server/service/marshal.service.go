@@ -69,8 +69,8 @@ func (fs *MarshalService) MoveMarshal(ctx context.Context, move model.Move) (mod
 		if err := fs.cache.DeleteMarshalMove(
 			ctx,
 			move.MarshalID,
-			ongoingMM.Source.ToFraction(),
-			ongoingMM.Destination.ToFraction(),
+			ongoingMM.Source,
+			ongoingMM.Destination,
 		); err != nil {
 			fs.core.Error(err.Error(), zap.Stack("delete_marshal_move_failed_in_move_marshal"))
 			return model.Marshal{}, fmt.Errorf("something went wrong; code: %w", errstatus.ErrNotAcceptable)
@@ -93,8 +93,8 @@ func (fs *MarshalService) SaveMove(ctx context.Context, move model.Move, marshal
 		Star:        marshal.Star,
 		Speed:       marshal.Speed,
 		Face:        marshal.Face,
-		Source:      marshal.Cell,
-		Destination: move.Cell,
+		Source:      marshal.Cell.ToString(),
+		Destination: move.Cell.ToString(),
 		DepartureAt: time.Now().UnixMilli(),
 		ArriveAt:    time.Now().UnixMilli(),
 	}

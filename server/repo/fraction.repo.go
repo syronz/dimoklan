@@ -72,12 +72,12 @@ func (r *Repo) UpdateFraction(ctx context.Context, fraction model.Fraction) erro
 		ReturnValues:              types.ReturnValueUpdatedNew,
 	})
 	if err != nil {
-		return fmt.Errorf("couldn't update fraction; cell:%v; err: %w", fraction.Cell.ToString(), err)
+		return fmt.Errorf("couldn't update fraction; cell:%v; err: %w", fraction.CellStr, err)
 	}
 
 	err = attributevalue.UnmarshalMap(response.Attributes, &attributeMap)
 	if err != nil {
-		return fmt.Errorf("couldn't unmarshal update response; cell:%v; err: %w", fraction.Cell.ToString(), err)
+		return fmt.Errorf("couldn't unmarshal update response; cell:%v; err: %w", fraction.CellStr, err)
 	}
 
 	fmt.Printf(">>>>>>> 5: %+v\n", attributeMap)

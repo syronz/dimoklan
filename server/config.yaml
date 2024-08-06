@@ -22,8 +22,8 @@ map_aws_access_key_id: "fake_key"
 map_aws_secret_access_key: "fake_secret"
 
 # redis connection
-redis_addr: "redis-16336.c300.eu-central-1-1.ec2.redns.redis-cloud.com:16336"
-redis_password: "KUZbIVkmgB1JeCoDTSE78Snq346CUibp"
+redis_addr: "redis-11793.c135.eu-central-1-1.ec2.redns.redis-cloud.com:11793"
+redis_password: "Qsfqv0EChzRroSaovA9de9PzSPCdhGx6"
 redis_db: 0
 
 # global

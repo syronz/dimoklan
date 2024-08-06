@@ -7,14 +7,14 @@ import (
 )
 
 func TestToFraction(t *testing.T) {
-	cell_3_9 := CELL("")
+	var cell_3_9 CELL
 	cell_3_9.Set(3, 9)
 	samples := map[string]struct {
 		cell CELL
 		out  string
 	}{
 		"cell_3_9_to_fraction_from_CELL": {
-			cell: CELL("c:3:9"),
+			cell: ToCell("c:3:9"),
 			out:  "f:1:1",
 		},
 		"cell_3_9_to_fraction_from_set": {
@@ -22,11 +22,11 @@ func TestToFraction(t *testing.T) {
 			out:  "f:1:1",
 		},
 		"cell_1_1_to_fraction_from_CELL": {
-			cell: CELL("c:1:1"),
+			cell: ToCell("c:1:1"),
 			out:  "f:1:1",
 		},
 		"cell_12_6_to_fraction_from_CELL": {
-			cell: CELL("c:12:6"),
+			cell: ToCell("c:12:6"),
 			out:  "f:2:1",
 		},
 	}

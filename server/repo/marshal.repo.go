@@ -17,7 +17,7 @@ func (r *Repo) CreateMarshal(ctx context.Context, marshal model.Marshal) error {
 		PK:         marshal.Cell.ToFraction(),
 		SK:         marshal.ID,
 		EntityType: entity.MarshalPosition,
-		Cell:       marshal.Cell,
+		Cell:       marshal.Cell.ToString(),
 		CreatedAt:  time.Now().Unix(),
 	}
 

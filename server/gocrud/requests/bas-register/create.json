@@ -6,6 +6,9 @@
 		"email": "a:User1692840785@gmail.com",
 		"password": "StrongPassword2000",
 		"kingdom":"malahand",
-		"cell":"c:7:8"
+		"cell": {
+			"x":7,
+			"y":8
+		}
 	}
 }

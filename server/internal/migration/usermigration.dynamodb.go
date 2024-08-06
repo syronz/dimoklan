@@ -58,7 +58,7 @@ func (m Migration) AddUser() {
 		PK:         hashtag.User + "3224053",
 		SK:         hashtag.Marshal + "3224053:1",
 		EntityType: entity.Marshal,
-		Cell:       localtype.CELL(hashtag.Cell + "2:6"),
+		Cell:       localtype.NewCell(2, 6).ToString(),
 		Name:       "Napoleon",
 		Army:       newuser.Army,
 		Star:       newuser.Star,
@@ -72,7 +72,7 @@ func (m Migration) AddUser() {
 	// Add user's cells
 	fraction := model.Fraction{
 		Fraction:   hashtag.Fraction + "1:1",
-		Cell:       hashtag.Cell + "2:6",
+		CellStr:    localtype.NewCell(2, 6).ToString(),
 		EntityType: entity.Cell,
 		UserID:     hashtag.User + "3224053",
 		Score:      10,
@@ -86,7 +86,7 @@ func (m Migration) AddUser() {
 		PK:         hashtag.Fraction + "1:1",
 		SK:         hashtag.Marshal + "3224053:1",
 		EntityType: entity.MarshalPosition,
-		Cell:       hashtag.Cell + "2:6",
+		Cell:       localtype.NewCell(2, 6).ToString(),
 		CreatedAt:  time.Now().Unix() - 86400,
 	}
 	m.putItem(marshalPosition)
@@ -111,6 +111,6 @@ func (m Migration) putItem(itemRepo any) {
 			log.Fatalln("item already exists")
 		}
 
-		log.Fatalf("error in putting item; err: %v", err)
+		log.Fatalf("error in putting user data; err: %v", err)
 	}
 }

@@ -22,6 +22,7 @@ func (c *Cache) AddMarshalMove(ctx context.Context, moveMarshal model.MarshalMov
 
 func (c *Cache) GetMarshalMove(ctx context.Context, marshalID string) (moveMarshal model.MarshalMove, err error) {
 	err = c.redis.HGetAll(ctx, marshalID).Scan(&moveMarshal)
+	fmt.Printf(">>>>>>> old12: %+v\n", err)
 
 	return moveMarshal, err
 }

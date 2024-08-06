@@ -60,7 +60,10 @@ var _ = Describe("RegisterAPI Integration Tests", func() {
 			"email": "` + randomEmail + `",
 			"password": "StrongPassword2000",
 			"kingdom":"Eldoria",
-			"cell":"c:21:29"
+			"cell": {
+				"x": 7,
+				"y": 8
+			}
 		}`
 
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(registerPayload))

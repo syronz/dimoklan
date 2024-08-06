@@ -27,8 +27,8 @@ type MarshalMove struct {
 	Speed       float64             `json:"speed" redis:"-"`
 	Face        string              `json:"face" redis:"-"`
 	Directrion  localtype.DIRECTION `json:"direction" redis:"-"`
-	Source      localtype.CELL      `json:"source" redis:"source"`
-	Destination localtype.CELL      `json:"destination" redis:"destination"`
+	Source      string              `json:"source" redis:"source"`
+	Destination string              `json:"destination" redis:"destination"`
 	DepartureAt int64               `json:"departure_at" redis:"departure_at"`
 	ArriveAt    int64               `json:"arrived_at" redis:"arrive_at"`
 }
@@ -89,6 +89,18 @@ func ZipStringToMarshalMove(marshalID, str string) (MarshalMove, error) {
 		return MarshalMove{}, fmt.Errorf("error in set direction; marshalID: %v; data: %v; err: %w", marshalID, str, err)
 	}
 
+	// source, err := localtype.ParseCell(arr[6])
+	// if err != nil {
+	// 	return MarshalMove{}, fmt.Errorf("error in parsing source for cell; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+	// }
+	source := arr[6]
+
+	// destination, err := localtype.ParseCell(arr[7])
+	// if err != nil {
+	// 	return MarshalMove{}, fmt.Errorf("error in parsing destination for cell; marshalID: %v; data: %v; err:%w", marshalID, str, err)
+	// }
+	destination := arr[7]
+
 	departureAt, err := strconv.ParseInt(arr[8], 10, 64)
 	if err != nil {
 		return MarshalMove{}, fmt.Errorf("error in converting departure_at to number; marshalID: %v; data: %v; err:%w", marshalID, str, err)
@@ -107,8 +119,8 @@ func ZipStringToMarshalMove(marshalID, str string) (MarshalMove, error) {
 		Speed:       speed,
 		Face:        arr[4],
 		Directrion:  direction,
-		Source:      localtype.CELL(arr[6]),
-		Destination: localtype.CELL(arr[7]),
+		Source:      source,
+		Destination: destination,
 		DepartureAt: departureAt,
 		ArriveAt:    arrivedAt,
 	}
@@ -125,7 +137,7 @@ func (c *Move) Validate() error {
 		return fmt.Errorf("marshal_id is required; code: %w", errstatus.ErrNotAcceptable)
 	}
 
-	if c.Cell == "" {
+	if c.Cell.IsEmpty() {
 		return fmt.Errorf("cell is required; code: %w", errstatus.ErrNotAcceptable)
 	}
 

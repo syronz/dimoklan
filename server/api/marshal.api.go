@@ -45,6 +45,7 @@ func (s *MarshalAPI) MoveMarshal(c echo.Context) error {
 	}
 
 	move.MarshalID = c.Param("id")
+	move.Cell.SetStr()
 
 	marshal, err := s.marshalService.MoveMarshal(c.Request().Context(), move)
 	if err != nil {

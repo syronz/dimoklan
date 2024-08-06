@@ -11,7 +11,8 @@ import (
 
 type Fraction struct {
 	Fraction   string         `json:"fraction,omitempty" dynamodbav:"PK"`
-	Cell       localtype.CELL `json:"cell,omitempty" dynamodbav:"SK"`
+	CellStr    string         `json:"cell,omitempty" dynamodbav:"SK"`
+	Cell       localtype.CELL `json:"cell,omitempty" dynamodbav:"-"`
 	EntityType string         `json:"entity_type,omitempty" dynamodbav:"EntityType"`
 	UserID     string         `json:"user_id,omitempty" dynamodbav:"UserID"`
 	Building   string         `json:"building,omitempty" dynamodbav:"Building"`
