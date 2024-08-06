@@ -81,5 +81,3 @@ func (u *UserRepo) ToAPI() User {
 		UpdatedAt:     time.Unix(u.UpdatedAt, 0),
 	}
 }
-
-func validateUser(u *User) bool { return true }

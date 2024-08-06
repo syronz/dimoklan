@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"runtime"
-	"sync"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -21,10 +20,6 @@ import (
 )
 
 var configFilePath = flag.String("cfg", "", "config file path")
-var (
-	mu    sync.Mutex
-	index int
-)
 
 type Server struct {
 	core       config.Core
@@ -84,7 +79,7 @@ func (s *Server) start() {
 
 	e.POST("/register", registerAPI.Create)
 	e.GET("/register", registerAPI.Confirm)
-	e.POST("/login", authAPI.Login)
+	e.POST("/api/login", authAPI.Login)
 
 	play := e.Group("/play")
 	{

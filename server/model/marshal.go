@@ -64,5 +64,3 @@ func (m *MarshalRepo) ToAPI() Marshal {
 		CreatedAt: time.Unix(m.CreatedAt, 0),
 	}
 }
-
-func validateMarshal(c *Marshal) bool { return true }

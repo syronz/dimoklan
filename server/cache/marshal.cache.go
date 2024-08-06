@@ -63,14 +63,12 @@ func (c *Cache) SaveMove(ctx context.Context, moveMarshal model.MarshalMove) err
 }
 
 func (c *Cache) DeleteMarshalMove(ctx context.Context, marshalID, sourceFraction, destFraction string) error {
-	if _, err := c.redis.Pipelined(ctx, func(rdb redis.Pipeliner) error {
+	_, err := c.redis.Pipelined(ctx, func(rdb redis.Pipeliner) error {
 		c.redis.Del(ctx, marshalID)
 		c.redis.HDel(ctx, sourceFraction, marshalID)
 		c.redis.HDel(ctx, destFraction, marshalID)
 		return nil
-	}); err != nil {
-		fmt.Errorf("marshal-move deletion failed; err: %w", err)
-	}
+	})
 
-	return nil
+	return err
 }

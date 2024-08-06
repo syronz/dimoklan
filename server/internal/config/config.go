@@ -90,8 +90,9 @@ func GetCore(configPath string) (cfg Core, err error) {
 	// Create a DynamoDB client
 	dynamodbCfg, err := dconfig.LoadDefaultConfig(context.TODO(),
 		dconfig.WithRegion(cfg.config.MapDynamoDBRegion),
-		dconfig.WithEndpointResolver(aws.EndpointResolverFunc(
-			func(service, region string) (aws.Endpoint, error) {
+
+		dconfig.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 				return aws.Endpoint{URL: cfg.config.MapDynamoDBEndpoint}, nil
 			})),
 		dconfig.WithCredentialsProvider(credentials.StaticCredentialsProvider{
@@ -106,13 +107,14 @@ func GetCore(configPath string) (cfg Core, err error) {
 	}
 	cfg.dynamodb = dynamodb.NewFromConfig(dynamodbCfg)
 
+	if err := validateConfig(cfg.config); err != nil {
+		log.Fatal(err)
+	}
+
 	return
 }
 
 func validateConfig(cfg config) error {
-	if cfg.MapDynamoDBRegion == "" {
-		return errors.New("environment is required in config file")
-	}
 
 	switch {
 	case cfg.Environment == "":
@@ -137,6 +139,8 @@ func validateConfig(cfg config) error {
 		return errors.New("map_dynamodb_endpoint is required in config file")
 	case cfg.LoginPage == "":
 		return errors.New("login_page is required in config file")
+	case cfg.MapDynamoDBRegion == "" :
+		return errors.New("map_dynamodb_region is required in config file")
 	}
 
 	return nil
@@ -241,9 +245,11 @@ func (c Core) DynamoDB() *dynamodb.Client {
 func (c Core) GetRedisAddr() string {
 	return c.config.RedisAddr
 }
+
 func (c Core) GetRedisPassword() string {
 	return c.config.RedisPassword
 }
+
 func (c Core) GetRedisDB() int {
 	return c.config.RedisDB
 }

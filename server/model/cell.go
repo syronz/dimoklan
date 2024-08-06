@@ -48,5 +48,3 @@ func (c *CellRepo) ToAPI() Cell {
 		UpdatedAt: time.Unix(c.UpdatedAt, 0),
 	}
 }
-
-func validateCell(c *Cell) bool { return true }
