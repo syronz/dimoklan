@@ -11,17 +11,18 @@
         <h2>Login</h2>
         <form id="loginForm">
             <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" value="sabina.diako@gmail.com" required>
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" value="StrongPassword2000" required>
             </div>
             <button type="submit">Login</button>
             <div class="register-link">
                 <a href="register.html">Don't have an account? Register here</a>
             </div>
+			<div id="error-message" style="color: red; margin-top: 10px;"></div>
         </form>
     </div>
 
@@ -29,12 +30,13 @@
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the default form submission
 
-            const username = document.getElementById('username').value;
+            const email = 'a:' + document.getElementById('email').value;
             const password = document.getElementById('password').value;
+			const errorMessageElement = document.getElementById('error-message');
 
             // Create payload
             const payload = {
-                email: username,
+                email: email,
                 password: password
             };
 
@@ -51,13 +53,16 @@
                 if (data.token) {
                     // Save the token to local storage
                     localStorage.setItem('auth_token', data.token);
-                    // Redirect or perform other actions after successful login
+					errorMessageElement.textContent = '';
+					window.location.href = 'dashboard.html';
                 } else {
                     console.log('Login failed: ' + (data.message || 'Unknown error'));
+					errorMessageElement.textContent = data.message || 'Login failed. Please try again.';
                 }
             })
             .catch(error => {
                 console.log('Error:', error);
+				errorMessageElement.textContent = 'An error occurred. Please try again later.';
             });
         });
     </script>

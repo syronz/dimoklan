@@ -22,6 +22,7 @@ import (
 type config struct {
 	Environment   string `yaml:"environment"`
 	AppName       string `yaml:"app_name"`
+	AppURL        string `yaml:"app_url"`
 	Port          string `yaml:"port"`
 	Salt          string `yaml:"salt"`
 	JwtSecret     string `yaml:"jwt_secret"`
@@ -41,6 +42,10 @@ type config struct {
 
 	// Global
 	LoginPage string `yaml:"login_page"`
+
+	// MailJet
+	MjApikeyPublic  string `yaml:"mj_apikey_public"`
+	MjApikeyPrivate string `yaml:"mj_apikey_private"`
 }
 
 // Core make accessible to private config variables
@@ -115,12 +120,13 @@ func GetCore(configPath string) (cfg Core, err error) {
 }
 
 func validateConfig(cfg config) error {
-
 	switch {
 	case cfg.Environment == "":
 		return errors.New("environment is required in config file")
 	case cfg.AppName == "":
 		return errors.New("app_name is required in config file")
+	case cfg.AppURL == "":
+		return errors.New("app_url is required in config file")
 	case cfg.Port == "":
 		return errors.New("port is required in config file")
 	case cfg.Salt == "":
@@ -139,8 +145,12 @@ func validateConfig(cfg config) error {
 		return errors.New("map_dynamodb_endpoint is required in config file")
 	case cfg.LoginPage == "":
 		return errors.New("login_page is required in config file")
-	case cfg.MapDynamoDBRegion == "" :
+	case cfg.MapDynamoDBRegion == "":
 		return errors.New("map_dynamodb_region is required in config file")
+	case cfg.MjApikeyPublic == "":
+		return errors.New("mj_apikey_public is required in config file")
+	case cfg.MjApikeyPrivate == "":
+		return errors.New("mj_apikey_private is required in config file")
 	}
 
 	return nil
@@ -153,6 +163,10 @@ func (c Core) GetEnvironment() string {
 
 func (c Core) GetAppName() string {
 	return c.config.AppName
+}
+
+func (c Core) GetAppURL() string {
+	return c.config.AppURL
 }
 
 func (c Core) GetPort() string {
@@ -252,4 +266,12 @@ func (c Core) GetRedisPassword() string {
 
 func (c Core) GetRedisDB() int {
 	return c.config.RedisDB
+}
+
+func (c Core) GetMjApikeyPublic() string {
+	return c.config.MjApikeyPublic
+}
+
+func (c Core) GetMjApikeyPrivate() string {
+	return c.config.MjApikeyPrivate
 }

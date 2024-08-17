@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Pallinder/sillyname-go"
+	"github.com/mailjet/mailjet-apiv3-go/v4"
 	"go.uber.org/zap"
 
 	"dimoklan/consts"
@@ -63,13 +64,42 @@ func (rs *RegisterService) Create(ctx context.Context, register model.Register) 
 		return register, errors.New("email is not avaialble")
 	}
 
-	if err := rs.storage.CreateRegister(ctx, register); err != nil {
+	// TODO: this should be sent by email
+	fmt.Println(">>>> actiation code: ", hex.EncodeToString(activationCode[:]))
+
+	// Email
+	mailjetClient := mailjet.NewMailjetClient(rs.core.GetMjApikeyPublic(), rs.core.GetMjApikeyPrivate())
+	messagesInfo := []mailjet.InfoMessagesV31{
+		{
+			From: &mailjet.RecipientV31{
+				Email: "noreply@erp14.click",
+				Name:  "Dimoklan",
+			},
+			To: &mailjet.RecipientsV31{
+				mailjet.RecipientV31{
+					Email: register.Email[2:],
+					Name:  register.Kingdom,
+				},
+			},
+			Subject:  "Dimoklan: Activation Link",
+			TextPart: "Welcome to Dimoklan! Click the link below to activate your account.",
+			HTMLPart: `<h3>Activation Link: <a href="` + rs.core.GetAppURL() + `register?activation_code=` + hex.EncodeToString(activationCode[:]) + `">` + hex.EncodeToString(activationCode[:]) + `</a></h3><br />Dimoklan is a strategic game`,
+		},
+	}
+	messages := mailjet.MessagesV31{Info: messagesInfo}
+	res, err := mailjetClient.SendMailV31(&messages)
+	if err != nil {
+		rs.core.Error(err.Error(), zap.Stack("activation email not sent"))
+		return register, err
+	}
+
+	fmt.Println("Activation Email Data: %+v", res)
+
+	if err = rs.storage.CreateRegister(ctx, register); err != nil {
 		rs.core.Error(err.Error(), zap.Stack("registration_failed"))
 		return register, err
 	}
 
-	// TODO: this should be sent by email
-	fmt.Println(">>>> actiation code: ", hex.EncodeToString(activationCode[:]))
 	register.Password = ""
 	register.ActivationCode = ""
 	return register, nil

@@ -1,5 +1,6 @@
 environment: development
 app_name: dimoklan
+app_url: "http://127.0.0.1:3000/"
 port: ":3000"
 
 # secrets
@@ -28,3 +29,7 @@ redis_db: 0
 
 # global
 login_page: "http://127.0.0.1:3000/login"
+
+# mailjet
+mj_apikey_public: "4107cf574139d1e1455244bfa94df2db"
+mj_apikey_private: "e8fc130d3a5393784fe81a8ce8dabf7a"

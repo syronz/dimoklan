@@ -1,0 +1,14 @@
+{
+	"method":"post",
+	"url":"_URL_/register",
+	"authorization":"Bearer _TOKEN_",
+	"payload": {
+		"email": "a:sabina.diako+35@gmail.com",
+		"password": "StrongPassword2000",
+		"kingdom":"malahand",
+		"cell": {
+			"x":7,
+			"y":8
+		}
+	}
+}

@@ -53,6 +53,7 @@ func (s *CellService) AssignCellToUser(ctx context.Context, cell model.Cell, use
 	cell.UpdatedAt = time.Now()
 	cell.Score = newuser.Score
 	cell.UserID = userID
+	fmt.Printf(">>>>>>> %+v\n", cell)
 
 	if err := s.storage.CreateCell(ctx, cell); err != nil {
 		return err

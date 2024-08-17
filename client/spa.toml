@@ -1,13 +1,9 @@
 #it can use for another directory
 port = "8001"
-public_dir = "."
+public_dir = "/home/diako/projects/dimoklan/client"
 index_file = "index.html"
-cache_control = 10
+cache_control = 100
 
 [[conditions]]
-source = 'api'
+source = '/home/diako/projects/dimoklan/client/api'
 dest = 'http://127.0.0.1:3000/'
-
-[[conditions]]
-source = '11'
-dest = '2'

@@ -17,19 +17,19 @@ type Cell struct {
 }
 
 type CellRepo struct {
-	PK         string         `dynamodbav:"PK"`
-	SK         localtype.CELL `dynamodbav:"SK"`
-	UserID     string         `dynamodbav:"UserID"`
-	Building   string         `dynamodbav:"Building"`
-	Score      int            `dynamodbav:"Score"`
-	UpdatedAt  int64          `dynamodbav:"UpdatedAt"`
-	EntityType string         `dynamodbav:"EntityType"`
+	PK         string `dynamodbav:"PK"`
+	SK         string `dynamodbav:"SK"`
+	UserID     string `dynamodbav:"UserID"`
+	Building   string `dynamodbav:"Building"`
+	Score      int    `dynamodbav:"Score"`
+	UpdatedAt  int64  `dynamodbav:"UpdatedAt"`
+	EntityType string `dynamodbav:"EntityType"`
 }
 
 func (c *Cell) ToRepo() CellRepo {
 	return CellRepo{
 		PK:         c.Fraction,
-		SK:         c.Cell,
+		SK:         c.Cell.ToString(),
 		UserID:     c.UserID,
 		Building:   c.Building,
 		Score:      c.Score,
@@ -41,7 +41,7 @@ func (c *Cell) ToRepo() CellRepo {
 func (c *CellRepo) ToAPI() Cell {
 	return Cell{
 		Fraction:  c.PK,
-		Cell:      c.SK,
+		Cell:      localtype.ToCell(c.SK),
 		UserID:    c.UserID,
 		Building:  c.Building,
 		Score:     c.Score,
